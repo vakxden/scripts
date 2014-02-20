@@ -1,7 +1,6 @@
 #!/bin/bash
 BRANCHNAME="$1"
 LIBRARY_SIZE="$2"
-LIBRARY_PATH="$3"
 ### ARRAY_RESERVED_SERVICE_PORT
 ARRAY_RSP=($(cat /etc/services | awk '{print $2}' | grep "^3[0-9][0-9][0-9]" | grep -v "^3[0-9][0-9][0-9][0-9]" | awk -F "/" '{print $1}' | sort | uniq))
 ### ARRAY_CURRENTLY_USED_PORT
@@ -39,17 +38,7 @@ done
 rm -f local.json
 touch local.json
 echo '{' >> local.json
-echo -e '\t"libraryDir" : "/home/jenkins/reader-library/'$LIBRARY_SIZE'/'$LIBRARY_PATH'/",' >> local.json
+echo -e '\t"libraryDir" : "/home/jenkins/reader-library/'$LIBRARY_SIZE'/'$BRANCHNAME'/",' >> local.json
 echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
-echo -e '\t"database_name": "'$LIBRARY_SIZE'_'$LIBRARY_PATH'"' >> local.json
+echo -e '\t"database_name": "'$LIBRARY_SIZE'_'$BRANCHNAME'"' >> local.json
 echo '}'  >> local.json
-
-### Touch apache config file
-ACF="irls-current-reader-$LIBRARY_SIZE-$BRANCHNAME"
-rm -f $ACF
-touch $ACF
-echo -e '\t'ProxyPass /irls/current-reader/reader/$LIBRARY_SIZE/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
-echo -e '\t'ProxyPassReverse /irls/current-reader/reader/$LIBRARY_SIZE/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
-rm -f /etc/apache2/sites-enabled/$ACF
-cp $ACF /etc/apache2/sites-enabled/$ACF
-service apache2 reload
