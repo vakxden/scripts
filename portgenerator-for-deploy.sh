@@ -1,6 +1,17 @@
 #!/bin/bash
 BRANCHNAME="$1"
 FACETS="$2"
+
+if [ -z $BRANCHNAME ]; then
+    echo "Branchname must be passed"
+    exit 1
+fi
+
+if [ -z $FACETS ]; then
+    echo "Facets must be passed"
+    exit 1
+fi
+
 ### ARRAY_RESERVED_SERVICE_PORT
 ARRAY_RSP=($(cat /etc/services | awk '{print $2}' | grep "^3[0-9][0-9][0-9]" | grep -v "^3[0-9][0-9][0-9][0-9]" | awk -F "/" '{print $1}' | sort | uniq))
 ### ARRAY_CURRENTLY_USED_PORT

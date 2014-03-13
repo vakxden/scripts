@@ -1,5 +1,11 @@
 #!/bin/bash
 FACETS="$1"
+
+if [ -z $FACETS ]; then
+    echo "Facets must be passed"
+    exit 1
+fi
+
 ### ARRAY_RESERVED_SERVICE_PORT
 ARRAY_RSP=($(cat /etc/services | awk '{print $2}' | grep "^3[0-9][0-9][0-9]" | grep -v "^3[0-9][0-9][0-9][0-9]" | awk -F "/" '{print $1}' | sort | uniq))
 ### ARRAY_CURRENTLY_USED_PORT
