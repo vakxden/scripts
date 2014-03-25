@@ -1,6 +1,8 @@
 #!/bin/bash
 BRANCHNAME="$1"
 FACETS="$2"
+dest="$3"
+ID="$4"
 
 if [ -z $BRANCHNAME ]; then
     echo "Branchname must be passed"
@@ -11,6 +13,12 @@ if [ -z $FACETS ]; then
     echo "Facets must be passed"
     exit 1
 fi
+
+if [ -z $dest ]; then
+    echo "Destination must be passed"
+    exit 1
+fi
+
 
 ### ARRAY_RESERVED_SERVICE_PORT
 ARRAY_RSP=($(cat /etc/services | awk '{print $2}' | grep "^3[0-9][0-9][0-9]" | grep -v "^3[0-9][0-9][0-9][0-9]" | awk -F "/" '{print $1}' | sort | uniq))
@@ -44,6 +52,12 @@ do
         GENERATED_PORT=$(generate_port)
 done
 
+if [ "$dest" = "DEVELOPMENT" ]; then
+        CURRENT="current"
+                elif [ "$dest" = "STAGE" ]; then
+        CURRENT="stage"
+fi
+
 #echo "generated port: $GENERATED_PORT"
 ### Create file local.json
 rm -f local.json
@@ -55,11 +69,18 @@ echo -e '\t"database_name": "'$FACETS'"' >> local.json
 echo '}'  >> local.json
 
 ### Touch apache config file
-ACF="irls-current-reader-$FACETS-$BRANCHNAME"
+ACF="irls-$CURRENT-reader-$FACETS-$BRANCHNAME"
 rm -f $ACF
 touch $ACF
-echo -e '\t'ProxyPass /irls/current/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
-echo -e '\t'ProxyPassReverse /irls/current/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
+if [ -z $ID ]; then
+         echo "ID was not passed"
+else
+        echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/irls-reader-artifacts/$ID/packages/ >> $ACF
+        echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/irls-reader-artifacts/$ID/packages/ >> $ACF
+fi
+
+echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
+echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
 rm -f /etc/apache2/sites-enabled/$ACF
 cp $ACF /etc/apache2/sites-enabled/$ACF
 service apache2 reload
