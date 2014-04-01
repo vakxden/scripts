@@ -53,9 +53,11 @@ do
 done
 
 if [ "$dest" = "DEVELOPMENT" ]; then
-        CURRENT="current"
+        CURRENT="current" && ARTDIR="irls-reader-artifacts"
                 elif [ "$dest" = "STAGE" ]; then
-        CURRENT="stage"
+        CURRENT="stage" && ARTDIR="irls-reader-artifacts-stage"
+                elif [ "$dest" = "LIVE" ]; then
+        CURRENT="live"
 fi
 
 #echo "generated port: $GENERATED_PORT"
@@ -75,8 +77,8 @@ touch $ACF
 if [ -z $ID ]; then
          echo "ID was not passed"
 else
-        echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/irls-reader-artifacts/$ID/packages/ >> $ACF
-        echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/irls-reader-artifacts/$ID/packages/ >> $ACF
+        echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/ >> $ACF
+        echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/ >> $ACF
 fi
 
 echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
