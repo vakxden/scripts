@@ -79,6 +79,7 @@ function generate_index.html {
 		done
 	fi
 	echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
+	cd ../
 }
 
 function dest_eq_development {
