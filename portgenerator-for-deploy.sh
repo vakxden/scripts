@@ -1,5 +1,5 @@
 #!/bin/bash
-BANCHNAME="$1"
+BRANCHNAME="$1"
 FACETS="$2"
 dest="$3"
 ID="$4"
