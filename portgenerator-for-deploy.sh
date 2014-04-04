@@ -1,4 +1,5 @@
-ANCHNAME="$1"
+#!/bin/bash
+BANCHNAME="$1"
 FACETS="$2"
 dest="$3"
 ID="$4"
@@ -51,62 +52,116 @@ do
         GENERATED_PORT=$(generate_port)
 done
 
+function dest_eq_development {
+	#echo "generated port: $GENERATED_PORT"
+	### Create file local.json
+	rm -f local.json
+	touch local.json
+	echo '{' >> local.json
+	echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-current-epubs/'$FACETS'/",' >> local.json
+	echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
+	echo -e '\t"database_name": "'$FACETS'"' >> local.json
+	echo '}'  >> local.json
+
+	### Touch apache config file
+	ACF="/etc/apache2/sites-enabled/irls-$CURRENT-reader-$FACETS-$BRANCHNAME"
+	rm -f $ACF
+	touch $ACF
+	if [ -z $ID ]; then
+			echo "ID was not passed"
+	else
+			if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/artifacts ]; then
+					mkdir -p /home/jenkins/$ARTDIR/$ID/packages/artifacts && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/artifacts
+			fi
+			echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
+			echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
+					### generate index.html
+					cd /home/jenkins/$ARTDIR/$ID/packages/artifacts/
+					cat /dev/null > index.html
+					echo -e '<!DOCTYPE HTML>' >> index.html
+					echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
+					echo -e '<body><h1>List of artifacts</h1>' >> index.html
+					echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
+					if [ -f "$(find . -name *.ipa)" ]; then
+							for name in $(find . -name *.ipa)
+							do
+									DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
+									SIZE=$(($(stat -c %s $name)/1048576))
+									echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+							done
+					fi
+					if [ -f "$(find . -name *.zip)" ]; then
+							for name in $(find . -name *.zip)
+							do
+									DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
+									SIZE=$(($(stat -c %s $name)/1048576))
+									echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+							done
+					fi
+					echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
+	fi
+	
+	echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
+	echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
+	service apache2 reload
+}
+
+function dest_eq_stage {
+	CURRENT="stage"
+	ARTDIR="irls-reader-artifacts-stage"
+	### if apache config file exist then create temporary file
+	ACF="/etc/apache2/sites-enabled/irls-$CURRENT-reader-$FACETS-$BRANCHNAME"
+	if [ -f $ACF ]; then
+		grep "http://127.0.0.1:[0-9][0-9][0-9][0-9]/" $ACF >> $ACF.tmp
+	fi
+	if [ -z $ID ]; then
+			echo "ID was not passed"
+	else
+			if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/artifacts ]; then
+					mkdir -p /home/jenkins/$ARTDIR/$ID/packages/artifacts && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/artifacts
+			fi
+			# filling temporary file
+			echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF.tmp
+			echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF.tmp
+					### generate index.html
+					cd /home/jenkins/$ARTDIR/$ID/packages/artifacts/
+					cat /dev/null > index.html
+					echo -e '<!DOCTYPE HTML>' >> index.html
+					echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
+					echo -e '<body><h1>List of artifacts</h1>' >> index.html
+					echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
+					if [ -f "$(find . -name *.ipa)" ]; then
+							for name in $(find . -name *.ipa)
+							do
+									DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
+									SIZE=$(($(stat -c %s $name)/1048576))
+									echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+							done
+					fi
+					if [ -f "$(find . -name *.zip)" ]; then
+							for name in $(find . -name *.zip)
+							do
+									DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
+									SIZE=$(($(stat -c %s $name)/1048576))
+									echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+							done
+					fi
+					echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
+	fi
+	# replace temporary file to original apache config file
+	mv $ACF.tmp $ACF
+	service apache2 reload
+}
+
+
 if [ "$dest" = "DEVELOPMENT" ]; then
-        CURRENT="current" && ARTDIR="irls-reader-artifacts"
-                elif [ "$dest" = "STAGE" ]; then
-        CURRENT="stage" && ARTDIR="irls-reader-artifacts-stage"
-                elif [ "$dest" = "LIVE" ]; then
+        CURRENT="current"
+		ARTDIR="irls-reader-artifacts"
+		dest_eq_development
+elif [ "$dest" = "STAGE" ]; then
+        CURRENT="stage"
+		ARTDIR="irls-reader-artifacts-stage"
+		dest_eq_stage
+elif [ "$dest" = "LIVE" ]; then
         CURRENT="live"
 fi
-
-#echo "generated port: $GENERATED_PORT"
-### Create file local.json
-rm -f local.json
-touch local.json
-echo '{' >> local.json
-echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-current-epubs/'$FACETS'/",' >> local.json
-echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
-echo -e '\t"database_name": "'$FACETS'"' >> local.json
-echo '}'  >> local.json
-
-### Touch apache config file
-ACF="/etc/apache2/sites-enabled/irls-$CURRENT-reader-$FACETS-$BRANCHNAME"
-rm -f $ACF
-touch $ACF
-if [ -z $ID ]; then
-         echo "ID was not passed"
-else
-        if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/artifacts ]; then
-                mkdir -p /home/jenkins/$ARTDIR/$ID/packages/artifacts && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/artifacts
-        fi
-        echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
-        echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
-                ### generate index.html
-                cd /home/jenkins/$ARTDIR/$ID/packages/artifacts/
-                cat /dev/null > index.html
-                echo -e '<!DOCTYPE HTML>' >> index.html
-                echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
-                echo -e '<body><h1>List of artifacts</h1>' >> index.html
-                echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-                if [ -f "$(find . -name *.ipa)" ]; then
-                        for name in $(find . -name *.ipa)
-                        do
-                                DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-                                SIZE=$(($(stat -c %s $name)/1048576))
-                                echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-                        done
-                fi
-                if [ -f "$(find . -name *.zip)" ]; then
-                        for name in $(find . -name *.zip)
-                        do
-                                DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-                                SIZE=$(($(stat -c %s $name)/1048576))
-                                echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-                        done
-                fi
-                echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
-fi
-
-echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
-echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
-service apache2 reload
