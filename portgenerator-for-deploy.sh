@@ -85,8 +85,7 @@ function generate_index.html {
 function dest_eq_development {
 	#echo "generated port: $GENERATED_PORT"
 	### Create file local.json
-	rm -f local.json
-	touch local.json
+	cat /dev/null > local.json
 	echo '{' >> local.json
 	echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-current-epubs/'$FACETS'/",' >> local.json
 	echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
