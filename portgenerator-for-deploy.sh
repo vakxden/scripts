@@ -52,6 +52,33 @@ do
         GENERATED_PORT=$(generate_port)
 done
 
+function generate_index.html {
+	### generate index.html
+	cd /home/jenkins/$ARTDIR/$ID/packages/artifacts/
+	cat /dev/null > index.html
+	echo -e '<!DOCTYPE HTML>' >> index.html
+	echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
+	echo -e '<body><h1>List of artifacts</h1>' >> index.html
+	echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
+	if [ -f "$(find . -name *.ipa)" ]; then
+		for name in $(find . -name *.ipa)
+		do
+			DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
+			SIZE=$(($(stat -c %s $name)/1048576))
+			echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+		done
+	fi
+	if [ -f "$(find . -name *.zip)" ]; then
+		for name in $(find . -name *.zip)
+		do
+			DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
+			SIZE=$(($(stat -c %s $name)/1048576))
+			echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+		done
+	fi
+	echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
+}
+
 function dest_eq_development {
 	#echo "generated port: $GENERATED_PORT"
 	### Create file local.json
@@ -62,6 +89,7 @@ function dest_eq_development {
 	echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
 	echo -e '\t"database_name": "'$FACETS'"' >> local.json
 	echo '}'  >> local.json
+	chown jenkins:jenkins local.json
 
 	### Touch apache config file
 	ACF="/etc/apache2/sites-enabled/irls-$CURRENT-reader-$FACETS-$BRANCHNAME"
@@ -75,30 +103,7 @@ function dest_eq_development {
 			fi
 			echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
 			echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
-					### generate index.html
-					cd /home/jenkins/$ARTDIR/$ID/packages/artifacts/
-					cat /dev/null > index.html
-					echo -e '<!DOCTYPE HTML>' >> index.html
-					echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
-					echo -e '<body><h1>List of artifacts</h1>' >> index.html
-					echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-					if [ -f "$(find . -name *.ipa)" ]; then
-							for name in $(find . -name *.ipa)
-							do
-									DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-									SIZE=$(($(stat -c %s $name)/1048576))
-									echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-							done
-					fi
-					if [ -f "$(find . -name *.zip)" ]; then
-							for name in $(find . -name *.zip)
-							do
-									DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-									SIZE=$(($(stat -c %s $name)/1048576))
-									echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-							done
-					fi
-					echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
+			generate_index.html
 	fi
 	
 	echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
@@ -123,30 +128,7 @@ function dest_eq_stage {
 			# filling temporary file
 			echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF.tmp
 			echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF.tmp
-					### generate index.html
-					cd /home/jenkins/$ARTDIR/$ID/packages/artifacts/
-					cat /dev/null > index.html
-					echo -e '<!DOCTYPE HTML>' >> index.html
-					echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
-					echo -e '<body><h1>List of artifacts</h1>' >> index.html
-					echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-					if [ -f "$(find . -name *.ipa)" ]; then
-							for name in $(find . -name *.ipa)
-							do
-									DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-									SIZE=$(($(stat -c %s $name)/1048576))
-									echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-							done
-					fi
-					if [ -f "$(find . -name *.zip)" ]; then
-							for name in $(find . -name *.zip)
-							do
-									DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-									SIZE=$(($(stat -c %s $name)/1048576))
-									echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-							done
-					fi
-					echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
+			generate_index.html
 	fi
 	# replace temporary file to original apache config file
 	mv $ACF.tmp $ACF
