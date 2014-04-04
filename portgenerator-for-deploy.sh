@@ -65,7 +65,8 @@ function generate_index.html {
 		do
 			DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
 			SIZE=$(($(stat -c %s $name)/1048576))
-			echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+			artifact_name=$(echo $name | sed 's/^\.//g')
+			echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
 		done
 	fi
 	if [ -f "$(find . -name *.zip)" ]; then
@@ -73,7 +74,8 @@ function generate_index.html {
 		do
 			DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
 			SIZE=$(($(stat -c %s $name)/1048576))
-			echo -e '<tr><td><a href="'$name'">'$name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+			artifact_name=$(echo $name | sed 's/^\.//g')
+			echo -e '<tr><td><a href="'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
 		done
 	fi
 	echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
