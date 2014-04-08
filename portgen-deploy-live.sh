@@ -46,28 +46,28 @@ array_contains () {
 
 function generate_indexhtml {
         ### generate index.html
-        cd irls-reader-artifacts/$ID/packages/artifacts/
+        cd ~/irls-reader-artifacts/$ID/packages/art/
         cat /dev/null > index.html
         echo -e '<!DOCTYPE HTML>' >> index.html
         echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
         echo -e '<body><h1>List of artifacts</h1>' >> index.html
         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-        if [ -f "$(find . -name *.ipa)" ]; then
-                for name in $(find . -name *.ipa)
+        if [ -f "$(find . -name '*.ipa')" ]; then
+                for name in $(find . -name '*.ipa')
                 do
                         DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
                         SIZE=$(($(stat -c %s $name)/1048576))
                         artifact_name=$(echo $name |  sed 's/^\.\///g')
-                        echo -e '<tr><td><a href="http://irls.websolutions.dp.ua/'$FACETS'/'$BRANCHNAME'.artifacts'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+                        echo -e '<tr><td><a href="http://irls.websolutions.dp.ua/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
                 done
         fi
-        if [ -f "$(find . -name *.zip)" ]; then
-                for name in $(find . -name *.zip)
+        if [ -f "$(find . -name '*.zip')" ]; then
+                for name in $(find . -name '*.zip')
                 do
                         DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
                         SIZE=$(($(stat -c %s $name)/1048576))
                         artifact_name=$(echo $name |  sed 's/^\.\///g')
-                        echo -e '<tr><td><a href="http://irls.websolutions.dp.ua/'$FACETS'/'$BRANCHNAME'.artifacts'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+                        echo -e '<tr><td><a href="http://irls.websolutions.dp.ua/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
                 done
         fi
         echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
@@ -107,8 +107,8 @@ touch $ACF
 if [ -z $ID ]; then
          echo "ID was not passed"
 else
-        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/artifact >> $ACF
-        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/artifact >> $ACF
+        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
+        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
                 generate_indexhtml
 fi
 
