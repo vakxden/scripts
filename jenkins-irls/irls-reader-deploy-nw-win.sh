@@ -1,35 +1,42 @@
 ###
-### Check of variable
+### Checking variables that were passed to the current bash-script
 ###
 if [ -z $BRANCHNAME ]; then
     echo "Branchname must be passed"
     exit 1
 fi
-if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
-	###
-	### Variables
-	###
-	BUILD_ID=donotkillme
-	ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
-	STAGE_DIR=/home/jenkins/irls-reader-artifacts-stage
-	FACETS=(puddle bahaiebooks lake ocean audio)
-	BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
-	###
-	### Create associative array
-	###
-	deploymentPackageId=($(echo $ID))
-	declare -A combineArray
-	
-	for ((i=0; i<${#deploymentPackageId[@]}; i++))
+if [ -z $mark ]; then
+    echo "mark must be passed"
+    exit 1
+fi
+###
+### Constant local variables
+###
+BUILD_ID=donotkillme
+ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
+STAGE_DIR=/home/jenkins/irls-reader-artifacts-stage
+FACETS=(puddle bahaiebooks lake ocean audio)
+BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
+DIR_ZIP=/var/lib/jenkins/jobs/irls-reader-initiate-nw-win/builds/lastSuccessfulBuild/archive/
+###
+### Create associative array
+###
+deploymentPackageId=($(echo $ID))
+declare -A combineArray
+
+for ((i=0; i<${#deploymentPackageId[@]}; i++))
+do
+	for ((y=0; y<${#FACETS[@]}; y++))
 	do
-		
-		for ((y=0; y<${#FACETS[@]}; y++))
-		do
-			if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}")" ]; then
-				combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
-			fi
-		done
+		if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}")" ]; then
+			combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
+		fi
 	done
+done
+###
+### If the variable $mark is equal to the value of "all" or "initiate-nw-win", then perform the body of this script 
+###
+if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 	###
 	### Body
 	###
@@ -41,7 +48,6 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
 				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
 			fi
-			DIR_ZIP=/var/lib/jenkins/jobs/irls-reader-initiate-nw-win/builds/lastSuccessfulBuild/archive/
 			zip_file=$(find $DIR_ZIP -name *$i-win*.zip)
 			if [ ! -f "$zip_file" ]; then
 				echo "nw-win zip file $zip_file in $DIR_ZIP not exists"
