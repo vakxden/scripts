@@ -137,7 +137,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 				mkdir -p $ARTIFACTS_DIR
 			fi
 			cd $ARTIFACTS_DIR
-			# search node-webkit for Windows (nw-win) zip-files,, if not exists - copy from artifacts dir to stage artifacts dir
+			# search node-webkit for Windows (nw-win) zip-files, if not exists - copy from artifacts dir to stage artifacts dir
 			search_and_copy $ARTIFACTS_DIR/
 			# generate index.html and local.json
 			generate_files $PKG_DIR
@@ -147,6 +147,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
 		do
+			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
 			ssh dvac@devzone.dp.ua "
 				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact ]
