@@ -65,6 +65,13 @@ function search_and_copy {
 		fi
 	fi
 }
+function generate_files {
+	cd $1
+	sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
+	rm -f $1/server/config/local.json
+	ls -lah
+	echo PWD=$PWD
+}
 ###
 ### If the variable $mark is equal to the value of "all" or "initiate-nw-win", then perform the body of this script 
 ###
@@ -78,6 +85,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			# variables
 			ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
 			PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
+			INDEX_FILE='index_'$i'_'$BRANCH'.js'
 			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
 			# checking the existence of a directory with the artifacts
@@ -87,12 +95,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			# search node-webkit for Windows (nw-win) zip-files, if not exists - copy to artifacts dir
 			search_and_copy $ARTIFACTS_DIR/
 			# generate index.html and local.json
-			cd $PKG_DIR
-			INDEX_FILE='index_'$i'_'$BRANCH'.js'
-			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
-			rm -f $PKG_DIR/server/config/local.json
-			ls -lah
-			echo PWD=$PWD
+			generate_files $PKG_DIR
 			# if content for running nodejs-server exists?
 			if [ -d $PKG_DIR/server/config ]; then
 				cp local.json $PKG_DIR/server/config/
@@ -121,6 +124,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			echo $i --- ${combineArray[$i]}
 			# checking the existence of a directory with the artifacts
 			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
+			PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
+			INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
 			if [ ! -d $ARTIFACTS_DIR ]; then
 						mkdir -p $ARTIFACTS_DIR
 					fi
@@ -128,13 +133,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			# search node-webkit for Windows (nw-win) zip-files,, if not exists - copy from artifacts dir to stage artifacts dir
 			search_and_copy $ARTIFACTS_DIR/
 			# generate index.html and local.json
-			PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
-			cd $PKG_DIR
-			INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
-			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
-			rm -f $PKG_DIR/server/config/local.json
-			ls -lah
-			echo PWD=$PWD
+			generate_files $PKG_DIR
 			# if content for running nodejs-server exists?
 			if [ -d $PKG_DIR/server/config ]; then
 				cp local.json $PKG_DIR/server/config/
