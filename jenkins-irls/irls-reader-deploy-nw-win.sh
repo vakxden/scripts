@@ -13,8 +13,8 @@ fi
 ### Constant local variables
 ###
 BUILD_ID=donotkillme
-ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
-STAGE_DIR=/home/jenkins/irls-reader-artifacts-stage
+CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
+STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 FACETS=(puddle bahaiebooks lake ocean audio)
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
 DIR_ZIP=/var/lib/jenkins/jobs/irls-reader-initiate-nw-win/builds/lastSuccessfulBuild/archive/
@@ -34,6 +34,38 @@ do
 	done
 done
 ###
+### Functions
+###
+function search_and_copy {
+	if [ -z $1 ]; then
+		echo "path to artifacts directory must be passed"
+		exit 1
+	fi
+	# if path to artifacts directory contain word "stage" -> search zip-files in artifacts directory for CURRENT-environment
+	if [ -n "$(echo "$1" | grep stage)" ]; then
+		echo contain stage;
+		if [ ! -z "$find_stag" ]; then
+			echo "nw-win zip file in $PWD exist" && echo "it is $find_stag"
+		else
+			echo "nw-win zip file in $PWD not exists"
+			find=$(find $1 -name *$i-win*.zip)
+			if [ ! -z "$find" ]; then
+				echo PWD=$PWD
+				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
+			fi
+		fi
+		# else -> search zip-files in directory when jenkins save jobs artifacts
+	else
+		zip_file=$(find $DIR_ZIP -name *$i-win*.zip)
+		if [ ! -f "$zip_file" ]; then
+			echo "nw-win zip file $zip_file in $DIR_ZIP not exists"
+		else
+			echo "find nw-win zip-file $zip_file"
+			cp $zip_file $1
+		fi
+	fi
+}
+###
 ### If the variable $mark is equal to the value of "all" or "initiate-nw-win", then perform the body of this script 
 ###
 if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
@@ -42,31 +74,30 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 	###
 	if [ "$dest" = "DEVELOPMENT" ]; then
 		for i in "${!combineArray[@]}"
-	# search node-webkit for Windows (nw-win) zip-files, if not exists - copy to artifacts dir
 		do
+			# variables
+			ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
+			PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
+			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
-			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+			# checking the existence of a directory with the artifacts
+			if [ ! -d $ARTIFACTS_DIR ]; then
+				mkdir -p $ARTIFACTS_DIR
 			fi
-			zip_file=$(find $DIR_ZIP -name *$i-win*.zip)
-			if [ ! -f "$zip_file" ]; then
-				echo "nw-win zip file $zip_file in $DIR_ZIP not exists"
-			else
-				echo "find nw-win zip-file $zip_file"
-				cp $zip_file $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
-			fi
+			# search node-webkit for Windows (nw-win) zip-files, if not exists - copy to artifacts dir
+			search_and_copy $ARTIFACTS_DIR/
 			# generate index.html and local.json
-			cd $ARTIFACTS_DIR/${combineArray[$i]}/packages
+			cd $PKG_DIR
 			INDEX_FILE='index_'$i'_'$BRANCH'.js'
 			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
-			rm -f $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/config/local.json
+			rm -f $PKG_DIR/server/config/local.json
 			ls -lah
 			echo PWD=$PWD
 			# if content for running nodejs-server exists?
-			if [ -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/config ]; then
-				cp local.json $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/config/
-				if [ ! -f $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/$INDEX_FILE ]; then
-					if [ -f $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/index.js ]; then
+			if [ -d $PKG_DIR/server/config ]; then
+				cp local.json $PKG_DIR/server/config/
+				if [ ! -f $PKG_DIR/server/$INDEX_FILE ]; then
+					if [ -f $PKG_DIR/server/index.js ]; then
 						mv server/index.js server/$INDEX_FILE
 					else
 						cp $(ls -1 server/index*.js | head -1) server/$INDEX_FILE
@@ -86,35 +117,29 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
 		do
+			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
-			if [ ! -d $STAGE_DIR/${combineArray[$i]}/packages/artifacts ]; then
-						mkdir -p $STAGE_DIR/${combineArray[$i]}/packages/artifacts
+			# checking the existence of a directory with the artifacts
+			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
+			if [ ! -d $ARTIFACTS_DIR ]; then
+						mkdir -p $ARTIFACTS_DIR
 					fi
-			cd $STAGE_DIR/${combineArray[$i]}/packages/artifacts
+			cd $ARTIFACTS_DIR
 			# search node-webkit for Windows (nw-win) zip-files,, if not exists - copy from artifacts dir to stage artifacts dir
-			find_stag=$(find . -name *$i-win*.zip)
-			if [ ! -z "$find_stag" ]; then
-				echo "nw-win zip file in $PWD exist" && echo "it is $find_stag"
-			else
-				echo "nw-win zip file in $PWD not exists"
-				find=$(find $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts -name *$i-win*.zip)
-				if [ ! -z "$find" ]; then
-					echo PWD=$PWD
-					cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
-				fi
-			fi
+			search_and_copy $ARTIFACTS_DIR/
 			# generate index.html and local.json
-			cd $STAGE_DIR/${combineArray[$i]}/packages
+			PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
+			cd $PKG_DIR
 			INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
 			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
-			rm -f $STAGE_DIR/${combineArray[$i]}/packages/server/config/local.json
+			rm -f $PKG_DIR/server/config/local.json
 			ls -lah
 			echo PWD=$PWD
 			# if content for running nodejs-server exists?
-			if [ -d $STAGE_DIR/${combineArray[$i]}/packages/server/config ]; then
-				cp local.json $STAGE_DIR/${combineArray[$i]}/packages/server/config/
-				if [ ! -f $STAGE_DIR/${combineArray[$i]}/packages/server/$INDEX_FILE ]; then
-					if [ -f $STAGE_DIR/${combineArray[$i]}/packages/server/index.js ]; then
+			if [ -d $PKG_DIR/server/config ]; then
+				cp local.json $PKG_DIR/server/config/
+				if [ ! -f $PKG_DIR/server/$INDEX_FILE ]; then
+					if [ -f $PKG_DIR/server/index.js ]; then
 						mv server/index.js server/$INDEX_FILE
 					else
 						cp $(ls -1 server/index*.js | head -1) server/$INDEX_FILE
@@ -142,7 +167,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 				else
 					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/*\$i-win*.zip
 				fi"
-			scp $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/*$i-win*.zip dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/
+			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
+			scp $ARTIFACTS_DIR/*$i-win*.zip dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/
 			ssh dvac@devzone.dp.ua "
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
 				cp ~/local.json ~/irls-reader-artifacts/${combineArray[$i]}/packages/server/config
