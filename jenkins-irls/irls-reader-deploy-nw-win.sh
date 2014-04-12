@@ -72,6 +72,30 @@ function generate_files {
 	ls -lah
 	echo PWD=$PWD
 }
+function start_node {
+	# if content for running nodejs-server exists?
+	# $1=$PKG_DIR
+	# $2=$INDEX_FILE
+	if [ -d $1/server/config ]; then
+		cp local.json $1/server/config/
+		if [ ! -f $1/server/$2 ]; then
+			if [ -f $1/server/index.js ]; then
+				mv server/index.js server/$2
+			else
+				cp $(ls -1 server/index*.js | head -1) server/$2
+			fi
+		fi
+		### Starting (or restarting) node server
+		PID=$(ps aux | grep "node server/$2" | grep -v grep | /usr/bin/awk '{print $2}')
+		if [ ! -z "$PID" ];then
+			kill $PID
+			nohup node server/$2 > /dev/null 2>&1 &
+		else
+			nohup node server/$2 > /dev/null 2>&1 &
+		fi
+		rm -f local.json irls-current-reader-$i-$BRANCH
+	fi
+}
 ###
 ### If the variable $mark is equal to the value of "all" or "initiate-nw-win", then perform the body of this script 
 ###
@@ -96,64 +120,29 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			search_and_copy $ARTIFACTS_DIR/
 			# generate index.html and local.json
 			generate_files $PKG_DIR
-			# if content for running nodejs-server exists?
-			if [ -d $PKG_DIR/server/config ]; then
-				cp local.json $PKG_DIR/server/config/
-				if [ ! -f $PKG_DIR/server/$INDEX_FILE ]; then
-					if [ -f $PKG_DIR/server/index.js ]; then
-						mv server/index.js server/$INDEX_FILE
-					else
-						cp $(ls -1 server/index*.js | head -1) server/$INDEX_FILE
-					fi	
-				fi
-				### Starting (or restarting) node server
-				PID=$(ps aux | grep "node server/$INDEX_FILE" | grep -v grep | /usr/bin/awk '{print $2}')
-				if [ ! -z "$PID" ];then
-					kill $PID
-					nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-				else
-					nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-				fi
-				rm -f local.json irls-current-reader-$i-$BRANCH
-			fi
+			# run (re-run) node
+			start_node $PKG_DIR $INDEX_FILE
 		done
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
 		do
-			# output value for a pair "key-value"
-			echo $i --- ${combineArray[$i]}
-			# checking the existence of a directory with the artifacts
+			# variables
 			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
 			PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
 			INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
+			# output value for a pair "key-value"
+			echo $i --- ${combineArray[$i]}
+			# checking the existence of a directory with the artifacts
 			if [ ! -d $ARTIFACTS_DIR ]; then
-						mkdir -p $ARTIFACTS_DIR
-					fi
+				mkdir -p $ARTIFACTS_DIR
+			fi
 			cd $ARTIFACTS_DIR
 			# search node-webkit for Windows (nw-win) zip-files,, if not exists - copy from artifacts dir to stage artifacts dir
 			search_and_copy $ARTIFACTS_DIR/
 			# generate index.html and local.json
 			generate_files $PKG_DIR
-			# if content for running nodejs-server exists?
-			if [ -d $PKG_DIR/server/config ]; then
-				cp local.json $PKG_DIR/server/config/
-				if [ ! -f $PKG_DIR/server/$INDEX_FILE ]; then
-					if [ -f $PKG_DIR/server/index.js ]; then
-						mv server/index.js server/$INDEX_FILE
-					else
-						cp $(ls -1 server/index*.js | head -1) server/$INDEX_FILE
-					fi	
-				fi
-				### Starting (or restarting) node server
-				PID=$(ps aux | grep "node server/$INDEX_FILE" | grep -v grep | /usr/bin/awk '{print $2}')
-				if [ ! -z "$PID" ];then
-					kill $PID
-					nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-				else
-					nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-				fi
-				rm -f local.json
-			fi
+			# run (re-run) node
+			start_node $PKG_DIR $INDEX_FILE
 		done
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
