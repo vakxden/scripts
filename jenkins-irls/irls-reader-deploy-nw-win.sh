@@ -93,7 +93,7 @@ function start_node {
 		else
 			nohup node server/$2 > /dev/null 2>&1 &
 		fi
-		rm -f local.json irls-current-reader-$i-$BRANCH
+		rm -f local.json irls-current-reader-* irls-stage-reader-*
 	fi
 }
 ###
