@@ -1,145 +1,174 @@
 ###
-### Check of variable
+### Checking variables that were passed to the current bash-script
 ###
 if [ -z $BRANCHNAME ]; then
     echo "Branchname must be passed"
     exit 1
 fi
-if [ "$mark" = "all" ] || [ "$mark" = "initiate-ios" ]; then
-	###
-	### Variables
-	###
-	BUILD_ID=donotkillme
-	ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
-	STAGE_DIR=/home/jenkins/irls-reader-artifacts-stage
-	FACETS=(puddle bahaiebooks lake ocean audio)
-	BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
-	###
-	### Create associative array
-	###
-	deploymentPackageId=($(echo $ID))
-	declare -A combineArray
-	
-	for ((i=0; i<${#deploymentPackageId[@]}; i++))
+if [ -z $mark ]; then
+    echo "mark must be passed"
+    exit 1
+fi
+###
+### Constant local variables
+###
+BUILD_ID=donotkillme
+CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
+STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
+FACETS=(puddle bahaiebooks lake ocean audio mediaoverlay)
+BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
+DIR_IPA=/var/lib/jenkins/jobs/irls-reader-initiate-ios/builds/lastSuccessfulBuild/archive/
+###
+### Create associative array
+###
+deploymentPackageId=($(echo $ID))
+declare -A combineArray
+
+for ((i=0; i<${#deploymentPackageId[@]}; i++))
+do
+	for ((y=0; y<${#FACETS[@]}; y++))
 	do
-		
-		for ((y=0; y<${#FACETS[@]}; y++))
-		do
-			if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}")" ]; then
-				combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
-			fi
-		done
+		if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}")" ]; then
+			combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
+		fi
 	done
+done
+###
+### Functions
+###
+function search_and_copy {
+	# $1=$STAGE_ARTIFACTS_DIR/
+	# $2=$CURRENT_ARTIFACTS_DIR/
+	if [ -z $1 ]; then
+		echo "path to artifacts directory must be passed"
+		exit 1
+	fi
+	# if path to artifacts directory contain word "stage" -> search ipa-files in artifacts directory for CURRENT-environment
+	if [ -n "$(echo "$1" | grep stage)" ]; then
+		echo contain stage;
+		find_stag=$(find $1 -name *$i*.ipa) > /dev/null 2>&1
+		if [ ! -z "$find_stag" ]; then
+			echo "ipa file in $PWD exist" && echo "it is $find_stag"
+		else
+			echo "ipa file in $PWD not exists"
+			find=$(find $2 -name *$i*.ipa) > /dev/null 2>&1
+			if [ ! -z "$find" ]; then
+				echo PWD=$PWD
+				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
+			fi
+		fi
+		# else -> search ipa-files in directory when jenkins save jobs artifacts
+	else
+		ipa_file=$(find $DIR_IPA -name *$i*.ipa)
+		if [ ! -f "$ipa_file" ]; then
+			echo "ipa file $ipa_file in $DIR_IPA not exists"
+		else
+			echo "find ipa-file $ipa_file"
+			cp $ipa_file $1
+		fi
+	fi
+}
+function generate_files {
+	cd $1
+	sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
+	rm -f $1/server/config/local.json
+	ls -lah
+	echo PWD=$PWD
+}
+function pid_node {
+	# $1 = $2 from function start_node = $INDEX_FILE
+	### Starting (or restarting) node server
+		PID=$(ps aux | grep "node server/$1" | grep -v grep | /usr/bin/awk '{print $2}')
+		if [ ! -z "$PID" ];then
+			kill $PID
+			nohup node server/$1 > /dev/null 2>&1 &
+		else
+			nohup node server/$1 > /dev/null 2>&1 &
+		fi
+		rm -f local.json irls-current-reader-* irls-stage-reader-*
+}
+function start_node {
+	# if content for running nodejs-server exists?
+	# $1=$PKG_DIR
+	# $2=$INDEX_FILE
+	if [ -d $1/server/config ]; then
+		cp local.json $1/server/config/
+		if [ ! -f $1/server/$2 ]; then
+			if [ -f $1/server/index.js ]; then
+				mv server/index.js server/$2
+				pid_node $2
+			elif [ -f $1/server/index*.js ]; then
+					cp $(ls -1 server/index*.js | head -1) server/$2
+					pid_node $2
+			else
+				echo "not found server/index.js in $1" && exit 0
+			fi
+		fi
+	fi
+}
+###
+### If the variable $mark is equal to the value of "all" or "initiate-ios", then perform the body of this script 
+###
+if [ "$mark" = "all" ] || [ "$mark" = "initiate-ios" ]; then
 	###
 	### Body
 	###
 	if [ "$dest" = "DEVELOPMENT" ]; then
 		for i in "${!combineArray[@]}"
-	# search ipa-files, if not exists - copy to artifacts dir
 		do
-			echo $i --- ${combineArray[$i]}
-			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
-			fi
-			DIR_IPA=/var/lib/jenkins/jobs/irls-reader-initiate-ios/builds/lastSuccessfulBuild/archive/
-			ipa_file=$(find $DIR_IPA -name *$i*.ipa)
-			if [ ! -f "$ipa_file" ]; then
-				echo "ipa file $ipa_file in $DIR_IPA not exists"
-			else
-				echo "find ipa file $ipa_file"
-				cp $ipa_file $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
-			fi
-			# generate index.html and local.json
-			cd $ARTIFACTS_DIR/${combineArray[$i]}/packages
+			# variables
+			ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
+			PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
 			INDEX_FILE='index_'$i'_'$BRANCH'.js'
-			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
-			rm -f $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/config/local.json
-			ls -lah
-			echo PWD=$PWD
-			# if content for running nodejs-server exists?
-			if [ -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/config ]; then
-				cp local.json $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/config/
-				if [ ! -f $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/$INDEX_FILE ]; then
-					if [ -f $ARTIFACTS_DIR/${combineArray[$i]}/packages/server/index.js ]; then
-						mv server/index.js server/$INDEX_FILE
-					else
-						cp $(ls -1 server/index*.js | head -1) server/$INDEX_FILE
-					fi	
-				fi
-				### Starting (or restarting) node server
-				PID=$(ps aux | grep "node server/$INDEX_FILE" | grep -v grep | /usr/bin/awk '{print $2}')
-				if [ ! -z "$PID" ];then
-					kill $PID
-					nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-				else
-					nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-				fi
-				rm -f local.json irls-current-reader-$i-$BRANCH
+			# output value for a pair "key-value"
+			echo $i --- ${combineArray[$i]}
+			# checking the existence of a directory with the artifacts
+			if [ ! -d $ARTIFACTS_DIR ]; then
+				mkdir -p $ARTIFACTS_DIR
 			fi
+			# search ipa-files, if not exists - copy to artifacts dir
+			search_and_copy $ARTIFACTS_DIR/
+			# generate index.html and local.json
+			generate_files $PKG_DIR
+			# run (re-run) node
+			start_node $PKG_DIR $INDEX_FILE
 		done
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
 		do
-			echo $i --- ${combineArray[$i]}
-			if [ ! -d $STAGE_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $STAGE_DIR/${combineArray[$i]}/packages/artifacts
-			fi
-			cd $STAGE_DIR/${combineArray[$i]}/packages/artifacts
-			# search ipa-files, if not exists - copy from artifacts dir to stage artifacts dir
-			find_stag=$(find . -iregex '.*\(ipa\)' -printf '%f\n')
-			if [ ! -z "$find_stag" ]; then
-				echo "ipa file in $PWD exist" && echo "it is $find_stag"
-			else
-				echo "ipa file in $PWD not exists"
-				find=$(find $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts -iregex '.*\(ipa\)' -printf '%f\n')
-				if [ ! -z "$find" ]; then
-					echo $PWD
-					cp $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/$find . && echo "copying file $find to $PWD"
-				fi
-			fi
-			# generate index.html and local.json
-			cd $STAGE_DIR/${combineArray[$i]}/packages
+			# variables
+			CURRENT_ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
+			STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
+			PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
 			INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
-			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
-			rm -f $STAGE_DIR/${combineArray[$i]}/packages/server/config/local.json
-			ls -lah
-			echo PWD=$PWD
-			if [ ! -d $STAGE_DIR/${combineArray[$i]}/packages/server/config ]; then
-				mkdir -p $STAGE_DIR/${combineArray[$i]}/packages/server/config
+			# output value for a pair "key-value"
+			echo $i --- ${combineArray[$i]}
+			# checking the existence of a directory with the artifacts
+			if [ ! -d $STAGE_ARTIFACTS_DIR ]; then
+				mkdir -p $STAGE_ARTIFACTS_DIR
 			fi
-			# if content for running nodejs-server exists?
-			if [ -d $STAGE_DIR/${combineArray[$i]}/packages/server/config ]; then
-				cp local.json $STAGE_DIR/${combineArray[$i]}/packages/server/config/
-				if [ ! -f $STAGE_DIR/${combineArray[$i]}/packages/server/$INDEX_FILE ]; then
-					if [ -f $STAGE_DIR/${combineArray[$i]}/packages/server/index.js ]; then
-						mv server/index.js server/$INDEX_FILE
-					else
-						cp $(ls -1 server/index*.js | head -1) server/$INDEX_FILE
-					fi	
-				fi
-				### Starting (or restarting) node server
-				PID=$(ps aux | grep "node server/$INDEX_FILE" | grep -v grep | /usr/bin/awk '{print $2}')
-				if [ ! -z "$PID" ];then
-					kill $PID
-					nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-				else
-					nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-				fi
-				rm -f local.json
-			fi
+			cd $STAGE_ARTIFACTS_DIR
+			# search ipa-files, if not exists - copy from artifacts dir to stage artifacts dir
+			search_and_copy $STAGE_ARTIFACTS_DIR/ $CURRENT_ARTIFACTS_DIR/
+			# generate index.html and local.json
+			generate_files $PKG_DIR
+			# run (re-run) node
+			start_node $PKG_DIR $INDEX_FILE
 		done
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
 		do
+			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
 			ssh dvac@devzone.dp.ua "
 				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact ]
 				then
 					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact
 				else
-					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/*.ipa
+					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/*\$i*.ipa
 				fi"
-			scp $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/*.ipa dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/
+			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
+			scp $ARTIFACTS_DIR/*$i*.ipa dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/
 			ssh dvac@devzone.dp.ua "
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
 				cp ~/local.json ~/irls-reader-artifacts/${combineArray[$i]}/packages/server/config
