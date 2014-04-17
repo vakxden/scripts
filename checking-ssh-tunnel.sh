@@ -15,14 +15,15 @@ function l {
 	/usr/bin/logger -t $TAG "$1"
 }
 
-PROC="ssh -f -N -R.*vakxden.crabdance.com"
+PROC="ssh -f -N -R 2048:localhost:22 vakxden@vakxden.crabdance.com"
+OPT="ProxyCommand /usr/bin/corkscrew 127.0.0.1 3128 vakxden.crabdance.com 443"
 
 ps aux | grep "$PROC" | grep -v grep
 # if connection not found then previous command return value "1", start it
 if [ $? -eq 1 ]
 then
-	l "Process with ssh-tunnelling '$PROC' not found. Starting process..."
-	ssh -f -N -R 2048:localhost:22 vakxden@vakxden.crabdance.com -o "ProxyCommand /usr/bin/corkscrew 127.0.0.1 3128 vakxden.crabdance.com 443" && l "Starting successfully!"
+	l "Process with ssh-tunnelling not found. Starting process..."
+	$PROC -o "$OPT" && l "Starting successfully!"
 else
         l "Process '$PROC' is already running"
 	exit 0
