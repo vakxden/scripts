@@ -37,6 +37,8 @@ done
 ### Functions
 ###
 function search_and_copy {
+	# $1=$STAGE_ARTIFACTS_DIR/
+	# $2=$CURRENT_ARTIFACTS_DIR/
 	if [ -z $1 ]; then
 		echo "path to artifacts directory must be passed"
 		exit 1
@@ -44,11 +46,12 @@ function search_and_copy {
 	# if path to artifacts directory contain word "stage" -> search zip-files in artifacts directory for CURRENT-environment
 	if [ -n "$(echo "$1" | grep stage)" ]; then
 		echo contain stage;
+		find_stag=$(find $1 -name *$i-win*.zip) > /dev/null 2>&1
 		if [ ! -z "$find_stag" ]; then
 			echo "nw-win zip file in $PWD exist" && echo "it is $find_stag"
 		else
 			echo "nw-win zip file in $PWD not exists"
-			find=$(find $1 -name *$i-win*.zip)
+			find=$(find $2 -name *$i-win*.zip) > /dev/null 2>&1
 			if [ ! -z "$find" ]; then
 				echo PWD=$PWD
 				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
@@ -72,6 +75,18 @@ function generate_files {
 	ls -lah
 	echo PWD=$PWD
 }
+function pid_node {
+	# $1 = $2 from function start_node = $INDEX_FILE
+	### Starting (or restarting) node server
+		PID=$(ps aux | grep "node server/$1" | grep -v grep | /usr/bin/awk '{print $2}')
+		if [ ! -z "$PID" ];then
+			kill $PID
+			nohup node server/$1 > /dev/null 2>&1 &
+		else
+			nohup node server/$1 > /dev/null 2>&1 &
+		fi
+		rm -f local.json irls-current-reader-* irls-stage-reader-*
+}
 function start_node {
 	# if content for running nodejs-server exists?
 	# $1=$PKG_DIR
@@ -81,19 +96,14 @@ function start_node {
 		if [ ! -f $1/server/$2 ]; then
 			if [ -f $1/server/index.js ]; then
 				mv server/index.js server/$2
+				pid_node $2
+			elif [ -f $1/server/index*.js ]; then
+					cp $(ls -1 server/index*.js | head -1) server/$2
+					pid_node $2
 			else
-				cp $(ls -1 server/index*.js | head -1) server/$2
+				echo "not found server/index.js in $1" && exit 0
 			fi
 		fi
-		### Starting (or restarting) node server
-		PID=$(ps aux | grep "node server/$2" | grep -v grep | /usr/bin/awk '{print $2}')
-		if [ ! -z "$PID" ];then
-			kill $PID
-			nohup node server/$2 > /dev/null 2>&1 &
-		else
-			nohup node server/$2 > /dev/null 2>&1 &
-		fi
-		rm -f local.json irls-current-reader-* irls-stage-reader-*
 	fi
 }
 ###
@@ -127,18 +137,19 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 		for i in "${!combineArray[@]}"
 		do
 			# variables
-			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
+			CURRENT_ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
+			STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
 			PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
 			INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
 			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
 			# checking the existence of a directory with the artifacts
-			if [ ! -d $ARTIFACTS_DIR ]; then
-				mkdir -p $ARTIFACTS_DIR
+			if [ ! -d $STAGE_ARTIFACTS_DIR ]; then
+				mkdir -p $STAGE_ARTIFACTS_DIR
 			fi
-			cd $ARTIFACTS_DIR
+			cd $STAGE_ARTIFACTS_DIR
 			# search node-webkit for Windows (nw-win) zip-files, if not exists - copy from artifacts dir to stage artifacts dir
-			search_and_copy $ARTIFACTS_DIR/
+			search_and_copy $STAGE_ARTIFACTS_DIR/ $CURRENT_ARTIFACTS_DIR/
 			# generate index.html and local.json
 			generate_files $PKG_DIR
 			# run (re-run) node
