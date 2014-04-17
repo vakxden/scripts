@@ -90,6 +90,15 @@ function generate_indexhtml {
                         echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
                 done
         fi
+        if [ -f "$(find . -name '*.apk')" ]; then
+                for name in $(find . -name '*.apk')
+                do
+                        DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
+                        SIZE=$(($(stat -c %s $name)/1048576))
+                        artifact_name=$(echo $name |  sed 's/^\.\///g')
+                        echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+                done
+        fi
         echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
         cd ../
 }
