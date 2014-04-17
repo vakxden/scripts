@@ -9,7 +9,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 	STAGE_DIR=/home/jenkins/irls-reader-artifacts-stage
 	LIVE_DIR=/home/jenkins/irls-reader-live
 	LIVE_LINKS_DIR=/home/jenkins/irls-reader-live-links
-	FACETS=(puddle bahaiebooks lake ocean audio)
+	FACETS=(puddle bahaiebooks lake ocean audio mediaoverlay)
 	cat /dev/null > $WORKSPACE/myenv
 	
 	deploymentPackageId=($(echo $ID))
@@ -32,6 +32,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 	if [ "$dest" = "DEVELOPMENT" ]; then
 		for i in "${!combineArray[@]}"
 		do
+			# output value for a pair "key-value"
+			echo $i --- ${combineArray[$i]}
 			cd $ARTIFACTS_DIR/${combineArray[$i]}/packages
 			INDEX_FILE='index_'$i'_'$BRANCH'.js'
 			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
@@ -57,6 +59,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
 		do
+			# output value for a pair "key-value"
+			echo $i --- ${combineArray[$i]}
 			cd $ARTIFACTS_DIR/${combineArray[$i]}/packages
 			if [ ! -d $STAGE_DIR/${combineArray[$i]} ]; then
 				mkdir -p $STAGE_DIR/${combineArray[$i]}/packages
@@ -95,6 +99,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
 		do
+			# output value for a pair "key-value"
+			echo $i --- ${combineArray[$i]}
 			ssh dvac@devzone.dp.ua "rm -f ~/IRLS.reader.tar.gz"
 			tar -zc $STAGE_DIR/${combineArray[$i]}/packages/* | ssh dvac@devzone.dp.ua "cat > ~/IRLS.reader.tar.gz"
 			ssh dvac@devzone.dp.ua "
@@ -105,9 +111,17 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/client ~/irls-reader-artifacts/${combineArray[$i]}/packages/common ~/irls-reader-artifacts/${combineArray[$i]}/packages/couchdb_indexes ~/irls-reader-artifacts/${combineArray[$i]}/packages/server 
 				fi
 				tar xfz IRLS.reader.tar.gz -C ~/irls-reader-artifacts/${combineArray[$i]}/
-				mv ~/irls-reader-artifacts/${combineArray[$i]}$STAGE_DIR/${combineArray[$i]}/packages ~/irls-reader-artifacts/${combineArray[$i]}/ && rm -rf ~/irls-reader-artifacts/${combineArray[$i]}/home
+				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages ]; then
+					mkdir ~/irls-reader-artifacts/${combineArray[$i]}/packages
+					mv ~/irls-reader-artifacts/${combineArray[$i]}$STAGE_DIR/${combineArray[$i]}/packages/* ~/irls-reader-artifacts/${combineArray[$i]}/packages/ && rm -rf ~/irls-reader-artifacts/${combineArray[$i]}/home
+				else
+					mv ~/irls-reader-artifacts/${combineArray[$i]}$STAGE_DIR/${combineArray[$i]}/packages/* ~/irls-reader-artifacts/${combineArray[$i]}/packages/ && rm -rf ~/irls-reader-artifacts/${combineArray[$i]}/home
+				fi
 				# Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
-				mv ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifacts ~/irls-reader-artifacts/${combineArray[$i]}/packages/art
+				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art ]; then
+					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/art
+				fi
+				mv ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifacts/* ~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
 				cp ~/local.json ~/irls-reader-artifacts/${combineArray[$i]}/packages/server/config
 				rm -rf /home/iogi/node/couchdb/var/lib/couchdb/*
