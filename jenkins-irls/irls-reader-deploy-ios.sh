@@ -76,14 +76,14 @@ function generate_files {
 	echo PWD=$PWD
 }
 function pid_node {
-	# $1 = $2 from function start_node = $INDEX_FILE
+	# $1 = $2 (server/$INDEX_FILE) from function start_node = $INDEX_FILE
 	### Starting (or restarting) node server
-		PID=$(ps aux | grep "node server/$1" | grep -v grep | /usr/bin/awk '{print $2}')
+		PID=$(ps aux | grep "node $1" | grep -v grep | /usr/bin/awk '{print $2}')
 		if [ ! -z "$PID" ];then
 			kill $PID
-			nohup node server/$1 > /dev/null 2>&1 &
+			nohup node $1 > /dev/null 2>&1 &
 		else
-			nohup node server/$1 > /dev/null 2>&1 &
+			nohup node $1 > /dev/null 2>&1 &
 		fi
 		rm -f local.json irls-current-reader-* irls-stage-reader-*
 }
@@ -96,13 +96,15 @@ function start_node {
 		if [ ! -f $1/server/$2 ]; then
 			if [ -f $1/server/index.js ]; then
 				mv server/index.js server/$2
-				pid_node $2
-			elif [ -f $1/server/index*.js ]; then
+				pid_node server/$2
+			elif [ -f $1/server/index_*.js ]; then
 					cp $(ls -1 server/index*.js | head -1) server/$2
-					pid_node $2
+					pid_node server/$2
 			else
 				echo "not found server/index.js in $1" && exit 0
 			fi
+		else
+			pid_node server/$2
 		fi
 	fi
 }
