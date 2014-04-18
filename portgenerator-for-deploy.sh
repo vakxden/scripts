@@ -72,33 +72,21 @@ function generate_indexhtml {
         echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
         echo -e '<body><h1>List of artifacts</h1>' >> index.html
         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-        if [ -f "$(find . -name $1*FFA_Reader*$2*.ipa)" ]; then
-                for name in $(find . -name $1*FFA_Reader*$2*.ipa)
-                do
-                        DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-                        SIZE=$(($(stat -c %s $name)/1048576))
-                        artifact_name=$(echo $name |  sed 's/^\.\///g')
-                        echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-                done
-        fi
-        if [ -f "$(find . -name $1*FFA_Reader*$2-win*.zip)" ]; then
-                for name in $(find . -name $1*FFA_Reader*$2-win*.zip)
-                do
-                        DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-                        SIZE=$(($(stat -c %s $name)/1048576))
-                        artifact_name=$(echo $name |  sed 's/^\.\///g')
-                        echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-                done
-        fi
-        if [ -f "$(find . -name $1*FFA_Reader*$2*.apk)" ]; then
-                for name in $(find . -name $1*FFA_Reader*$2*.apk)
-                do
-                        DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
-                        SIZE=$(($(stat -c %s $name)/1048576))
-                        artifact_name=$(echo $name |  sed 's/^\.\///g')
-                        echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
-                done
-        fi
+        IPAFILE=$1*FFA_Reader*$2*.ipa
+        ZIPWINFILE=$1*FFA_Reader*$2-win*.zip
+        APKFILE=$1*FFA_Reader*$2*.apk
+        for file in $IPAFILE $ZIPWINFILE $APKFILE
+        do
+                if [ -f "$(find . -name $file)" ]; then
+                        for name in $(find . -name $file)
+                        do
+                                DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
+                                SIZE=$(($(stat -c %s $name)/1048576))
+                                artifact_name=$(echo $name |  sed 's/^\.\///g')
+                                echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+                        done
+                fi
+        done
         echo -e '<tr><th colspan="5"><hr></th></tr></table></body></html>' >> index.html
         cd ../
 }
