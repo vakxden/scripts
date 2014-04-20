@@ -55,5 +55,54 @@ done
 #Neighbor is 46.98.19.11 (admin/admin) ASUS WL500G (dln_232107/izuut5nl) ### with telnet!!!
 #Neighbor is 46.98.20.64 (admin/Blankpass) MikroTik v6.11
 #Neighbor is 46.98.20.154
-
-
+#Neighbor is 46.98.26.1
+#Neighbor is 46.98.31.41
+#Neighbor is 46.98.34.201
+#Neighbor is 46.98.35.60
+#Neighbor is 46.98.35.252
+#Neighbor is 46.98.37.32
+#Neighbor is 46.98.37.84
+#Neighbor is 46.98.39.163
+#Neighbor is 46.98.39.208
+#Neighbor is 46.98.43.87
+#Neighbor is 46.98.43.128
+#Neighbor is 46.98.43.253
+#Neighbor is 46.98.46.170
+#Neighbor is 46.98.47.72
+#Neighbor is 46.98.50.147
+#Neighbor is 46.98.53.159
+#Neighbor is 46.98.54.254
+#Neighbor is 46.98.56.213
+#Neighbor is 46.98.58.136
+#Neighbor is 46.98.62.185
+#Neighbor is 46.98.63.2
+#Neighbor is 46.98.63.56
+#Neighbor is 46.98.67.144
+#Neighbor is 46.98.69.189
+#Neighbor is 46.98.72.133
+#Neighbor is 46.98.74.69
+#Neighbor is 46.98.74.152
+#Neighbor is 46.98.76.137
+#Neighbor is 46.98.77.44
+#Neighbor is 46.98.80.64
+#Neighbor is 46.98.86.10
+#Neighbor is 46.98.86.212
+#Neighbor is 46.98.87.254
+#Neighbor is 46.98.89.223
+#Neighbor is 46.98.99.92
+#Neighbor is 46.98.101.230
+#Neighbor is 46.98.104.221
+#Neighbor is 46.98.108.241
+#Neighbor is 46.98.110.72
+#Neighbor is 46.98.115.185
+#Neighbor is 46.98.117.176
+#Neighbor is 46.98.118.45
+#Neighbor is 46.98.118.133
+#Neighbor is 46.98.120.150
+#Neighbor is 46.98.123.138
+#Neighbor is 46.98.123.208
+#Neighbor is 46.98.124.32
+#Neighbor is 46.98.184.70
+#Neighbor is 46.98.185.81
+#Neighbor is 46.98.185.144
+#Neighbor is 46.98.187.131
