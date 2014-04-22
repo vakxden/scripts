@@ -6,7 +6,7 @@ if [ -z $BRANCHNAME ]; then
     exit 1
 fi
 ###
-### If the variable $mark is equal to the value of "all" or "initiate-nw-win", then perform the body of this script 
+### If the variable $mark is equal to the value of "all" or "initiate-web", then perform the body of this script 
 ###
 if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 	###
