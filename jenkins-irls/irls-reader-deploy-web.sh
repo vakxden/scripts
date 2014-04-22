@@ -1,9 +1,17 @@
+###
+### Checking variables that were passed to the current bash-script
+###
 if [ -z $BRANCHNAME ]; then
     echo [ERROR_BRANCH] branchname must be passed!
     exit 1
 fi
-
+###
+### If the variable $mark is equal to the value of "all" or "initiate-nw-win", then perform the body of this script 
+###
 if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
+	###
+	### Body
+	###
 	BUILD_ID=donotkillme
 	ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 	STAGE_DIR=/home/jenkins/irls-reader-artifacts-stage
@@ -28,7 +36,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 	done
 	
 	
-	BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
+	BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 	if [ "$dest" = "DEVELOPMENT" ]; then
 		for i in "${!combineArray[@]}"
 		do
@@ -48,13 +56,16 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			### Starting node server
 			PID=$(ps aux | grep "node server/$INDEX_FILE" | grep -v grep | /usr/bin/awk '{print $2}')
 			if [ ! -z "$PID" ];then
-				kill $PID
+				kill -9 $PID
 				nohup node server/$INDEX_FILE > /dev/null 2>&1 &
 			else
 				nohup node server/$INDEX_FILE > /dev/null 2>&1 &
 			fi
-			echo link-$i="http://wpp.isd.dp.ua/irls/current/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo link-$i-$dest="http://wpp.isd.dp.ua/irls/current/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo LINK-$i-$dest=$($(grep "link-'$i'-'$dest'" $WORKSPACE/myenv | awk -F "=" '{print $2}'))
 			rm -f local.json irls-current-reader-$i-$BRANCH
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
@@ -88,13 +99,16 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			### Starting node server
 			PID=$(ps aux | grep "node server/$INDEX_FILE" | grep -v grep | /usr/bin/awk '{print $2}')
 			if [ ! -z "$PID" ];then
-				kill $PID
+				kill -9 $PID
 				nohup node server/$INDEX_FILE > /dev/null 2>&1 &
 			else
 				nohup node server/$INDEX_FILE > /dev/null 2>&1 &
 			fi
 			echo link-$i-$dest="http://wpp.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo LINK-$i-$dest=$($(grep "link-'$i'-'$dest'" $WORKSPACE/myenv | awk -F "=" '{print $2}'))
 			rm -f local.json irls-current-reader-$i-$BRANCH
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
@@ -131,25 +145,18 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 				PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
 				if [ ! -z \$PID ]
 				then
-					kill \$PID
+					kill -9 \$PID
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				else
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				fi"
-				echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			#link-$i-$dest=$(grep "link-$i-$dest" $WORKSPACE/myenv | awk -F "=" '{print $2}')
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	else
 		echo [ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest!
 		exit 1
 	fi
-	
-	
-	LINKOCEAN=$(grep "link-ocean" $WORKSPACE/myenv | awk -F "=" '{print $2}')
-	LINKLAKE=$(grep "link-lake" $WORKSPACE/myenv | awk -F "=" '{print $2}')
-	LINKPUDDLE=$(grep "link-puddle" $WORKSPACE/myenv | awk -F "=" '{print $2}')
-	LINKBAHAIE=$(grep "link-bahaiebooks" $WORKSPACE/myenv | awk -F "=" '{print $2}')
-	echo LINKOCEAN=$LINKOCEAN >> $WORKSPACE/myenv
-	echo LINKLAKE=$LINKLAKE >> $WORKSPACE/myenv
-	echo LINKPUDDLE=$LINKPUDDLE >> $WORKSPACE/myenv
-	echo LINKBAHAIE=$LINKBAHAIE >> $WORKSPACE/myenv
 fi

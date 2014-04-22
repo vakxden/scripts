@@ -16,7 +16,7 @@ BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 FACETS=(puddle bahaiebooks lake ocean audio)
-BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
+BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 DIR_APK=/var/lib/jenkins/jobs/irls-reader-initiate-android/builds/lastSuccessfulBuild/archive/
 ###
 ### Create associative array
@@ -134,6 +134,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
 			generate_files $PKG_DIR
 			# run (re-run) node
 			start_node $PKG_DIR $INDEX_FILE
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
@@ -156,6 +158,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
 			generate_files $PKG_DIR
 			# run (re-run) node
 			start_node $PKG_DIR $INDEX_FILE
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
@@ -163,14 +167,16 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
 			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
 			ssh dvac@devzone.dp.ua "
-				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact ]
+				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art ]
 				then
-					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact
+					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/art
 				else
-					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/*\$i*.apk
+					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art/*$i*.apk
 				fi"
 			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
-			scp $ARTIFACTS_DIR/*$i*.apk dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/
+			if [ -f $ARTIFACTS_DIR/*$i*.apk ]; then
+				scp $ARTIFACTS_DIR/*$i*.apk dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
+			fi
 			ssh dvac@devzone.dp.ua "
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
 				cp ~/local.json ~/irls-reader-artifacts/${combineArray[$i]}/packages/server/config
@@ -184,7 +190,9 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
 				else
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				fi"
-				echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	else
 		echo [ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest!

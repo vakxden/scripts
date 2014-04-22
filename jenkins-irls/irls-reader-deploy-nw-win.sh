@@ -16,7 +16,7 @@ BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 FACETS=(puddle bahaiebooks lake ocean audio)
-BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
+BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 DIR_ZIP=/var/lib/jenkins/jobs/irls-reader-initiate-nw-win/builds/lastSuccessfulBuild/archive/
 ###
 ### Create associative array
@@ -46,12 +46,12 @@ function search_and_copy {
 	# if path to artifacts directory contain word "stage" -> search zip-files in artifacts directory for CURRENT-environment
 	if [ -n "$(echo "$1" | grep stage)" ]; then
 		echo contain stage;
-		find_stag=$(find $1 -name *$i-win*.zip) > /dev/null 2>&1
+		find_stag=$(find $1 -name $BRANCH*FFA_Reader*$i-win*.zip) > /dev/null 2>&1
 		if [ ! -z "$find_stag" ]; then
 			echo "nw-win zip file in $PWD exist" && echo "it is $find_stag"
 		else
 			echo "nw-win zip file in $PWD not exists"
-			find=$(find $2 -name *$i-win*.zip) > /dev/null 2>&1
+			find=$(find $2 -name $BRANCH*FFA_Reader*$i-win*.zip) > /dev/null 2>&1
 			if [ ! -z "$find" ]; then
 				echo PWD=$PWD
 				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
@@ -59,7 +59,7 @@ function search_and_copy {
 		fi
 		# else -> search zip-files in directory when jenkins save jobs artifacts
 	else
-		zip_file=$(find $DIR_ZIP -name *$i-win*.zip)
+		zip_file=$(find $DIR_ZIP -name $BRANCH*FFA_Reader*$i-win*.zip)
 		if [ ! -f "$zip_file" ]; then
 			echo "nw-win zip file $zip_file in $DIR_ZIP not exists"
 		else
@@ -76,14 +76,14 @@ function generate_files {
 	echo PWD=$PWD
 }
 function pid_node {
-	# $1 = $2 from function start_node = $INDEX_FILE
+	# $1 = $2 (server/$INDEX_FILE) from function start_node = $INDEX_FILE
 	### Starting (or restarting) node server
-		PID=$(ps aux | grep "node server/$1" | grep -v grep | /usr/bin/awk '{print $2}')
+		PID=$(ps aux | grep "node $1" | grep -v grep | /usr/bin/awk '{print $2}')
 		if [ ! -z "$PID" ];then
 			kill $PID
-			nohup node server/$1 > /dev/null 2>&1 &
+			nohup node $1 > /dev/null 2>&1 &
 		else
-			nohup node server/$1 > /dev/null 2>&1 &
+			nohup node $1 > /dev/null 2>&1 &
 		fi
 		rm -f local.json irls-current-reader-* irls-stage-reader-*
 }
@@ -96,13 +96,15 @@ function start_node {
 		if [ ! -f $1/server/$2 ]; then
 			if [ -f $1/server/index.js ]; then
 				mv server/index.js server/$2
-				pid_node $2
-			elif [ -f $1/server/index*.js ]; then
+				pid_node server/$2
+			elif [ -f $1/server/index_*.js ]; then
 					cp $(ls -1 server/index*.js | head -1) server/$2
-					pid_node $2
+					pid_node server/$2
 			else
 				echo "not found server/index.js in $1" && exit 0
 			fi
+		else
+			pid_node server/$2
 		fi
 	fi
 }
@@ -132,6 +134,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			generate_files $PKG_DIR
 			# run (re-run) node
 			start_node $PKG_DIR $INDEX_FILE
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
@@ -154,6 +158,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			generate_files $PKG_DIR
 			# run (re-run) node
 			start_node $PKG_DIR $INDEX_FILE
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
@@ -161,14 +167,16 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
 			ssh dvac@devzone.dp.ua "
-				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact ]
+				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art ]
 				then
-					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact
+					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/art
 				else
-					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/*\$i-win*.zip
+					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/$BRANCH*FFA_Reader*$i-win*.zip
 				fi"
 			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
-			scp $ARTIFACTS_DIR/*$i-win*.zip dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/
+			if [ -f $ARTIFACTS_DIR/$BRANCH*FFA_Reader*$i-win*.zip ]; then
+				scp $ARTIFACTS_DIR/$BRANCH*FFA_Reader*$i-win*.zip dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
+			fi
 			ssh dvac@devzone.dp.ua "
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
 				cp ~/local.json ~/irls-reader-artifacts/${combineArray[$i]}/packages/server/config
@@ -182,7 +190,9 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 				else
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				fi"
-				echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	else
 		echo [ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest!

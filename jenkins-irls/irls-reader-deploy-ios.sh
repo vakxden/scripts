@@ -16,7 +16,7 @@ BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 FACETS=(puddle bahaiebooks lake ocean audio mediaoverlay)
-BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
+BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 DIR_IPA=/var/lib/jenkins/jobs/irls-reader-initiate-ios/builds/lastSuccessfulBuild/archive/
 ###
 ### Create associative array
@@ -46,12 +46,12 @@ function search_and_copy {
 	# if path to artifacts directory contain word "stage" -> search ipa-files in artifacts directory for CURRENT-environment
 	if [ -n "$(echo "$1" | grep stage)" ]; then
 		echo contain stage;
-		find_stag=$(find $1 -name *$i*.ipa) > /dev/null 2>&1
+		find_stag=$(find $1 -name $BRANCH*FFA_Reader*$i.ipa) > /dev/null 2>&1
 		if [ ! -z "$find_stag" ]; then
 			echo "ipa file in $PWD exist" && echo "it is $find_stag"
 		else
 			echo "ipa file in $PWD not exists"
-			find=$(find $2 -name *$i*.ipa) > /dev/null 2>&1
+			find=$(find $2 -name $BRANCH*FFA_Reader*$i.ipa) > /dev/null 2>&1
 			if [ ! -z "$find" ]; then
 				echo PWD=$PWD
 				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
@@ -59,7 +59,7 @@ function search_and_copy {
 		fi
 		# else -> search ipa-files in directory when jenkins save jobs artifacts
 	else
-		ipa_file=$(find $DIR_IPA -name *$i*.ipa)
+		ipa_file=$(find $DIR_IPA -name $BRANCH*FFA_Reader*$i.ipa)
 		if [ ! -f "$ipa_file" ]; then
 			echo "ipa file $ipa_file in $DIR_IPA not exists"
 		else
@@ -134,6 +134,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-ios" ]; then
 			generate_files $PKG_DIR
 			# run (re-run) node
 			start_node $PKG_DIR $INDEX_FILE
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
@@ -156,6 +158,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-ios" ]; then
 			generate_files $PKG_DIR
 			# run (re-run) node
 			start_node $PKG_DIR $INDEX_FILE
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
@@ -163,14 +167,16 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-ios" ]; then
 			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
 			ssh dvac@devzone.dp.ua "
-				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact ]
+				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art ]
 				then
-					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact
+					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/art
 				else
-					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/*\$i*.ipa
+					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art/$BRANCH*FFA_Reader*$i.ipa
 				fi"
 			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
-			scp $ARTIFACTS_DIR/*$i*.ipa dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/
+			if [ -f $ARTIFACTS_DIR/$BRANCH*FFA_Reader*$i.ipa ]; then
+				scp $ARTIFACTS_DIR/$BRANCH*FFA_Reader*$i.ipa dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
+			fi
 			ssh dvac@devzone.dp.ua "
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
 				cp ~/local.json ~/irls-reader-artifacts/${combineArray[$i]}/packages/server/config
@@ -184,7 +190,9 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-ios" ]; then
 				else
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				fi"
-				echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			# update environment.json file
+			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
 	else
 		echo [ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest!
