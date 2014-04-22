@@ -104,7 +104,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 			# generate links for description job
 			echo link-$i-$dest="http://wpp.isd.dp.ua/irls/current/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
-			echo LINK-$i-$dest=$($(grep "link-'$i'-'$dest'" $WORKSPACE/myenv | awk -F "=" '{print $2}'))
+			echo "link is $($(grep "link-'$i'-'$dest'" $WORKSPACE/myenv | awk -F "=" '{print $2}'))"
 		done
 	elif [ "$dest" = "STAGE" ]; then
 		for i in "${!combineArray[@]}"
@@ -135,7 +135,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 			# generate links for description job
 			echo link-$i-$dest="http://wpp.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
-			echo LINK-$i-$dest=$($(grep "link-'$i'-'$dest'" $WORKSPACE/myenv | awk -F "=" '{print $2}'))
+			echo "link is $($(grep "link-'$i'-'$dest'" $WORKSPACE/myenv | awk -F "=" '{print $2}'))"
 		done
 	elif [ "$dest" = "LIVE" ]; then
 		for i in "${!combineArray[@]}"
@@ -187,10 +187,20 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 			# generate links for description job
 			echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
-			echo LINK-$i-$dest=$(grep "link-$i-$dest" $WORKSPACE/myenv | awk -F "=" '{print $2}')
+			echo "link is $(grep "link-$i-$dest" $WORKSPACE/myenv | awk -F "=" '{print $2}')"
 		done
 	else
 		echo [ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest!
 		exit 1
 	fi
+	###
+	### Variables for links
+	###
+	LINKPUDDLE=$(grep "link-puddle-$dest" /var/lib/jenkins/jobs/irls-reader-deploy-web/workspace/myenv | awk -F "=" '{print $2}')
+	LINKLAKE=$(grep "link-lake-$dest" /var/lib/jenkins/jobs/irls-reader-deploy-web/workspace/myenv | awk -F "=" '{print $2}')
+	LINKOCEAN=$(grep "link-ocean-$dest" /var/lib/jenkins/jobs/irls-reader-deploy-web/workspace/myenv | awk -F "=" '{print $2}')
+	LINKBAHAIEBOOKS=$(grep "link-bahaiebooks-$dest" /var/lib/jenkins/jobs/irls-reader-deploy-web/workspace/myenv | awk -F "=" '{print $2}')
+	LINKAUDIO=$(grep "link-audio-$dest" /var/lib/jenkins/jobs/irls-reader-deploy-web/workspace/myenv | awk -F "=" '{print $2}')
+	LINKMEDIAOVERLAY=$(grep "link-mediaoverlay-$dest" /var/lib/jenkins/jobs/irls-reader-deploy-web/workspace/myenv | awk -F "=" '{print $2}')
+	# End of body
 fi
