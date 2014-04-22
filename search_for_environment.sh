@@ -22,7 +22,7 @@ fi
 # creating array
 deploymentPackageId=($(echo "$1"))
 # processed file
-PFILE="environment.json"
+PFILE="/home/jenkins/irls-reader-artifacts/environment.json"
 
 # for right block
 if [ "$2" = "DEVELOPMENT" ]; then
