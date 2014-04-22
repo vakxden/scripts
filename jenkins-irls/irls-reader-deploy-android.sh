@@ -80,7 +80,7 @@ function pid_node {
 	### Starting (or restarting) node server
 		PID=$(ps aux | grep "node $1" | grep -v grep | /usr/bin/awk '{print $2}')
 		if [ ! -z "$PID" ];then
-			kill $PID
+			kill -9 $PID
 			nohup node $1 > /dev/null 2>&1 &
 		else
 			nohup node $1 > /dev/null 2>&1 &
@@ -185,7 +185,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
 				PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
 				if [ ! -z \$PID ]
 				then
-					kill \$PID
+					kill -9 \$PID
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				else
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
