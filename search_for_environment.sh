@@ -31,7 +31,11 @@ elif [ "$2" = "STAGE" ]; then
         CURRENT="stage"
 elif [ "$2" = "LIVE" ]; then
         CURRENT="live"
+else
+	echo [ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest!
+	exit 1
 fi
+
 # body
 printf "start processing file $PFILE \n"
 for ID in ${deploymentPackageId[@]}
