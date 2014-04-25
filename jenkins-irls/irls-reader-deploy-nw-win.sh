@@ -39,13 +39,15 @@ done
 function search_and_copy {
 	# $1=$STAGE_ARTIFACTS_DIR/
 	# $2=$CURRENT_ARTIFACTS_DIR/
+	printf "start of function search_and_copy \n"
+	cd $1
 	if [ -z $1 ]; then
 		echo "path to artifacts directory must be passed"
 		exit 1
 	fi
 	# if path to artifacts directory contain word "stage" -> search zip-files in artifacts directory for CURRENT-environment
 	if [ -n "$(echo "$1" | grep stage)" ]; then
-		echo contain stage;
+		echo "contain stage";
 		find_stag=$(find $1 -name $BRANCH*FFA_Reader*$i-win*.zip) > /dev/null 2>&1
 		if [ ! -z "$find_stag" ]; then
 			echo "nw-win zip file in $PWD exist" && echo "it is $find_stag"
@@ -53,8 +55,7 @@ function search_and_copy {
 			echo "nw-win zip file in $PWD not exists"
 			find=$(find $2 -name $BRANCH*FFA_Reader*$i-win*.zip) > /dev/null 2>&1
 			if [ ! -z "$find" ]; then
-				echo PWD=$PWD
-				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
+				cp -f $find $1 && echo "copying file $find to $1"
 			fi
 		fi
 		# else -> search zip-files in directory when jenkins save jobs artifacts
@@ -151,7 +152,6 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 			if [ ! -d $STAGE_ARTIFACTS_DIR ]; then
 				mkdir -p $STAGE_ARTIFACTS_DIR
 			fi
-			cd $STAGE_ARTIFACTS_DIR
 			# search node-webkit for Windows (nw-win) zip-files, if not exists - copy from artifacts dir to stage artifacts dir
 			search_and_copy $STAGE_ARTIFACTS_DIR/ $CURRENT_ARTIFACTS_DIR/
 			# generate index.html and local.json
@@ -185,7 +185,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-win" ]; then
 				PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
 				if [ ! -z \$PID ]
 				then
-					kill  -9 \$PID
+					kill -9 \$PID
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				else
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
