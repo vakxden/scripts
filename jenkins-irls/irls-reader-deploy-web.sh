@@ -2,24 +2,25 @@
 ### Checking variables that were passed to the current bash-script
 ###
 if [ -z $BRANCHNAME ]; then
-    echo [ERROR_BRANCH] branchname must be passed!
+    printf "[ERROR_BRANCHNAME] branchname must be passed! \n"
     exit 1
 fi
 if [ -z $mark ]; then
-    echo "mark must be passed"
+    printf "[ERROR_MARK] mark must be passed \n"
     exit 1
 fi
 ###
 ### Constant local variables
 ###
-BUILD_ID=donotkillme
-FACETS=(puddle bahaiebooks lake ocean audio mediaoverlay)
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
+BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 REMOTE_ART_PATH=/home/dvac/irls-reader-artifacts
 LIVE_DIR=/home/jenkins/irls-reader-live
 LIVE_LINKS_DIR=/home/jenkins/irls-reader-live-links
+#FACETS=(puddle bahaiebooks lake ocean audio mediaoverlay)
+FACETS=($(echo $FACET))
 # clean file myenv
 cat /dev/null > $WORKSPACE/myenv
 ###
@@ -44,7 +45,7 @@ function generate_files {
 	# $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
 	cd $1
 	sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
-	rm -f $1/server/config/local.json
+	#rm -f $1/server/config/local.json
 	ls -lah
 	echo PWD=$PWD
 }
@@ -65,7 +66,7 @@ function start_node {
 	# $1=$PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
 	# $2=$INDEX_FILE
 	if [ -d $1/server/config ]; then
-		cp local.json $1/server/config/
+		cp -f local.json $1/server/config/
 		if [ ! -f $1/server/$2 ]; then
 			if [ -f $1/server/index.js ]; then
 				mv server/index.js server/$2
@@ -196,7 +197,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			sed -i "s/link-$i-$dest/link$i/g" $WORKSPACE/myenv
 		done
 	else
-		echo [ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest!
+		printf "[ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest! \n"
 		exit 1
 	fi
 	# End of body
