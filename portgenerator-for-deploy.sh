@@ -1,10 +1,12 @@
 #!/bin/bash -x
+name=$(basename $0)
+lockfile=/var/tmp/$name
+while [ -f $lockfile ]
+do
+        printf "Script $name already running. Lock file is $lockfile"
+        sleep 2
+done
 
-lockfile=/var/tmp/mylock
-
-while true; do
-         if ( set -o noclobber; echo "$$" > "$lockfile") 2> /dev/null; then
-                trap 'rm -f "$lockfile"; exit $?' INT TERM EXIT
                 # body of script
                 BRANCHNAME="$1"
                 FACETS="$2"
@@ -162,11 +164,3 @@ while true; do
                         CURRENT="live"
                 fi
                 # end of body script
-                # clean up after yourself, and release your trap
-                rm -f "$lockfile"
-                trap - INT TERM EXIT
-        else
-                echo "Lock Exists: $lockfile owned by $(cat $lockfile)"
-                sleep 2
-        fi
-done
