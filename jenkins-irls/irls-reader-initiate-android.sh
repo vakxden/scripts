@@ -13,7 +13,7 @@ FACETS=($(echo $FACET))
 ###
 for facet in ${FACETS[@]}
 do
-	if [ $(echo "$facet" | egrep "puddle|mediaoverlay") ]; then
+	if [ $(echo "$facet" | egrep "puddle$|mediaoverlay$") ]; then
 		printf "YES! facet=$facet\n"
 		### Remove old version of project and zip-archives
 		rm -rf client packager server apk/*.apk
@@ -28,7 +28,7 @@ do
 		do
 			for ((y=0; y<${#FACETS2[@]}; y++))
 			do
-				if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS2[y]}")" ]; then
+				if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS2[y]}$")" ]; then
 					combineArray+=(["${FACETS2[y]}"]="${deploymentPackageId[$i]}")
 				fi
 			done

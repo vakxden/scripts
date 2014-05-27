@@ -16,7 +16,7 @@ FACETS=($(echo $FACET))
 
 for facet in ${FACETS[@]}
 do
-	if [ $(echo "$facet" | egrep "puddle|bahaiebooks|mediaoverlay|audio|audiobywords|lake") ]; then
+	if [ $(echo "$facet" | egrep "puddle$|bahaiebooks$|mediaoverlay$|audio$|audiobywords$|lake$") ]; then
 		### Remove old version of project and zip-archives
 		if [ ! -d zip ]; then mkdir zip; fi
 		### Copy project to workspace

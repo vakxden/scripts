@@ -12,7 +12,7 @@ FACETS=($(echo $FACET))
 ###
 for facet in ${FACETS[@]}
 do
-	if [ $(echo "$facet" | egrep "puddle|bahaiebooks|mediaoverlay|audio|audiobywords") ]; then
+	if [ $(echo "$facet" | egrep "puddle$|bahaiebooks$|mediaoverlay$|audio$|audiobywords$") ]; then
 		printf "YES! facet=$facet\n"
 		# Copy code of project from the current code directory to workspace of job
 		rm -rf $WORKSPACE/packager/* $WORKSPACE/packager $WORKSPACE/client/ 
