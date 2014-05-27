@@ -1,4 +1,11 @@
 ###
+### This script takes the following parameters: 
+###  BRANCHNAME 
+###  GIT_TSOMMIT 
+###  CURRENT_BUILD 
+###  ID 
+###  FACET
+###
 ### path to node (because this job working in host dev02.design.isd.dp.ua)
 ###
 export NODE_HOME=/opt/node
@@ -9,7 +16,6 @@ export PATH=$PATH:$NODE_HOME/bin/
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
-#FACETS=(puddle bahaiebooks lake audio mediaoverlay)
 FACETS=($(echo $FACET))
 ###
 ### Body (working with all facets exclude only facet named "ocean")
@@ -26,18 +32,18 @@ do
 		# this line there because this job working in host dev02.design.isd.dp.ua
 		cp -Rf $CURRENT_BUILD/* .
 		### Create associative array
-		 deploymentPackageId=($(echo $ID))
-                ELEMENT_OF_FACETS=($facet)
-                declare -A combineArray
-                for ((x=0; x<${#deploymentPackageId[@]}; x++))
-                do
-                        for ((y=0; y<${#ELEMENT_OF_FACETS[@]}; y++))
-                        do
-                                if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${ELEMENT_OF_FACETS[y]}$")" ]; then
-                                        combineArray+=(["${ELEMENT_OF_FACETS[y]}"]="${deploymentPackageId[x]}")
-                                fi
-                        done
-                done
+		deploymentPackageId=($(echo $ID))
+		ELEMENT_OF_FACETS=($facet)
+		declare -A combineArray
+		for ((x=0; x<${#deploymentPackageId[@]}; x++))
+		do
+			for ((y=0; y<${#ELEMENT_OF_FACETS[@]}; y++))
+			do
+				if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${ELEMENT_OF_FACETS[y]}$")" ]; then
+					combineArray+=(["${ELEMENT_OF_FACETS[y]}"]="${deploymentPackageId[x]}")
+				fi
+			done
+		done
 		### Create zip-archive with application version for Linux 32-bit
 		for i in "${!combineArray[@]}"
 		do
