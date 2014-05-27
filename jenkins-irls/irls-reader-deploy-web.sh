@@ -33,7 +33,7 @@ for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
 	for ((y=0; y<${#FACETS[@]}; y++))
 	do
-		if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}")" ]; then
+		if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}$")" ]; then
 			combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
 		fi
 	done
