@@ -20,15 +20,15 @@ do
 		### Clean old ipa-file from workspace of job
 		rm -rf $WORKSPACE/*.ipa
 		### Create associative array
-		FACETS2=($facet)
 		deploymentPackageId=($(echo $ID))
+		ELEMENT_OF_FACETS=($facet)
 		declare -A combineArray
 		for ((x=0; x<${#deploymentPackageId[@]}; x++))
 		do
-			for ((y=0; y<${#FACETS2[@]}; y++))
+			for ((y=0; y<${#ELEMENT_OF_FACETS[@]}; y++))
 			do
-				if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${FACETS2[y]}$")" ]; then
-					combineArray+=(["${FACETS2[y]}"]="${deploymentPackageId[x]}")
+				if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${ELEMENT_OF_FACETS[y]}$")" ]; then
+					combineArray+=(["${ELEMENT_OF_FACETS[y]}"]="${deploymentPackageId[x]}")
 				fi
 			done
 		done
@@ -57,6 +57,7 @@ do
 			rm -rf $CURRENT_BUILD/${combineArray[$i]}
 		done
 	else
-		printf "not make sense to create ipa-file with the big facet \n"
+		printf "we can only work with the all facets exclude 'lake' and 'ocean' \n"
+		printf "not $facet ! \n"
 	fi
 done
