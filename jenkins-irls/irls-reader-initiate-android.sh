@@ -21,18 +21,18 @@ do
 		if [ ! -d apk ]; then mkdir apk; fi
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 		### Create associative array
-		FACETS2=($facet)
 		deploymentPackageId=($(echo $ID))
-		declare -A combineArray
-		for ((i=0; i<${#deploymentPackageId[@]}; i++))
-		do
-			for ((y=0; y<${#FACETS2[@]}; y++))
-			do
-				if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS2[y]}$")" ]; then
-					combineArray+=(["${FACETS2[y]}"]="${deploymentPackageId[$i]}")
-				fi
-			done
-		done
+                ELEMENT_OF_FACETS=($facet)
+                declare -A combineArray
+                for ((x=0; x<${#deploymentPackageId[@]}; x++))
+                do
+                        for ((y=0; y<${#ELEMENT_OF_FACETS[@]}; y++))
+                        do
+                                if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${ELEMENT_OF_FACETS[y]}$")" ]; then
+                                        combineArray+=(["${ELEMENT_OF_FACETS[y]}"]="${deploymentPackageId[x]}")
+                                fi
+                        done
+              	done
 		### Create apk-file with application version for android
 		for i in "${!combineArray[@]}"
 		do
