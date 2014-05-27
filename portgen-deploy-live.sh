@@ -54,8 +54,11 @@ function generate_indexhtml {
         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
         IPAFILE=$1*FFA_Reader*$2*.ipa
         ZIPWINFILE=$1*FFA_Reader*$2-win*.zip
+        ZIPLINUX32FILE=$1*FFA_Reader*$2-linux32*.zip
+        ZIPLINUX64FILE=$1*FFA_Reader*$2-linux64*.zip
+        ZIPMACOSFILE=$1*FFA_Reader*$2-macos*.zip
         APKFILE=$1*FFA_Reader*$2*.apk
-        for file in $IPAFILE $ZIPWINFILE $APKFILE
+        for file in $IPAFILE $ZIPWINFILE $APKFILE $ZIPMACOSFILE $ZIPLINUX32FILE $ZIPLINUX64FILE
         do
                 if [ -f "$(find . -name $file)" ]; then
                         for name in $(find . -name $file)
@@ -63,7 +66,7 @@ function generate_indexhtml {
                                 DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
                                 SIZE=$(($(stat -c %s $name)/1048576))
                                 artifact_name=$(echo $name |  sed 's/^\.\///g')
-                                echo -e '<tr><td><a href="http://irls.websolutions.dp.ua/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+                                echo -e '<tr><td><a href="https://irls.isd.dp.ua/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
                         done
                 fi
         done
