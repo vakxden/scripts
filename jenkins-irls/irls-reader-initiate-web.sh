@@ -47,6 +47,7 @@ do
 	fi
 	cp -Rf $WORKSPACE/common $ARTIFACTS_DIR/${combineArray[$i]}/packages/
 	cp -Rf $WORKSPACE/server $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+	cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
 	cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
 	cp -Rf /home/couchdb/$i* $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
 done
