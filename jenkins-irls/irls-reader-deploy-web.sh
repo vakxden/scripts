@@ -178,8 +178,10 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 				mv $REMOTE_ART_PATH/${combineArray[$i]}/packages/artifacts/* $REMOTE_ART_PATH/${combineArray[$i]}/packages/art/
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
 				cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/packages/server/config
-				rm -rf /home/iogi/node/couchdb/var/lib/couchdb/*
-				cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes/* /home/iogi/node/couchdb/var/lib/couchdb/
+				#rm -rf /home/iogi/node/couchdb/var/lib/couchdb/*
+				rm -rf /home/dvac/couchdb/var/lib/couchdb/*
+				#cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes/* /home/iogi/node/couchdb/var/lib/couchdb/
+				cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes/* /home/dvac/couchdb/var/lib/couchdb/
 				
 				cd $REMOTE_ART_PATH/${combineArray[$i]}/packages/
 				PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
