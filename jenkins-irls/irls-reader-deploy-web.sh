@@ -130,8 +130,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 				# ( to save time and because was next error:
 				# "Unable to write "/var/lib/jenkins/jobs/irls-reader-initiate-web/workspace/packager/out/dest/develop-FFA_Reader-ocean-web-0.0.1/dist/app/epubs/thumbs/b6621f20d60938e3633132270bcfb263.png" file (Error code: ENOSPC).")
 				# the reason is numbers of opened files ("ulimit -a" command) for user
-				if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ]; then
-					cp -Rf common client server couchdb_indexes artifacts $STAGE_PKG_DIR/
+				if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ] || [ -d portal ]; then
+					cp -Rf common client server couchdb_indexes artifacts portal $STAGE_PKG_DIR/
 				fi
 			fi
 			# generate index.html and local.json
