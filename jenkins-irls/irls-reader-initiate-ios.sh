@@ -57,7 +57,7 @@ do
                         rm -rf $CURRENT_BUILD/${combineArray[$i]}
                 done
         else
-                printf "we can only work with the all facets exclude 'lake' and 'ocean' \n"
+                printf "we can only work with the all facets exclude 'ocean' \n"
                 printf "not $facet ! \n"
         fi
 done
