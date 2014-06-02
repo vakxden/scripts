@@ -1,6 +1,15 @@
 ###
 ### Variables
 ###
+export PATH=$PATH:/usr/local/bin
+export HTTP_PROXY=http://10.98.192.120:3128
+export HTTPS_PROXY=http://10.98.192.120:3128
+CURRENT_BUILD=/Users/jenkins/irls-reader-current-build
+BUILD_CONFIG=/Users/jenkins/build_config
+CURRENT_EPUBS=/Users/jenkins/irls-reader-current-epubs
+ARTIFACTS_DIR=/Users/jenkins/irls-reader-artifacts
+echo SHELL=$BASH
+echo SHELL_VERSION=$BASH_VERSION
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 CURRENT_BUILD=/Users/jenkins/irls-reader-current-build
 CONFIGURATION_BUILD_DIR=$WORKSPACE/build
@@ -38,7 +47,7 @@ do
                         echo $i --- ${combineArray[$i]}
                         #DATE=$(date +%d-%b-%y_%H-%M-%S)
                         cd $WORKSPACE/packager
-                        time node index.js --target=ios --config=$BUILD_CONFIG --from=$WORKSPACE/client --prefix=$BRANCH- --suffix=-$i --epubs=/Users/jenkins/irls-reader-current-epubs/$i/
+                        time node index.js --target=ios --config=$BUILD_CONFIG --from=$WORKSPACE/client --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
                         #unlock keychain
                         security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
                         #build with xcodebuild
@@ -57,7 +66,7 @@ do
                         rm -rf $CURRENT_BUILD/${combineArray[$i]}
                 done
         else
-                printf "we can only work with the all facets exclude 'ocean' \n"
+                printf "we can only work with the all facets exclude 'lake' and 'ocean' \n"
                 printf "not $facet ! \n"
         fi
 done
