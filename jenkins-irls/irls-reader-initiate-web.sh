@@ -3,7 +3,6 @@
 ###
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
-#FACETS=(puddle bahaiebooks lake audio mediaoverlay)
 FACETS=($(echo $FACET))
 ###
 ### Copy project to workspace

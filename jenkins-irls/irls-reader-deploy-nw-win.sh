@@ -17,7 +17,6 @@ BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 DIR_ZIP=/var/lib/jenkins/jobs/irls-reader-initiate-nw-win/builds/lastSuccessfulBuild/archive/
-#FACETS=(puddle bahaiebooks lake ocean audio mediaoverlay)
 FACETS=($(echo $FACET))
 ###
 ### Create associative array

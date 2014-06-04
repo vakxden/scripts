@@ -19,7 +19,6 @@ STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 REMOTE_ART_PATH=/home/dvac/irls-reader-artifacts
 LIVE_DIR=/home/jenkins/irls-reader-live
 LIVE_LINKS_DIR=/home/jenkins/irls-reader-live-links
-#FACETS=(puddle bahaiebooks lake ocean audio mediaoverlay)
 FACETS=($(echo $FACET))
 # clean file myenv
 cat /dev/null > $WORKSPACE/myenv
