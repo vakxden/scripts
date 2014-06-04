@@ -49,17 +49,8 @@ do
 		#unlock keychain
 		security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
 		#build with xcodebuild
-		time /usr/bin/xcodebuild -target "$BRANCH-FFA_Reader-$i" -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$BRANCH-FFA_Reader-$i.xcodeproj/
+		time /usr/bin/xcodebuild -target "$BRANCH-FFA_Reader-$i" -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$BRANCH-FFA_Reader-$i.xcodeproj/ > /dev/null
 		#create ipa-file
-		time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$BRANCH-FFA_Reader-$i.app" -o $WORKSPACE/build/ipa_file/$BRANCH-FFA_Reader-$i.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
-		if [ ! -d $CURRENT_BUILD/${combineArray[$i]} ]; then
-			mkdir -p $CURRENT_BUILD/${combineArray[$i]}
-		else
-			rm -rf $CURRENT_BUILD/${combineArray[$i]}/*
-		fi
-		mv $WORKSPACE/build/ipa_file/*.ipa $CURRENT_BUILD/${combineArray[$i]}/
-		# for archiving artifacts
-		cp -Rf $CURRENT_BUILD/${combineArray[$i]}/$BRANCH-FFA_Reader-$i.ipa $WORKSPACE
-		rm -rf $CURRENT_BUILD/${combineArray[$i]}
+		time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$BRANCH-FFA_Reader-$i.app" -o $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
 	fi
 done
