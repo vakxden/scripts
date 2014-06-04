@@ -16,7 +16,9 @@ FACETS=($(echo $FACET))
 
 for facet in ${FACETS[@]}
 do
-	if [ $(echo "$facet" | egrep "puddle$|bahaiebooks$|mediaoverlay$|audio$|audiobywords$|lake$") ]; then
+	if [ $(echo "$facet" | egrep "ocean$") ]; then
+		printf "we can only work with the all facets exclude 'ocean' \n"
+	else
 		### Remove old version of project and zip-archives
 		if [ ! -d zip ]; then mkdir zip; fi
 		### Copy project to workspace
@@ -58,7 +60,5 @@ do
 			# this line there because this job working in host dev02.design.isd.dp.ua
 			scp $WORKSPACE/zip/*$i-win*.zip jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		done
-	else
-		printf "we can only work with the all facets exclude 'ocean' \n"
 	fi
 done
