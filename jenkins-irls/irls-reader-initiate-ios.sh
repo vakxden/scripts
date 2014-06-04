@@ -17,11 +17,14 @@ CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
 MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution.mobileprovision
 FACETS=($(echo $FACET))
 ###
-### Body (working only with facets named "puddle","bahaiebooks","audio" and "mediaoverlay")
+### Body (working with all facets exclude "ocean")
 ###
 for facet in ${FACETS[@]}
 do
-        if [ $(echo "$facet" | egrep "puddle$|bahaiebooks$|mediaoverlay$|audio$|audiobywords$|lake$") ]; then
+        if [ $(echo "$facet" | egrep "ocean$") ]; then
+                printf "we can only work with the all facets exclude 'ocean' \n"
+                printf "not $facet ! \n"
+        else
                 printf "YES! facet=$facet\n"
                 # Copy code of project from the current code directory to workspace of job
                 rm -rf $WORKSPACE/packager/* $WORKSPACE/packager $WORKSPACE/client/
@@ -65,8 +68,5 @@ do
                         cp -Rf $CURRENT_BUILD/${combineArray[$i]}/$BRANCH-FFA_Reader-$i.ipa $WORKSPACE
                         rm -rf $CURRENT_BUILD/${combineArray[$i]}
                 done
-        else
-                printf "we can only work with the all facets exclude 'lake' and 'ocean' \n"
-                printf "not $facet ! \n"
         fi
 done
