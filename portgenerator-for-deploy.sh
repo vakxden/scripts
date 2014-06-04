@@ -8,6 +8,7 @@ do
 done
 
                 # body of script
+                touch $lockfile
                 BRANCHNAME="$1"
                 FACETS="$2"
                 dest="$3"
@@ -95,7 +96,7 @@ done
                                                 DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
                                                 SIZE=$(($(stat -c %s $name)/1048576))
                                                 artifact_name=$(echo $name |  sed 's/^\.\///g')
-                                                echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+                                                echo -e '<tr><td><a href="http://wpp.isd.dp.ua/irls/'$CURRENT'/reader/'$FACETS'/'$BRANCHNAME'/artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
                                         done
                                 fi
                         done
@@ -115,8 +116,8 @@ done
                                 if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/artifacts ]; then
                                         mkdir -p /home/jenkins/$ARTDIR/$ID/packages/artifacts && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/artifacts
                                 fi
-                                echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
-                                echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
+                                echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
+                                echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> $ACF
                                 generate_indexhtml
                         fi
 
@@ -139,8 +140,8 @@ done
                                         mkdir -p /home/jenkins/$ARTDIR/$ID/packages/artifacts && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/artifacts
                                 fi
                                 # filling temporary file
-                                echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> tmp
-                                echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> tmp
+                                echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> tmp
+                                echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> tmp
                                 generate_indexhtml
                         fi
                         # replace temporary file to original apache config file
@@ -163,4 +164,4 @@ done
                 elif [ "$dest" = "LIVE" ]; then
                         CURRENT="live"
                 fi
-                # end of body script
+                rm -f $lockfile
