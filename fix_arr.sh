@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # hard code
-ID="dda0385c9c1fce2ce1259_puddle dda0385c9c1fce2ce1259_bahaiebooks dda0385c9c1fce2ce1259_mediaoverlay dda0385c9c1fce2ce1259_audio dda0385c9c1fce2ce1259_audiobywords dda0385c9c1fce2ce1259_lake"
-FACETS=(puddle bahaiebooks mediaoverlay audio audiobywords lake ocean)
+ID="c82a41d5a28a543e182aa_puddle c82a41d5a28a543e182aa_bahaiebooks c82a41d5a28a543e182aa_audio c82a41d5a28a543e182aa_audiobywords c82a41d5a28a543e182aa_mediaoverlay c82a41d5a28a543e182aa_lake c82a41d5a28a543e182aa_ocean"
+FACETS=(puddle bahaiebooks audio audiobywords mediaoverlay lake ocean)
 # array
 deploymentPackageId=($(echo $ID))
 declare -A combineArray
