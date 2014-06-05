@@ -68,6 +68,7 @@ do
 	if [ "$i" = "ocean" ]; then
 		printf "epubs for facet named 'ocean' will not be copying to mac-mini \n"
 	else
+	ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir /Users/jenkins/irls-reader-current-epubs/$i; fi"
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "rm -rf /Users/jenkins/irls-reader-current-epubs/$i/*"
 	tar czf - ~/irls-reader-current-epubs/$i/ | ssh jenkins@yuriys-mac-mini.isd.dp.ua "tar xzf - -C /Users/jenkins/irls-reader-current-epubs/$i/"
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "rm -rf /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
@@ -80,6 +81,7 @@ done
 ###
 for i in "${FACETS[@]}"
 do
+	ssh dvac@devzone.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  ~/irls-reader-current-epubs/$i; fi"
 	ssh dvac@devzone.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
 	tar czf - ~/irls-reader-current-epubs/$i/ | ssh dvac@devzone.dp.ua "tar xzf - -C ~/irls-reader-current-epubs/$i/"
 	ssh dvac@devzone.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
@@ -90,6 +92,7 @@ done
 ###
 for i in "${FACETS[@]}"
 do
+	ssh jenkins@irls-autotests.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi"
 	ssh jenkins@irls-autotests.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
 	tar czf - ~/irls-reader-current-epubs/$i/ | ssh jenkins@irls-autotests.design.isd.dp.ua "tar xzf - -C ~/irls-reader-current-epubs/$i/"
 	ssh jenkins@irls-autotests.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
@@ -100,6 +103,7 @@ done
 ###
 for i in "${FACETS[@]}"
 do
+	ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi"
 	ssh jenkins@dev02.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
 	tar czf - ~/irls-reader-current-epubs/$i/ | ssh jenkins@dev02.design.isd.dp.ua "tar xzf - -C ~/irls-reader-current-epubs/$i/"
 	ssh jenkins@dev02.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
