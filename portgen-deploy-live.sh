@@ -66,7 +66,7 @@ function generate_indexhtml {
                                 DATE=$(stat -c %y $name | awk '{print $1,$2}' | awk -F'.' '{print $1}')
                                 SIZE=$(($(stat -c %s $name)/1048576))
                                 artifact_name=$(echo $name |  sed 's/^\.\///g')
-                                echo -e '<tr><td><a href="https://irls.isd.dp.ua/'$FACETS'/'$BRANCHNAME'.artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
+                                echo -e '<tr><td><a href="https://irls.isd.dp.ua/'$FACETS'/'$BRANCHNAME'/artifacts/'$artifact_name'">'$artifact_name'</a></td><td align="right">'$DATE'</td><td align="right">'$SIZE'MB</td><td>&nbsp;</td></tr>' >> index.html
                         done
                 fi
         done
@@ -107,8 +107,8 @@ touch $ACF
 if [ -z $ID ]; then
          echo "ID was not passed"
 else
-        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
-        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME.artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
+        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
+        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
                 generate_indexhtml
 fi
 
