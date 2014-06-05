@@ -57,7 +57,7 @@ DATE=$(date +%s)
 files_conv_ocean=$(grep ocean $WORKSPACE/filesconv.txt | awk '{print $6}')
 if [ ! -z "$files_conv_ocean" ]; then
 	sudo rrdtool update /var/db/rrdtool/trendcountbooks.rrd $DATE:$files_conv_ocean
-	sudo rrdtool graph /home/jenkins/irls-reader-artifacts/trendcountbooks.png -a PNG -v "irls-rrm-processor-convert" --start now-14d --end N --width 1000 --height 400 --zoom 2 DEF:numbers_of=/var/db/rrdtool/trendcountbooks.rrd:numbers_of:LAST AREA:numbers_of#00FF00:"Numbers of files converted" "LINE1:numbers_of#000000:Actual\\t"
+	sudo rrdtool graph /home/jenkins/irls-reader-artifacts/trendcountbooks.png -a PNG -v "irls-rrm-processor-convert" --start now-14d --end N -w 1200 -h 400 DEF:numbers_of=/var/db/rrdtool/trendcountbooks.rrd:numbers_of:LAST AREA:numbers_of#00FF00:"Numbers of files converted"
 fi
 
 ###
