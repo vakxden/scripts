@@ -14,10 +14,10 @@ deploymentPackageId=($(echo $ID))
 declare -A combineArray
 for ((x=0; x<${#deploymentPackageId[@]}; x++))
 do
-	for ((y=0; y<${#ELEMENT_OF_FACETS[@]}; y++))
+	for ((y=0; y<${#FACETS[@]}; y++))
 	do
-		if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${ELEMENT_OF_FACETS[y]}$")" ]; then
-			combineArray+=(["${ELEMENT_OF_FACETS[y]}"]="${deploymentPackageId[x]}")
+		if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${FACETS[y]}$")" ]; then
+			combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[x]}")
 		fi
 	done
 done
