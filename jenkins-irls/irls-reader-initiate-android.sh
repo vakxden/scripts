@@ -30,12 +30,12 @@ if [ ! -d apk ]; then mkdir apk; fi
 cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 
 ###
-### Body (working only with facets named "puddle", "mediaoverlay")
+### Body (working only with facets named "puddle", "mediaoverlay", "audio", "audiobywords")
 ###
 for i in "${!combineArray[@]}"
 do
 	echo $i --- ${combineArray[$i]}
-	if [ $(echo "$i" | egrep "puddle$|mediaoverlay$") ]; then
+	if [ $(echo "$i" | egrep "puddle$|mediaoverlay$|audio$|audiobywords$") ]; then
 		cd $WORKSPACE/packager
 		node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
 		# Remove unaligned apk-file
@@ -47,6 +47,6 @@ do
 		fi
 		cp $WORKSPACE/apk/$BRANCH-FFA_Reader-$i.apk $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
         else
-                printf "we can only work with the two facets named 'puddle','mediaoverlay' \n"
+                printf "we can only work with the two facets named 'puddle','mediaoverlay', 'audio', audiobywords \n"
         fi
 done
