@@ -22,22 +22,26 @@ do
 	done
 done
 
-### Remove old version of project and zip-archives
+### Remove old version of project and apk-files
+if [ ! -d apk ]; then mkdir apk; fi
 rm -rf client packager server apk/*.apk
 
 ### Copy project to workspace
-if [ ! -d apk ]; then mkdir apk; fi
 cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 
 ###
-### Body (working only with facets named "puddle", "mediaoverlay", "audio", "audiobywords")
+### Body (working with all facets exclude "ocean")
 ###
 for i in "${!combineArray[@]}"
 do
 	echo $i --- ${combineArray[$i]}
 	if [ $(echo "$i" | egrep "ocean$") ]; then
-                printf "we do not create the apk-file for facet named 'ocean'\n"
-		exit 0
+		getAbort()
+		{
+                	printf "we do not create the apk-file for facet named 'ocean'\n"
+		}
+		getAbort
+		trap 'getAbort; exit' SIGTERM
         else
 		cd $WORKSPACE/packager
 		node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
