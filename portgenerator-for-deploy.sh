@@ -82,12 +82,12 @@ done
                         echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
                         echo -e '<body><h1>List of artifacts</h1>' >> index.html
                         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-                        IPAFILE=$1*FFA_Reader*$2*.ipa
-                        ZIPWINFILE=$1*FFA_Reader*$2-win*.zip
-                        ZIPLINUX32FILE=$1*FFA_Reader*$2-linux32*.zip
-                        ZIPLINUX64FILE=$1*FFA_Reader*$2-linux64*.zip
-                        ZIPMACOSFILE=$1*FFA_Reader*$2-macos*.zip
-                        APKFILE=$1*FFA_Reader*$2*.apk
+                        IPAFILE=$BRANCHNAME*FFA_Reader*$FACETS*.ipa
+                        ZIPWINFILE=$BRANCHNAME*FFA_Reader*$FACETS-win*.zip
+                        ZIPLINUX32FILE=$BRANCHNAME*FFA_Reader*$FACETS-linux32*.zip
+                        ZIPLINUX64FILE=$BRANCHNAME*FFA_Reader*$FACETS-linux64*.zip
+                        ZIPMACOSFILE=$BRANCHNAME*FFA_Reader*$FACETS-macos*.zip
+                        APKFILE=$BRANCHNAME*FFA_Reader*$FACETS*.apk
                         for file in $IPAFILE $ZIPWINFILE $APKFILE $ZIPMACOSFILE $ZIPLINUX32FILE $ZIPLINUX64FILE
                         do
                                 if [ -f "$(find . -name $file)" ]; then
