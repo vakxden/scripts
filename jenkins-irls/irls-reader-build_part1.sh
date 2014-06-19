@@ -33,10 +33,9 @@ META_SUM_ALL=$CURRENT_EPUBS/meta-all
 GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_SHORT=$(echo $GIT_COMMIT | cut -c1-7)
-#FACETS=(puddle bahaiebooks lake ocean audio mediaoverlay)
-FACETS=($(echo $FACET))
+#FACETS=($(echo $FACET))
 deploymentPackageId=()
-for i in "${FACETS[@]}"
+for i in "${FACET[@]}"
 do
 	deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
 done
