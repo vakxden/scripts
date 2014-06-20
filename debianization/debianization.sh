@@ -160,3 +160,7 @@ else
         touch $DEB_COMPAT
 fi
 printf "8" >> $DEB_COMPAT
+
+###
+### debuild -b -us -uc
+###
