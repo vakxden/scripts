@@ -127,7 +127,7 @@ fi
 printf "Source: $NAME
 Section: misc
 Priority: extra
-Maintainer: IRLS Team irls@isd.dp.ua
+Maintainer: IRLS Team <irls@isd.dp.ua>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
 Homepage: https://irls.isd.dp.ua/$FACET/$BRANCH/artifacts
