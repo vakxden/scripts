@@ -114,7 +114,7 @@ else
 fi
 printf "#!/usr/bin/make -f
 %%:
-        dh \$@ --with python2" >> $DEB_RULES
+	dh \$@ --with python2" >> $DEB_RULES
 
 
 # Create debian/control file
