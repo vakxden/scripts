@@ -104,4 +104,29 @@ develop-reader-puddle (0.0.1) unstable; urgency=low
 root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# cat debian/compat
 8
 
+root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# pwd
+/root/reader_deb_creating/develop-reader-puddle-0.0.1
+root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# ll
+total 84
+drwxr-xr-x 2 root root  4096 Jun 20 11:50 debian
+drwxr-xr-x 4 root root  4096 Jun 19 15:40 develop-reader-puddle_0.0.1
+-rw-r--r-- 1 root root   468 Jun 19 16:58 develop-reader-puddle.desktop
+-rw-r--r-- 1 root root   252 Jun 19 16:18 develop-reader-puddle.menu
+-rw-r--r-- 1 root root 12050 Jun 19 15:30 product_logo_128.png
+-rw-r--r-- 1 root root  6944 Jun 19 15:30 product_logo_16.png
+-rw-r--r-- 1 root root  7195 Jun 19 15:30 product_logo_22.png
+-rw-r--r-- 1 root root  7241 Jun 19 15:30 product_logo_24.png
+-rw-r--r-- 1 root root  7583 Jun 19 15:30 product_logo_32.png
+-rw-r--r-- 1 root root  8290 Jun 19 15:30 product_logo_48.png
+-rw-r--r-- 1 root root  8981 Jun 19 15:30 product_logo_64.png
+root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# ll debian/
+total 28
+-rw-r--r-- 1 root root 139 Jun 20 10:51 changelog
+-rw-r--r-- 1 root root   2 Jun 20 10:51 compat
+-rw-r--r-- 1 root root 491 Jun 20 11:24 control
+-rw-r--r-- 1 root root 208 Jun 20 10:51 install
+-rw-r--r-- 1 root root 699 Jun 20 10:51 postinst
+-rw-r--r-- 1 root root 159 Jun 20 10:51 postrm
+-rwxr-xr-x 1 root root 456 Jun 20 10:55 rules
+
 root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# debuild -b -us -uc
