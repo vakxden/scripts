@@ -70,4 +70,9 @@ if [ "$action" != "purge" ] ; then
 fi
 rm -rf /opt/develop-reader-puddle_0.0.1/
 
+root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# cat debian/rules
+#!/usr/bin/make -f
+%:
+        dh $@ --with python2
+
 root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# debuild -b
