@@ -5,10 +5,11 @@ FACET=$2
 VER="0.0.1"
 NAME="$BRANCH-reader-$FACET"
 NAME_VER=$(echo "$NAME"_"$VER")
+DATETIME=$(date "+%a, %d %b %Y %T %z")
 
 ###
 ### mkdir -p ./reader_deb_creating/$NAME-$VER/debian && cd $NAME-$VER
-### cp -Rf /home/jenkins/irls-reader-icons/product_logo_*.png .
+### cp -Rf /home/jenkins/reader_icons/product_logo_*.png .
 ### unzip ../$BRANCH-FFA_Reader-$FACET-linux64-0.0.1.zip -d $NAME_VER
 ###
 
@@ -149,7 +150,7 @@ printf "$NAME ($VER) unstable; urgency=low
 
   * Initial Release.
 
- -- IRLS Team <irls@isd.dp.ua>  $(date)" >> $DEB_CHANGELOG
+ -- IRLS Team <irls@isd.dp.ua>  $DATETIME" >> $DEB_CHANGELOG
 
 
 # Create debian/compat file
