@@ -101,4 +101,7 @@ develop-reader-puddle (0.0.1) unstable; urgency=low
  -- IRLS Team <irls@isd.dp.ua>  Fri, 20 Jun 2014 10:51:30 +0300
 
 
+root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# cat debian/compat
+8
+
 root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# debuild -b -us -uc
