@@ -136,8 +136,8 @@ Homepage: https://irls.isd.dp.ua/$FACET/$BRANCH/artifacts
 Package: $NAME
 Architecture: any
 Depends: \${shlibs:Depends}, \${misc:Depends}
-Description: <Immersive Learning System Reader>
- <Immersive Learning System Reader developed by irls-team>" >> $DEB_CONTROL
+Description: Immersive Learning System Reader
+ Immersive Learning System Reader developed by IRLS Team" >> $DEB_CONTROL
 
 # Create debian/changelog file
 DEB_CHANGELOG="debian/changelog"
