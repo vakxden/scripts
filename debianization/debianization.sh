@@ -8,7 +8,7 @@ NAME_VER=$(echo "$NAME"_"$VER")
 
 ###
 ### mkdir -p ./reader_deb_creating/$NAME-$VER/debian && cd $NAME-$VER
-### cp -Rf /home/jenkins/reader_icons/product_logo_*.png .
+### cp -Rf /home/jenkins/irls-reader-icons/product_logo_*.png .
 ### unzip ../$BRANCH-FFA_Reader-$FACET-linux64-0.0.1.zip -d $NAME_VER
 ###
 
