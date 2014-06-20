@@ -75,4 +75,18 @@ root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# cat debia
 %:
         dh $@ --with python2
 
+root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# cat debian/control
+Source: develop-reader-puddle
+Section: unknown
+Priority: extra
+Maintainer: IRLS Team <irls@isd.dp.ua>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: <insert the upstream URL, if relevant>
+Package: develop-reader-puddle
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <Immersive Learning System Reader>
+ <Immersive Learning System Reader developed by a team "IRLS Team">
+
 root@irls-autotests:~/reader_deb_creating/develop-reader-puddle-0.0.1# debuild -b
