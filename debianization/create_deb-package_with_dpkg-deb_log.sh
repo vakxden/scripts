@@ -122,3 +122,6 @@ Type=Application
 Categories=Education;
 TargetEnvironment=Unity
 ...
+
+### dpkg-deb --build master-reader-puddle
+### mv master-reader-puddle.deb master-reader-puddle_0.0.1_amd64.deb
