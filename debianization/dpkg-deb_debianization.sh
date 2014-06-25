@@ -30,7 +30,7 @@ VER="0.0.1"
 NAME="$BRANCH-reader-$FACET"
 NAME_VER=$(echo "$NAME"_"$VER")
 DATETIME=$(date "+%a, %d %b %Y %T %z")
-SIZE=$(du -bc opt/$NAME_VER | grep total | awk '{print $1}')
+SIZE=$(du -c opt/$NAME_VER | grep total | awk '{print $1}')
 
 # Checking exist DEBIAN-directory
 if [ -d DEBIAN ]; then
