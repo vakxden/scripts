@@ -1,5 +1,16 @@
 #!/bin/bash
 
+###
+### Before running this script, you must run the following commands:
+###
+### mkdir -p $NAME/opt && cd $NAME
+### unzip $BRANCH-FFA_Reader-$FACET-linux64-0.0.1.zip -d $NAME/opt/$NAME_VER
+### cp /home/dvac/git/scripts/debianization/dpkg-deb_debianization.sh .
+###
+### How to use script:
+### ./dpkg-deb_debianization.sh master puddle
+###
+
 # Checking passed variables
 BRANCH=$1
 if [ -z $BRANCH ]; then
@@ -27,9 +38,6 @@ else
 	mkdir DEBIAN
 fi
 
-###
-### unzip $BRANCH-FFA_Reader-$FACET-linux64-0.0.1.zip -d $NAME/opt/$NAME_VER
-###
 
 # Create desktop-file and move in usr/share/application
 DESKTOP_FILE="$NAME.desktop"
@@ -117,7 +125,7 @@ Package: $NAME
 Architecture: $ARCH_AMD64
 Installed-Size: $SIZE
 Description: Immersive Learning System Reader.
- Immersive Learning System Reader developed by IRLS Team." >> $DEB_CONTROL
+ Immersive Learning System Reader developed by IRLS Team. \n" >> $DEB_CONTROL
 
 # Create changelog file
 DEB_CHANGELOG="DEBIAN/changelog"
@@ -141,10 +149,12 @@ else
 fi
 printf "8" >> $DEB_COMPAT
 
-###
+# Set "execute" mode for scripts
+chmod +x DEBIAN/postinst DEBIAN/postrm
+
+### After running script:
+### cd ../
 ### dpkg-deb --build $NAME
 ### mv $NAME.deb $NAME_VER_$ARCH_AMD64.deb
 ###
 
-# Set "execute" mode for scripts
-chmod +x DEBIAN/postinst DEBIAN/postrm
