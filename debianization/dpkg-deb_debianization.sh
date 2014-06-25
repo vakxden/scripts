@@ -116,7 +116,7 @@ Homepage: https://irls.isd.dp.ua/$FACET/$BRANCH/artifacts
 Package: $NAME
 Architecture: $ARCH_AMD64
 Installed-Size: $SIZE
-Description: Immersive Learning System Reader
+Description: Immersive Learning System Reader.
  Immersive Learning System Reader developed by IRLS Team" >> $DEB_CONTROL
 
 # Create changelog file
@@ -145,3 +145,6 @@ printf "8" >> $DEB_COMPAT
 ### dpkg-deb --build $NAME
 ### mv $NAME.deb $NAME_VER_$ARCH_AMD64.deb
 ###
+
+# Set "execute" mode for scripts
+chmod +x DEBIAN/postinst DEBIAN/postrm
