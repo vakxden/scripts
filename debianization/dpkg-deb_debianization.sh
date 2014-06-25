@@ -6,6 +6,7 @@
 ### mkdir -p $NAME/opt && cd $NAME
 ### unzip $BRANCH-FFA_Reader-$FACET-linux64-0.0.1.zip -d $NAME/opt/$NAME_VER
 ### cp /home/dvac/git/scripts/debianization/dpkg-deb_debianization.sh .
+### cp /home/jenkins/irls-reader-icons/product_logo_*.png opt/$NAME_VER/
 ###
 ### How to use script:
 ### ./dpkg-deb_debianization.sh master puddle
@@ -39,7 +40,7 @@ else
 fi
 
 
-# Create desktop-file and move in usr/share/application
+# Create desktop-file and move in usr/share/applications
 DESKTOP_FILE="$NAME.desktop"
 if [ -f "$DESKTOP_FILE" ]; then
 	cat /dev/null > $DESKTOP_FILE
@@ -58,11 +59,11 @@ Type=Application
 Categories=Education;
 TargetEnvironment=Unity
 ..." >> $DESKTOP_FILE
-if [ -d usr/share/application ]; then
-	mv $DESKTOP_FILE usr/share/application/
+if [ -d usr/share/applications ]; then
+	mv $DESKTOP_FILE usr/share/applications/
 else
-	mkdir -p usr/share/application
-	mv $DESKTOP_FILE usr/share/application/
+	mkdir -p usr/share/applications
+	mv $DESKTOP_FILE usr/share/applications/
 fi
 
 # Create postinst file
