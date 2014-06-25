@@ -1,6 +1,11 @@
 root@irls-autotests:~/reader_deb_creating# pwd
 /root/reader_deb_creating
 
+root@irls-autotests:~/reader_deb_creating# ll
+-rw-r--r-- 1 root root 68950074 Jun 20 17:10 master-FFA_Reader-puddle-linux64-0.0.1.zip
+drwxr-xr-x 5 root root     4096 Jun 25 09:55 master-reader-puddle
+
+
 root@irls-autotests:~/reader_deb_creating# ll master-reader-puddle/
 drwxr-xr-x 2 root root 4096 Jun 25 10:46 DEBIAN
 drwxr-xr-x 3 root root 4096 Jun 25 10:47 opt
@@ -98,3 +103,22 @@ if [ "$action" != "purge" ] ; then
   exit 0
 fi
 rm -rf /opt/master-reader-puddle_0.0.1/
+
+root@irls-autotests:~/reader_deb_creating# unzip master-FFA_Reader-puddle-linux64-0.0.1.zip -d master-reader-puddle/opt/master-reader-puddle_0.0.1
+
+root@irls-autotests:~/reader_deb_creating# ll master-reader-puddle/usr/share/applications/
+-rw-r--r-- 1 root root 289 Jun 24 14:56 master-reader-puddle.desktop
+
+root@irls-autotests:~/reader_deb_creating# cat master-reader-puddle/usr/share/applications/master-reader-puddle.desktop
+[Desktop Entry]
+Version=0.0.1
+Name=FFA_Reader (branch=master, facet=puddle)
+GenericName=FFA_Reader
+Comment=Immersive Learning System
+Exec=/opt/master-reader-puddle_0.0.1/dist/app/nw
+Terminal=false
+Icon=master-reader-puddle
+Type=Application
+Categories=Education;
+TargetEnvironment=Unity
+...
