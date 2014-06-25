@@ -100,8 +100,8 @@ if [ \"\$action\" != \"purge\" ] ; then
 fi
 rm -rf /opt/$NAME_VER/" >> $DEB_POSTRM
 
-# Create debian/control file
-DEB_CONTROL="debian/control"
+# Create control file
+DEB_CONTROL="DEBIAN/control"
 if [ -f "$DEB_CONTROL" ]; then
         cat /dev/null > $DEB_CONTROL
 else
