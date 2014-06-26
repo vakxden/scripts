@@ -28,7 +28,7 @@ if [ -z $ARCH ]; then
 	echo "architecture must be passed"
 	exit 1
 fi
-if [ "$ARCH" !== "amd64"] || ["$ARCH" !== "i386"]; then
+if [ "$ARCH" != "amd64" -a "$ARCH" != "i386" ]; then
 	echo "architecture must be amd64 or i386"
 	exit 1
 fi
