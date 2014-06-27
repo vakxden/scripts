@@ -150,7 +150,8 @@ do
 			printf "Source: $NAME\nVersion: $VER\nSection: misc\nPriority: extra\nMaintainer: IRLS Team <irls@isd.dp.ua>\nHomepage: https://irls.isd.dp.ua/$i/$BRANCH/artifacts\nPackage: $NAME\nArchitecture: $ARCH\nInstalled-Size: $SIZE\nDescription: Immersive Reader Learning System.\n" >> $DEB_CONTROL
 
 			# Set "execute" mode for scripts
-			chmod +x DEBIAN/postinst DEBIAN/postrm
+			chmod 0755 DEBIAN/postinst DEBIAN/postrm
+			chmod 0644 DEBIAN/control
 
 			### Create the tar.gz-archives and the deb-package:
 			cd DEBIAN/
@@ -276,7 +277,8 @@ do
 			printf "Source: $NAME\nVersion: $VER\nSection: misc\nPriority: extra\nMaintainer: IRLS Team <irls@isd.dp.ua>\nHomepage: https://irls.isd.dp.ua/$i/$BRANCH/artifacts\nPackage: $NAME\nArchitecture: $ARCH\nInstalled-Size: $SIZE\nDescription: Immersive Reader Learning System.\n" >> $DEB_CONTROL
 
 			# Set "execute" mode for scripts
-			chmod +x DEBIAN/postinst DEBIAN/postrm
+			chmod 0755 DEBIAN/postinst DEBIAN/postrm
+			chmod 0644 DEBIAN/control
 
 			### Create the tar.gz-archives and the deb-package:
 			cd DEBIAN/
