@@ -178,7 +178,7 @@ do
 				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
 			fi
 			"
-			scp $WORKSPACE/apk/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+			scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		done
 		
 		### Create deb-package with application version for Linux 64-bit
@@ -313,7 +313,7 @@ do
 				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
 			fi
 			"
-			scp $WORKSPACE/apk/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+			scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		done
 	fi
 done
