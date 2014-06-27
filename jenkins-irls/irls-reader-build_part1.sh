@@ -3,6 +3,8 @@
 BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
 	FACET=(puddle bahaiebooks audio audiobywords mediaoverlay lake ocean)
+elif [ "$BRANCHNAME" = "branch_portal" ]; then
+	FACET=(puddle)
 else
 	FACET=(puddle bahaiebooks audio mediaoverlay lake)
 fi
