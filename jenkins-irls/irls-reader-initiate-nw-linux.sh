@@ -169,10 +169,10 @@ do
 			mv DEBIAN/control.tar.gz .
 			printf "2.0\n" > debian-binary
 			ar r $NAME_DEB_PKG debian-binary control.tar.gz data.tar.gz
+			mv $NAME_DEB_PKG $WORKSPACE/deb
 			cd ../ && rm -rf $NAME
 			
 			# Move deb-package
-			mv $NAME_DEB_PKG $WORKSPACE/deb
 			ssh jenkins@dev01.isd.dp.ua "
 			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
 				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
@@ -304,10 +304,10 @@ do
 			mv DEBIAN/control.tar.gz .
 			printf "2.0\n" > debian-binary
 			ar r $NAME_DEB_PKG debian-binary control.tar.gz data.tar.gz
+			mv $NAME_DEB_PKG $WORKSPACE/deb
 			cd ../ && rm -rf $NAME
 			
 			# Move deb-package
-			mv $NAME_DEB_PKG $WORKSPACE/deb
 			ssh jenkins@dev01.isd.dp.ua "
 			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
 				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
