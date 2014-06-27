@@ -54,11 +54,11 @@ function generate_indexhtml {
         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
         IPAFILE=$1*FFA_Reader*$2*.ipa
         ZIPWINFILE=$1*FFA_Reader*$2-win*.zip
-        ZIPLINUX32FILE=$1*FFA_Reader*$2-linux32*.zip
-        ZIPLINUX64FILE=$1*FFA_Reader*$2-linux64*.zip
+        DEB32=$1-reader$2*i386.deb
+        DEB64=$1-reader$2*amd64.deb
         ZIPMACOSFILE=$1*FFA_Reader*$2-macos*.zip
         APKFILE=$1*FFA_Reader*$2*.apk
-        for file in $IPAFILE $ZIPWINFILE $APKFILE $ZIPMACOSFILE $ZIPLINUX32FILE $ZIPLINUX64FILE
+        for file in $IPAFILE $ZIPWINFILE $APKFILE $ZIPMACOSFILE $DEB32 $DEB64
         do
                 if [ -f "$(find . -name $file)" ]; then
                         for name in $(find . -name $file)
