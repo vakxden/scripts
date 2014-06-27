@@ -315,3 +315,5 @@ do
 			"
 			scp $WORKSPACE/apk/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		done
+	fi
+done
