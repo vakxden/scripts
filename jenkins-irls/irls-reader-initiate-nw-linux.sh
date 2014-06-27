@@ -60,7 +60,7 @@ do
 			NAME_DEB_PKG=$(echo "$NAME_VER"_"$ARCH".deb)
 			DATETIME=$(date "+%a, %d %b %Y %T %z")
 			mkdir -p $NAME/opt && cd $NAME
-			unzip $BRANCH-FFA_Reader-$i-linux32-0.0.1.zip -d $NAME/opt/$NAME_VER
+			unzip ../$BRANCH-FFA_Reader-$i-linux32-0.0.1.zip -d opt/$NAME_VER
 			cp /home/jenkins/irls-reader-icons/product_logo_*.png opt/$NAME_VER/
 			SIZE=$(du -c opt/$NAME_VER | grep total | awk '{print $1}')
 			
@@ -195,7 +195,7 @@ do
 			NAME_DEB_PKG=$(echo "$NAME_VER"_"$ARCH".deb)
 			DATETIME=$(date "+%a, %d %b %Y %T %z")
 			mkdir -p $NAME/opt && cd $NAME
-			unzip $BRANCH-FFA_Reader-$i-linux32-0.0.1.zip -d $NAME/opt/$NAME_VER
+			unzip ../$BRANCH-FFA_Reader-$i-linux32-0.0.1.zip -d opt/$NAME_VER
 			cp /home/jenkins/irls-reader-icons/product_logo_*.png opt/$NAME_VER/
 			SIZE=$(du -c opt/$NAME_VER | grep total | awk '{print $1}')
 			
