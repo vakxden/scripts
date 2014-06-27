@@ -155,12 +155,12 @@ do
 
 			### Create the tar.gz-archives and the deb-package:
 			cd DEBIAN/
-			tar cfz control.tar.gz control postinst postrm
+			fakeroot tar cfz control.tar.gz control postinst postrm
 			cd ../
-			tar cfz data.tar.gz opt usr
+			fakeroot tar cfz data.tar.gz opt usr
 			mv DEBIAN/control.tar.gz .
-			printf "2.0\n" > debian-binary
-			ar r $NAME_DEB_PKG debian-binary control.tar.gz data.tar.gz
+			fakeroot printf "2.0\n" > debian-binary
+			fakeroot ar r $NAME_DEB_PKG debian-binary control.tar.gz data.tar.gz
 			mv $NAME_DEB_PKG $WORKSPACE/deb
 			cd ../ && rm -rf $NAME
 			
@@ -282,12 +282,12 @@ do
 
 			### Create the tar.gz-archives and the deb-package:
 			cd DEBIAN/
-			tar cfz control.tar.gz control postinst postrm
+			fakeroot tar cfz control.tar.gz control postinst postrm
 			cd ../
-			tar cfz data.tar.gz opt usr
+			fakeroot tar cfz data.tar.gz opt usr
 			mv DEBIAN/control.tar.gz .
-			printf "2.0\n" > debian-binary
-			ar r $NAME_DEB_PKG debian-binary control.tar.gz data.tar.gz
+			fakeroot printf "2.0\n" > debian-binary
+			fakeroot ar r $NAME_DEB_PKG debian-binary control.tar.gz data.tar.gz
 			mv $NAME_DEB_PKG $WORKSPACE/deb
 			cd ../ && rm -rf $NAME
 			
