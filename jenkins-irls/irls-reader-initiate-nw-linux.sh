@@ -147,16 +147,7 @@ do
 			else
 			        touch $DEB_CONTROL
 			fi
-			printf "Source: $NAME
-			Version: $VER
-			Section: misc
-			Priority: extra
-			Maintainer: IRLS Team <irls@isd.dp.ua>
-			Homepage: https://irls.isd.dp.ua/$i/$BRANCH/artifacts
-			Package: $NAME
-			Architecture: $ARCH
-			Installed-Size: $SIZE
-			Description: Immersive Reader Learning System.\n" >> $DEB_CONTROL
+			printf "Source: $NAME\nVersion: $VER\nSection: misc\nPriority: extra\nMaintainer: IRLS Team <irls@isd.dp.ua>\nHomepage: https://irls.isd.dp.ua/$i/$BRANCH/artifacts\nPackage: $NAME\nArchitecture: $ARCH\nInstalled-Size: $SIZE\nDescription: Immersive Reader Learning System.\n" >> $DEB_CONTROL
 
 			# Set "execute" mode for scripts
 			chmod +x DEBIAN/postinst DEBIAN/postrm
@@ -282,16 +273,7 @@ do
 			else
 			        touch $DEB_CONTROL
 			fi
-			printf "Source: $NAME
-			Version: $VER
-			Section: misc
-			Priority: extra
-			Maintainer: IRLS Team <irls@isd.dp.ua>
-			Homepage: https://irls.isd.dp.ua/$i/$BRANCH/artifacts
-			Package: $NAME
-			Architecture: $ARCH
-			Installed-Size: $SIZE
-			Description: Immersive Reader Learning System.\n" >> $DEB_CONTROL
+			printf "Source: $NAME\nVersion: $VER\nSection: misc\nPriority: extra\nMaintainer: IRLS Team <irls@isd.dp.ua>\nHomepage: https://irls.isd.dp.ua/$i/$BRANCH/artifacts\nPackage: $NAME\nArchitecture: $ARCH\nInstalled-Size: $SIZE\nDescription: Immersive Reader Learning System.\n" >> $DEB_CONTROL
 
 			# Set "execute" mode for scripts
 			chmod +x DEBIAN/postinst DEBIAN/postrm
