@@ -1,17 +1,25 @@
 #!/bin/bash
 
 ##gitlab backup:
-cd /home/git/gitlab
+
 #this line was here before than was relinking directory backups for gitlab:
 #
 #root@dev01:~# ll /home/git/gitlab/tmp/backups
 #lrwxrwxrwx 1 root root 17 May  6 17:51 /home/git/gitlab/tmp/backups -> /fs/backup/gitlab
 #
-#sudo -u git bundle exec rake gitlab:backup:create RAILS_ENV=production && mv /home/git/gitlab/tmp/backups/*gitlab_backup.tar  /fs/backup/gitlab_backup_`date +%d-%b-%y_%H-%M-%S`.tar
-mv /home/git/gitlab/tmp/backups/*gitlab_backup*.tar /home/git/gitlab/tmp/backups/gitlab_backup.tar_old
-sudo -u git bundle exec rake gitlab:backup:create RAILS_ENV=production && mv /home/git/gitlab/tmp/backups/*gitlab_backup.tar  /home/git/gitlab/tmp/backups/gitlab_backup_`date +%d-%b-%y_%H-%M-%S`.tar
+
+# if file older more 3 day, then rename it
+BACKUP_GITLAB_PATH="/fs/backup/gitlab";
+cd $BACKUP_GITLAB_PATH
+for i in $(find ./ -name gitlab_backup_[0-9][0-9]*.tar | sed "s/\.\///g"); do
+        if test $(find $BACKUP_PATH -name $i -mtime +3); then mv "$i" "$i-old"; fi
+done
+# creating gitlab tar-archive
+cd /home/git/gitlab
+sudo -u git bundle exec rake gitlab:backup:create RAILS_ENV=production && mv $BACKUP_GITLAB_PATH/*gitlab_backup.tar  $BACKUP_GITLAB_PATH/gitlab_backup_`date +%d-%b-%y_%H-%M-%S`.tar
+# delete old files
 if [ "$(echo $?)" == "0" ]; then
-        rm -f /home/git/gitlab/tmp/backups/gitlab_backup.tar_old
+        rm -f $BACKUP_GITLAB_PATH/gitlab_backup*.tar-old
 fi
 
 ##redmine database backup:
