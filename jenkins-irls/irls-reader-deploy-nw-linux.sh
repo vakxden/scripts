@@ -16,7 +16,9 @@ BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
-DIR_ZIP=/var/lib/jenkins/jobs/irls-reader-initiate-nw-linux/builds/lastSuccessfulBuild/archive/
+DIR_DEB=/var/lib/jenkins/jobs/irls-reader-initiate-nw-linux/builds/lastSuccessfulBuild/archive/deb
+DEB32=$BRANCHNAME-reader-$FACETS*i386.deb
+DEB64=$BRANCHNAME-reader-$FACETS*amd64.deb
 FACETS=($(echo $FACET))
 ###
 ### Create associative array
@@ -44,53 +46,53 @@ function search_and_copy {
 		exit 1
 	fi
 	# for Linux 32-bit
-	# if path to artifacts directory contain word "stage" -> search zip-files in artifacts directory for CURRENT-environment
+	# if path to artifacts directory contain word "stage" -> search deb-packages in artifacts directory for CURRENT-environment
 	if [ -n "$(echo "$1" | grep stage)" ]; then
 		echo contain stage;
-		find_stag=$(find $1 -name $BRANCH*FFA_Reader*$i-linux32*.zip) > /dev/null 2>&1
+		find_stag=$(find $1 -name $DEB32) > /dev/null 2>&1
 		if [ ! -z "$find_stag" ]; then
-			echo "nw-linux32 zip file in $PWD exist" && echo "it is $find_stag"
+			echo "deb-package for i386 in $PWD exist" && echo "it is $find_stag"
 		else
-			echo "nw-linux32 zip file in $PWD not exists"
-			find=$(find $2 -name $BRANCH*FFA_Reader*$i-linux32*.zip) > /dev/null 2>&1
+			echo "deb-package for i386 in $PWD not exists"
+			find=$(find $2 -name $DEB32) > /dev/null 2>&1
 			if [ ! -z "$find" ]; then
 				echo PWD=$PWD
 				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
 			fi
 		fi
-		# else -> search zip-files in directory when jenkins save jobs artifacts
+		# else -> search deb-package in directory when jenkins save jobs artifacts
 	else
-		zip_file=$(find $DIR_ZIP -name $BRANCH*FFA_Reader*$i-linux32*.zip)
-		if [ ! -f "$zip_file" ]; then
-			echo "nw-linux32 zip file $zip_file in $DIR_ZIP not exists"
+		deb_file=$(find $DIR_DEB -name $DEB32)
+		if [ ! -f "$deb_file" ]; then
+			echo "deb-package $deb_file in $DIR_DEB not exists"
 		else
-			echo "find nw-linux32 zip-file $zip_file"
-			cp $zip_file $1
+			echo "find deb-package $deb_file"
+			cp $deb_file $1
 		fi
 	fi
 	# for Linux 64-bit
-	# if path to artifacts directory contain word "stage" -> search zip-files in artifacts directory for CURRENT-environment
+	# if path to artifacts directory contain word "stage" -> search deb-packages in artifacts directory for CURRENT-environment
 	if [ -n "$(echo "$1" | grep stage)" ]; then
 		echo contain stage;
-		find_stag=$(find $1 -name $BRANCH*FFA_Reader*$i-linux64*.zip) > /dev/null 2>&1
+		find_stag=$(find $1 -name $DEB64) > /dev/null 2>&1
 		if [ ! -z "$find_stag" ]; then
-			echo "nw-linux64 zip file in $PWD exist" && echo "it is $find_stag"
+			echo "deb-package for amd64 in $PWD exist" && echo "it is $find_stag"
 		else
-			echo "nw-linux64 zip file in $PWD not exists"
-			find=$(find $2 -name $BRANCH*FFA_Reader*$i-linux64*.zip) > /dev/null 2>&1
+			echo "deb-package for amd64 in $PWD not exists"
+			find=$(find $2 -name $DEB64) > /dev/null 2>&1
 			if [ ! -z "$find" ]; then
 				echo PWD=$PWD
 				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
 			fi
 		fi
-		# else -> search zip-files in directory when jenkins save jobs artifacts
+		# else -> search deb-package in directory when jenkins save jobs artifacts
 	else
-		zip_file=$(find $DIR_ZIP -name $BRANCH*FFA_Reader*$i-linux64*.zip)
-		if [ ! -f "$zip_file" ]; then
-			echo "nw-linux64 zip file $zip_file in $DIR_ZIP not exists"
+		deb_file=$(find $DIR_DEB -name $DEB64)
+		if [ ! -f "$deb_file" ]; then
+			echo "deb-package $deb_file in $DIR_DEB not exists"
 		else
-			echo "find nw-linux64 zip-file $zip_file"
-			cp $zip_file $1
+			echo "find deb-package $deb_file"
+			cp $deb_file $1
 		fi
 	fi
 }
@@ -154,7 +156,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-linux" ]; then
 			if [ ! -d $ARTIFACTS_DIR ]; then
 				mkdir -p $ARTIFACTS_DIR
 			fi
-			# search node-webkit for Linux (nw-linux) zip-files, if not exists - copy to artifacts dir
+			# search deb-packages, if not exists - copy to artifacts dir
 			search_and_copy $ARTIFACTS_DIR/
 			# generate index.html and local.json
 			generate_files $PKG_DIR
@@ -178,7 +180,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-linux" ]; then
 				mkdir -p $STAGE_ARTIFACTS_DIR
 			fi
 			cd $STAGE_ARTIFACTS_DIR
-			# search node-webkit for Linux (nw-linux) zip-files, if not exists - copy from artifacts dir to stage artifacts dir
+			# search deb-packages, if not exists - copy from artifacts dir to stage artifacts dir
 			search_and_copy $STAGE_ARTIFACTS_DIR/ $CURRENT_ARTIFACTS_DIR/
 			# generate index.html and local.json
 			generate_files $PKG_DIR
@@ -197,14 +199,15 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-linux" ]; then
 				then
 					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/art
 				else
-					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/$BRANCH*FFA_Reader*$i-linux*.zip
+					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/$DEB32
+					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/artifact/$DEB64
 				fi"
 			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
-			if [ -f $ARTIFACTS_DIR/$BRANCH*FFA_Reader*$i-linux32*.zip ]; then
-				scp $ARTIFACTS_DIR/$BRANCH*FFA_Reader*$i-linux32*.zip dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
+			if [ -f $ARTIFACTS_DIR/$DEB32 ]; then
+				scp $ARTIFACTS_DIR/$DEB32 dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
 			fi
-			if [ -f $ARTIFACTS_DIR/$BRANCH*FFA_Reader*$i-linux64*.zip ]; then
-				scp $ARTIFACTS_DIR/$BRANCH*FFA_Reader*$i-linux64*.zip dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
+			if [ -f $ARTIFACTS_DIR/$DEB64 ]; then
+				scp $ARTIFACTS_DIR/$DEB64 dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
 			fi
 			ssh dvac@devzone.dp.ua "
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
