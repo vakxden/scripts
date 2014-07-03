@@ -155,6 +155,7 @@ do
 				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
 			fi
 			"
+			ssh jenkins@dev01.isd.dp.ua "rm -rf /var/lib/jenkins/jobs/irls-reader-initiate-nw-linux/builds/lastSuccessfulBuild/archive/deb/*.deb"
 			scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		done
 	fi
