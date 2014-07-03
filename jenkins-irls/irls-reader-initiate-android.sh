@@ -74,6 +74,7 @@ do
 			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
 		fi
 		"
+		ssh jenkins@dev01.isd.dp.ua "rm -rf /var/lib/jenkins/jobs/irls-reader-initiate-android/builds/lastSuccessfulBuild/archive/apk/*.apk"
 		scp $WORKSPACE/apk/$BRANCH-FFA_Reader-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
         fi
 done
