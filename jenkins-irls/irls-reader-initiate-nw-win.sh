@@ -58,6 +58,7 @@ do
 			# this line commented because this job was moved to host dev02.design.isd.dp.ua
 			#cp $WORKSPACE/zip/*$i-win*.zip $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 			# this line there because this job working in host dev02.design.isd.dp.ua
+			ssh jenkins@dev01.isd.dp.ua " rm -rf /var/lib/jenkins/jobs/irls-reader-initiate-nw-win/lastSuccessful/archive/zip/*.zip"
 			scp $WORKSPACE/zip/*$i-win*.zip jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		done
 	fi
