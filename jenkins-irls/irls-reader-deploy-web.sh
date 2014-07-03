@@ -150,8 +150,9 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
 			# output value for a pair "key-value"
 			echo $i --- ${combineArray[$i]}
-			ssh dvac@devzone.dp.ua "rm -f ~/IRLS.reader.tar.gz"
-			tar -zc $STAGE_PKG_DIR/* | ssh dvac@devzone.dp.ua "cat > ~/IRLS.reader.tar.gz"
+			TGZ="IRLS.reader-$i\.tar.gz"
+			ssh dvac@devzone.dp.ua "rm -f ~/$TGZ"
+			tar -zc $STAGE_PKG_DIR/* | ssh dvac@devzone.dp.ua "cat > ~/$TGZ"
 			ssh dvac@devzone.dp.ua "
 				# values
 				INDEX_FILE=index_"$i"_$BRANCH.js
@@ -163,7 +164,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 					rm -rf  $REMOTE_ART_PATH/${combineArray[$i]}/packages/client $REMOTE_ART_PATH/${combineArray[$i]}/packages/common $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes $REMOTE_ART_PATH/${combineArray[$i]}/packages/server 
 				fi
 				# upacking
-				tar xfz IRLS.reader.tar.gz -C $REMOTE_ART_PATH/${combineArray[$i]}/
+				tar xfz $TGZ -C $REMOTE_ART_PATH/${combineArray[$i]}/
 				if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/packages ]; then
 					mkdir $REMOTE_ART_PATH/${combineArray[$i]}/packages
 					mv $REMOTE_ART_PATH/${combineArray[$i]}$STAGE_PKG_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/packages/ && rm -rf $REMOTE_ART_PATH/${combineArray[$i]}/home
