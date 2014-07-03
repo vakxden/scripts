@@ -19,6 +19,11 @@ if [ -z $dest ]; then
     exit 1
 fi
 
+if [ -z $ID ]; then
+        echo "ID was not passed"
+	exit 1
+fi
+
 
 ### ARRAY_RESERVED_SERVICE_PORT
 ARRAY_RSP=($(cat /etc/services | awk '{print $2}' | grep "^3[0-9][0-9][0-9]" | grep -v "^3[0-9][0-9][0-9][0-9]" | awk -F "/" '{print $1}' | sort | uniq))
@@ -104,13 +109,9 @@ echo '}'  >> local.json
 ACF="/home/dvac/apache2/conf/extra/proxypass-$FACETS-$BRANCHNAME.conf"
 rm -f $ACF
 touch $ACF
-if [ -z $ID ]; then
-         echo "ID was not passed"
-else
-        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
-        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
-                generate_indexhtml
-fi
+echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
+echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
+generate_indexhtml
 
 echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
 echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> $ACF
