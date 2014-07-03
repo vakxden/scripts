@@ -11,7 +11,7 @@
 # if file older more 3 day, then rename it
 BACKUP_GITLAB_PATH="/fs/backup/gitlab";
 cd $BACKUP_GITLAB_PATH
-for i in $(find ./ -name gitlab_backup_[0-9][0-9]*.tar | sed "s/\.\///g"); do
+for i in $(find ./ -name "gitlab_backup_[0-9][0-9]*.tar" | sed "s/\.\///g"); do
         if test $(find $BACKUP_PATH -name $i -mtime +3); then mv "$i" "$i-old"; fi
 done
 # creating gitlab tar-archive
