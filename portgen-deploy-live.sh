@@ -52,12 +52,12 @@ function generate_indexhtml {
         echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
         echo -e '<body><h1>List of artifacts</h1>' >> index.html
         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-        IPAFILE=$1*FFA_Reader*$2*.ipa
-        ZIPWINFILE=$1*FFA_Reader*$2-win*.zip
-        DEB32=$1-reader$2*i386.deb
-        DEB64=$1-reader$2*amd64.deb
-        ZIPMACOSFILE=$1*FFA_Reader*$2-macos*.zip
-        APKFILE=$1*FFA_Reader*$2*.apk
+        IPAFILE=$BRANCHNAME*FFA_Reader*$FACETS*.ipa
+        ZIPWINFILE=$BRANCHNAME*FFA_Reader*$FACETS-win*.zip
+        DEB32=$BRANCHNAME-reader-$FACETS*i386.deb
+        DEB64=$BRANCHNAME-reader-$FACETS*amd64.deb
+        ZIPMACOSFILE=$BRANCHNAME*FFA_Reader*$FACETS-macos*.zip
+        APKFILE=$BRANCHNAME*FFA_Reader*$FACETS*.apk
         for file in $IPAFILE $ZIPWINFILE $APKFILE $ZIPMACOSFILE $DEB32 $DEB64
         do
                 if [ -f "$(find . -name $file)" ]; then
