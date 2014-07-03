@@ -119,10 +119,12 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			cd $CURRENT_PKG_DIR
 			if [ ! -d $STAGE_PKG_DIR ]; then
 				mkdir -p $STAGE_PKG_DIR
-				cp -Rf common client server couchdb_indexes $STAGE_PKG_DIR/
+				if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ] || [ -d portal ]; then
+					cp -Rf common client server couchdb_indexes artifacts portal $STAGE_PKG_DIR/
+				fi
 			else
 				cd $STAGE_PKG_DIR
-				rm -rf common client server couchdb_indexes artifacts
+				rm -rf common client server couchdb_indexes artifacts portal
 				rm -rf $STAGE_PKG_DIR/*
 				cd $CURRENT_PKG_DIR
 				# this check is needed because in the job named "irls-reader-initiate-web" was disabled facet named "ocean" 
