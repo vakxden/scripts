@@ -2,7 +2,7 @@
 #BRANCHNAME=$(basename $GIT_BRANCH)
 BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
-	FACET=(puddle bahaiebooks audio audiobywords mediaoverlay lake ocean)
+	FACET=(puddle bahaiebooks farsi farsiref audio audiobywords mediaoverlay lake ocean)
 elif [ "$BRANCHNAME" = "branch_portal" ]; then
 	FACET=(puddle)
 else
@@ -36,6 +36,7 @@ GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2
 GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_SHORT=$(echo $GIT_COMMIT | cut -c1-7)
 #FACETS=($(echo $FACET))
+printf "facet=$FACET \n"
 deploymentPackageId=()
 for i in "${FACET[@]}"
 do
