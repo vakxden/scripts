@@ -7,8 +7,12 @@ FACETS=($(echo $FACET))
 ###
 ### Copy project to workspace
 ###
-rm -rf client packager server
+rm -rf ./*
 cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
+###
+### Clone targets-repo
+###
+git clone git@wpp.isd.dp.ua:irls/targets.git
 ###
 ### Web-version with created index in couchdb
 ###
