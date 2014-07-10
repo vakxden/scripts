@@ -1,7 +1,7 @@
 ###
 ### Variables
 ###
-ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
+ARTIFACTS_DIR=$HOME/irls-reader-artifacts
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 FACETS=($(echo $FACET))
 PREFIX=$(echo $BRANCHNAME | sed 's/\//-/g')
