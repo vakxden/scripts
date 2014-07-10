@@ -4,6 +4,8 @@
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 FACETS=($(echo $FACET))
+BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
+BUILD_CONFIG="$HOME/build_config"
 ###
 ### Copy project to workspace
 ###
@@ -32,7 +34,11 @@ for i in "${!combineArray[@]}"
 do
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager
-	node index.js --target=web --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$(echo $BRANCHNAME | sed 's/\//-/g')- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+	if [[ $BRANCHNAME == *target* ]]; then
+		node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+	else
+		node index.js --target=web --brand=FFA --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+	fi
 	#create index
 	cd $WORKSPACE
 	sudo /home/jenkins/scripts/portgenerator-for-convert.sh $i
