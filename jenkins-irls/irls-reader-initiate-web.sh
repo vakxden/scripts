@@ -4,7 +4,7 @@
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 FACETS=($(echo $FACET))
-BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g')
+PREFIX=$(echo $BRANCHNAME | sed 's/\//-/g')
 BUILD_CONFIG="$HOME/build_config"
 ###
 ### Copy project to workspace
@@ -35,9 +35,9 @@ do
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager
 	if [[ $BRANCHNAME == *target* ]]; then
-		node index.js --target=web --brand=FFA --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+		node index.js --target=web --brand=FFA --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
 	else
-		node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+		node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
 	fi
 	#create index
 	cd $WORKSPACE
