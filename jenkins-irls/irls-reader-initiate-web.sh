@@ -6,6 +6,7 @@ CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 FACETS=($(echo $FACET))
 PREFIX=$(echo $BRANCHNAME | sed 's/\//-/g')
 BUILD_CONFIG="$HOME/build_config"
+SCRIPTS_DIR="$HOME/scripts"
 ###
 ### Copy project to workspace
 ###
@@ -42,9 +43,9 @@ do
 	fi
 	#create index
 	cd $WORKSPACE
-	sudo /home/jenkins/scripts/portgenerator-for-convert.sh $i
-	cp local.json $WORKSPACE/server/config
-	cd server
+	sudo $SCRIPTS_DIR/portgenerator-for-convert.sh $i
+	cp local.json $WORKSPACE/server/config && rm -f local.json
+	cd $WORKSPACE/server
 	node initDB.js
 	if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
 		mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
