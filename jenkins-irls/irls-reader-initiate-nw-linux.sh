@@ -17,6 +17,20 @@ ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 FACETS=($(echo $FACET))
+
+### Create associative array
+deploymentPackageId=($(echo $ID))
+declare -A combineArray
+for ((x=0; x<${#deploymentPackageId[@]}; x++))
+do
+	for ((y=0; y<${#FACETS[@]}; y++))
+	do
+		if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${FACETS[y]}$")" ]; then
+			combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[x]}")
+		fi
+	done
+done
+
 ###
 ### Functions
 ###
@@ -103,60 +117,44 @@ function create_deb_package {
 ###
 ### Body (working with all facets exclude only facet named "ocean")
 ###
-for facet in ${FACETS[@]}
+for i in "${!combineArray[@]}"
 do
-        if [ $(echo "$facet" | egrep "ocean$") ]; then
-		printf "we can only work with the all facets exclude 'ocean' \n"
-	else
+	echo $i --- ${combineArray[$i]}
+	if [ $(echo "$i" | egrep "ocean$") ]; then
+		getAbort()
+		{
+                	printf "we do not create the deb-file for facet named 'ocean'\n"
+		}
+		getAbort
+		trap 'getAbort; exit' SIGTERM
+        else
 		### Remove old version of project and zip-archives
 		rm -rf client packager server deb/*.deb
 		if [ ! -d deb ]; then mkdir deb; fi
 		### Copy project to workspace
 		cp -Rf $CURRENT_BUILD/* .
-		### Create associative array
-		deploymentPackageId=($(echo $ID))
-		ELEMENT_OF_FACETS=($facet)
-		declare -A combineArray
-		for ((x=0; x<${#deploymentPackageId[@]}; x++))
-		do
-			for ((y=0; y<${#ELEMENT_OF_FACETS[@]}; y++))
-			do
-				if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${ELEMENT_OF_FACETS[y]}$")" ]; then
-					combineArray+=(["${ELEMENT_OF_FACETS[y]}"]="${deploymentPackageId[x]}")
-				fi
-			done
-		done
 		### Create deb-package with application version for Linux 32-bit
-		for i in "${!combineArray[@]}"
-		do
-			echo $i --- ${combineArray[$i]}
-			cd $WORKSPACE/packager
-			node index.js --target=linux32 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-			create_deb_package $i i386
-			# Move deb-package
-			ssh jenkins@dev01.isd.dp.ua "
-			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
-			fi
-			"
-			scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
-		done
-		
+		cd $WORKSPACE/packager
+		node index.js --target=linux32 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+		create_deb_package $i i386
+		# Move deb-package
+		ssh jenkins@dev01.isd.dp.ua "
+		if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
+			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		fi
+		"
+		scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		### Create deb-package with application version for Linux 64-bit
-		for i in "${!combineArray[@]}"
-		do
-			echo $i --- ${combineArray[$i]}
-			cd $WORKSPACE/packager
-			node index.js --target=linux64 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-			create_deb_package $i amd64	
-			# Move deb-package
-			ssh jenkins@dev01.isd.dp.ua "
-			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
-			fi
-			"
-			ssh jenkins@dev01.isd.dp.ua "rm -rf /var/lib/jenkins/jobs/irls-reader-initiate-nw-linux/builds/lastSuccessfulBuild/archive/deb/*.deb"
-			scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
-		done
+		cd $WORKSPACE/packager
+		node index.js --target=linux64 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+		create_deb_package $i amd64	
+		# Move deb-package
+		ssh jenkins@dev01.isd.dp.ua "
+		if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
+			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		fi
+		"
+		ssh jenkins@dev01.isd.dp.ua "rm -rf /var/lib/jenkins/jobs/irls-reader-initiate-nw-linux/builds/lastSuccessfulBuild/archive/deb/*.deb"
+		scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 	fi
 done
