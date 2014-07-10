@@ -35,9 +35,9 @@ do
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager
 	if [[ $BRANCHNAME == *target* ]]; then
-		node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
-	else
 		node index.js --target=web --brand=FFA --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+	else
+		node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
 	fi
 	#create index
 	cd $WORKSPACE
