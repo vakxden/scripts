@@ -32,6 +32,7 @@ done
 ### Create web-version of application
 for i in "${!combineArray[@]}"
 do
+	# $i - it is facet
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager
 	if [[ $BRANCHNAME == *target* ]]; then
