@@ -10,14 +10,31 @@ BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 FACETS=($(echo $FACET))
+### Create associative array
+deploymentPackageId=($(echo $ID))
+declare -A combineArray
+for ((x=0; x<${#deploymentPackageId[@]}; x++))
+do
+	for ((y=0; y<${#FACETS[@]}; y++))
+	do
+		if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${FACETS[y]}$")" ]; then
+			combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[x]}")
+		fi
+	done
+done
 ###
 ### Body (working with all facets exclude only facet named "ocean")
 ###
-
-for facet in ${FACETS[@]}
+for i in "${!combineArray[@]}"
 do
-	if [ $(echo "$facet" | egrep "ocean$") ]; then
-		printf "we can only work with the all facets exclude 'ocean' \n"
+	echo $i --- ${combineArray[$i]}
+	if [ $(echo "$i" | egrep "ocean$") ]; then
+		getAbort()
+		{
+                	printf "we do not create the zip-file for facet named 'ocean'\n"
+		}
+		getAbort
+		trap 'getAbort; exit' SIGTERM
 	else
 		### Remove old version of project and zip-archives
 		if [ ! -d zip ]; then mkdir zip; fi
