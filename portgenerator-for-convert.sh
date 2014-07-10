@@ -47,3 +47,4 @@ echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-current-epubs/'$FACETS'/",'
 echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
 echo -e '\t"database_name": "'$FACETS'"' >> local.json
 echo '}'  >> local.json
+chown jenkins:jenkins local.json
