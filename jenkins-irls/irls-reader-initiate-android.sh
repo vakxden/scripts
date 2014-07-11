@@ -36,7 +36,7 @@ done
 
 ### Remove old version of project and apk-files
 if [ ! -d apk ]; then mkdir apk; fi
-rm -rf client packager server apk/*.apk
+rm -rf client packager server
 
 ### Copy project to workspace
 # this line commented because this job was moved to host dev02.design.isd.dp.ua
@@ -74,7 +74,7 @@ do
 			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
 		fi
 		"
-		ssh jenkins@dev01.isd.dp.ua "rm -rf /var/lib/jenkins/jobs/irls-reader-initiate-android/builds/lastSuccessfulBuild/archive/apk/*.apk"
 		scp $WORKSPACE/apk/$BRANCH-FFA_Reader-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+		rm -rf $WORKSPACE/apk
         fi
 done
