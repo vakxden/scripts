@@ -75,7 +75,7 @@ GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$GIT_REPO/commit/$GIT_COMMIT"
 cat /dev/null > $WORKSPACE/myenv
 echo "$GIT_URL=$GIT_URL" >> $WORKSPACE/myenv
 echo "BRANCHNAME=$BRANCHNAME" >> $WORKSPACE/myenv
-echo "FACET=$FACET" >> $WORKSPACE/myenv
+echo "FACET=$(for i in ${FACET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
 echo "GIT_COMMIT=$GIT_COMMIT" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_MESSAGE=$GIT_COMMIT_MESSAGE" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_DATE=$GIT_COMMIT_DATE" >> $WORKSPACE/myenv
