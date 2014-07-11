@@ -37,7 +37,7 @@ do
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager
 	if [[ $BRANCHNAME == *target* ]]; then
-		node index.js --target=FFA --platform=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+		node index.js --target=puddle_FFA --platform=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
 	else
 		node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
 	fi
