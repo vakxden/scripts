@@ -46,7 +46,7 @@ do
 		trap 'getAbort; exit' SIGTERM
 	else
 		### Remove old version of project and zip-archives
-		rm -rf client packager server zip/*.zip
+		rm -rf client packager server
 		### Copy project to workspace
 		if [ ! -d zip ]; then mkdir zip; fi
 		# this line commented because this job was moved to host dev02.design.isd.dp.ua
@@ -70,7 +70,7 @@ do
 		# this line commented because this job was moved to host dev02.design.isd.dp.ua
 		#cp $WORKSPACE/zip/*$i-macos*.zip $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		# this line there because this job working in host dev02.design.isd.dp.ua
-		ssh jenkins@dev01.isd.dp.ua " rm -rf /var/lib/jenkins/jobs/irls-reader-initiate-nw-macos/builds/lastSuccessfulBuild/archive/zip/*.zip"
 		scp $WORKSPACE/zip/*$i-macos*.zip jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+		rm -rf $WORKSPACE/zip
 	fi
 done
