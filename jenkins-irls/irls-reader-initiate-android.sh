@@ -34,15 +34,6 @@ do
 	done
 done
 
-### Remove old version of project and apk-files
-if [ ! -d apk ]; then mkdir apk; fi
-rm -rf client packager server
-
-### Copy project to workspace
-# this line commented because this job was moved to host dev02.design.isd.dp.ua
-#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
-# this line there because this job working in host dev02.design.isd.dp.ua
-cp -Rf $CURRENT_BUILD/* .
 
 ###
 ### Body (working with all facets exclude "ocean")
@@ -58,6 +49,15 @@ do
 		getAbort
 		trap 'getAbort; exit' SIGTERM
         else
+		### Remove old version of project
+		if [ ! -d apk ]; then mkdir apk; fi
+		rm -rf client packager server
+		### Copy project to workspace
+		# this line commented because this job was moved to host dev02.design.isd.dp.ua
+		#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
+		# this line there because this job working in host dev02.design.isd.dp.ua
+		cp -Rf $CURRENT_BUILD/* .
+		# Create apk-file
 		cd $WORKSPACE/packager
 		node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
 		# Remove unaligned apk-file
