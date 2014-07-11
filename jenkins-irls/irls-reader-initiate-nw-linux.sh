@@ -111,7 +111,7 @@ function create_deb_package {
 	mv DEBIAN/control.tar.gz .
 	fakeroot printf "2.0\n" > debian-binary
 	fakeroot ar r $NAME_DEB_PKG debian-binary control.tar.gz data.tar.gz
-	mv $NAME_DEB_PKG $WORKSPACE/deb
+	mv $NAME_DEB_PKG $WORKSPACE/deb/
 	cd ../ && rm -rf $NAME
 	}
 ###
