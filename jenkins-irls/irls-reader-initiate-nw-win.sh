@@ -59,7 +59,7 @@ do
 		# this line commented because this job was moved to host dev02.design.isd.dp.ua
 		#cp $WORKSPACE/zip/*$i-win*.zip $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		# this line there because this job working in host dev02.design.isd.dp.ua
-		time scp $WORKSPACE/zip/*$i-win*.zip jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+		time scp $WORKSPACE/zip/*$i-win*.zip jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/zip/*$i-win*.zip
 		rm -rf $WORKSPACE/zip
 	fi
 done
