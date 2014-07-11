@@ -38,6 +38,15 @@ done
 ###
 ### Body (working with all facets exclude "ocean")
 ###
+
+### Remove old version of project
+rm -rf $WORKSPACE/client $WORKSPACE/packager $WORKSPACE/server
+### Copy project to workspace
+# this line commented because this job was moved to host dev02.design.isd.dp.ua
+#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
+# this line there because this job working in host dev02.design.isd.dp.ua
+cp -Rf $CURRENT_BUILD/* .
+### Main loop
 for i in "${!combineArray[@]}"
 do
 	echo $i --- ${combineArray[$i]}
@@ -49,32 +58,23 @@ do
 		getAbort
 		trap 'getAbort; exit' SIGTERM
         else
-		### Remove old version of project
-		if [ ! -d apk ]; then mkdir apk; fi
-		rm -rf client packager server
-		### Copy project to workspace
-		# this line commented because this job was moved to host dev02.design.isd.dp.ua
-		#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
-		# this line there because this job working in host dev02.design.isd.dp.ua
-		cp -Rf $CURRENT_BUILD/* .
 		# Create apk-file
 		cd $WORKSPACE/packager
 		node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
 		# Remove unaligned apk-file
 		rm -f out/dest/platforms/android/bin/*$i*unaligned.apk
 		# Move apk-file to directory for archiving artifacts
-		mv $WORKSPACE/packager/out/dest/platforms/android/bin/*$i*.apk $WORKSPACE/apk/$BRANCH-FFA_Reader-$i.apk
+		mv $WORKSPACE/packager/out/dest/platforms/android/bin/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
 		# this lines commented because this job was moved to host dev02.design.isd.dp.ua
 		#if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
 		#	mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
 		#fi
-		#cp $WORKSPACE/apk/$BRANCH-FFA_Reader-$i.apk $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+		#cp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 		ssh jenkins@dev01.isd.dp.ua "
 		if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
 			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
 		fi
 		"
-		time scp $WORKSPACE/apk/$BRANCH-FFA_Reader-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
-		rm -rf $WORKSPACE/apk
+		time scp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
         fi
 done
