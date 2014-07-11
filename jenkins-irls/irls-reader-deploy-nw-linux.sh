@@ -16,7 +16,6 @@ BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
-DIR_DEB=/var/lib/jenkins/jobs/irls-reader-initiate-nw-linux/builds/lastSuccessfulBuild/archive/deb
 DEB32=$BRANCHNAME-reader-$FACETS*i386.deb
 DEB64=$BRANCHNAME-reader-$FACETS*amd64.deb
 FACETS=($(echo $FACET))
@@ -60,15 +59,6 @@ function search_and_copy {
 				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
 			fi
 		fi
-		# else -> search deb-package in directory when jenkins save jobs artifacts
-	else
-		deb_file=$(find $DIR_DEB -name $DEB32)
-		if [ ! -f "$deb_file" ]; then
-			echo "deb-package $deb_file in $DIR_DEB not exists"
-		else
-			echo "find deb-package $deb_file"
-			cp $deb_file $1
-		fi
 	fi
 	# for Linux 64-bit
 	# if path to artifacts directory contain word "stage" -> search deb-packages in artifacts directory for CURRENT-environment
@@ -84,15 +74,6 @@ function search_and_copy {
 				echo PWD=$PWD
 				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
 			fi
-		fi
-		# else -> search deb-package in directory when jenkins save jobs artifacts
-	else
-		deb_file=$(find $DIR_DEB -name $DEB64)
-		if [ ! -f "$deb_file" ]; then
-			echo "deb-package $deb_file in $DIR_DEB not exists"
-		else
-			echo "find deb-package $deb_file"
-			cp $deb_file $1
 		fi
 	fi
 }
