@@ -25,6 +25,12 @@ done
 ###
 ### Body (working with all facets exclude only facet named "ocean")
 ###
+rm -rf client packager
+### Copy project to workspace
+# this line commented because this job was moved to host dev02.design.isd.dp.ua
+#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
+# this line there because this job working in host dev02.design.isd.dp.ua
+cp -Rf $CURRENT_BUILD/* .
 for i in "${!combineArray[@]}"
 do
 	echo $i --- ${combineArray[$i]}
@@ -37,12 +43,7 @@ do
 		trap 'getAbort; exit' SIGTERM
 	else
 		### Remove old version of project and zip-archives
-		if [ ! -d zip ]; then mkdir zip; fi
-		### Copy project to workspace
-		# this line commented because this job was moved to host dev02.design.isd.dp.ua
-		#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
-		# this line there because this job working in host dev02.design.isd.dp.ua
-		cp -Rf $CURRENT_BUILD/* .
+		if [ ! -d $WORKSPACE/zip ]; then mkdir $WORKSPACE/zip; fi
 		### Create zip-archive with application version for Windows
 		cd $WORKSPACE/packager
 		node index.js --target=win --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
