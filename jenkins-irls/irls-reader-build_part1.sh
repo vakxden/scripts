@@ -36,7 +36,6 @@ META_SUM_ALL=$CURRENT_EPUBS/meta-all
 GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_SHORT=$(echo $GIT_COMMIT | cut -c1-7)
-#FACETS=($(echo $FACET))
 printf "facet=$FACET \n"
 deploymentPackageId=()
 for i in "${FACET[@]}"
@@ -76,6 +75,7 @@ GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$GIT_REPO/commit/$GIT_COMMIT"
 cat /dev/null > $WORKSPACE/myenv
 echo "$GIT_URL=$GIT_URL" >> $WORKSPACE/myenv
 echo "BRANCHNAME=$BRANCHNAME" >> $WORKSPACE/myenv
+echo "FACET=$FACET" >> $WORKSPACE/myenv
 echo "GIT_COMMIT=$GIT_COMMIT" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_MESSAGE=$GIT_COMMIT_MESSAGE" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_DATE=$GIT_COMMIT_DATE" >> $WORKSPACE/myenv
