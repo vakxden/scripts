@@ -7,7 +7,7 @@ export HTTPS_PROXY=http://10.98.192.120:3128
 CURRENT_BUILD=/Users/jenkins/irls-reader-current-build
 BUILD_CONFIG=/Users/jenkins/build_config
 CURRENT_EPUBS=/Users/jenkins/irls-reader-current-epubs
-ARTIFACTS_DIR=/Users/jenkins/irls-reader-artifacts
+ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts # it's directory locates on the host dev01
 echo SHELL=$BASH
 echo SHELL_VERSION=$BASH_VERSION
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
@@ -52,5 +52,6 @@ do
 		time /usr/bin/xcodebuild -target "$BRANCH-FFA_Reader-$i" -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$BRANCH-FFA_Reader-$i.xcodeproj/ > /dev/null
 		#create ipa-file
 		time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$BRANCH-FFA_Reader-$i.app" -o $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
+		time scp $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa
 	fi
 done
