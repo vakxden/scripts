@@ -16,7 +16,6 @@ BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
-DIR_ZIP=/var/lib/jenkins/jobs/irls-reader-initiate-nw-win/builds/lastSuccessfulBuild/archive/
 FACETS=($(echo $FACET))
 ###
 ### Create associative array
@@ -57,15 +56,6 @@ function search_and_copy {
 			if [ ! -z "$find" ]; then
 				cp -f $find $1 && echo "copying file $find to $1"
 			fi
-		fi
-		# else -> search zip-files in directory when jenkins save jobs artifacts
-	else
-		zip_file=$(find $DIR_ZIP -name $BRANCH*FFA_Reader*$i-win*.zip)
-		if [ ! -f "$zip_file" ]; then
-			echo "nw-win zip file $zip_file in $DIR_ZIP not exists"
-		else
-			echo "find nw-win zip-file $zip_file"
-			cp $zip_file $1
 		fi
 	fi
 }
