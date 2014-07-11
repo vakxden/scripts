@@ -16,7 +16,6 @@ BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
-DIR_APK=/var/lib/jenkins/jobs/irls-reader-initiate-android/builds/lastSuccessfulBuild/archive/
 FACETS=($(echo $FACET))
 ###
 ### Create associative array
@@ -56,15 +55,6 @@ function search_and_copy {
 				echo PWD=$PWD
 				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
 			fi
-		fi
-		# else -> search apk-files in directory when jenkins save jobs artifacts
-	else
-		apk_file=$(find $DIR_APK -name *$i*.apk)
-		if [ ! -f "$apk_file" ]; then
-			echo "apk-file $apk_file in $DIR_APK not exists"
-		else
-			echo "find apk-file $apk_file"
-			cp $apk_file $1
 		fi
 	fi
 }
