@@ -117,6 +117,10 @@ function create_deb_package {
 ###
 ### Body (working with all facets exclude only facet named "ocean")
 ###
+### Remove old version of project and zip-archives
+rm -rf client packager server
+### Copy project to workspace
+cp -Rf $CURRENT_BUILD/* .
 for i in "${!combineArray[@]}"
 do
 	echo $i --- ${combineArray[$i]}
@@ -128,11 +132,7 @@ do
 		getAbort
 		trap 'getAbort; exit' SIGTERM
         else
-		### Remove old version of project and zip-archives
-		rm -rf client packager server deb/*.deb
-		if [ ! -d deb ]; then mkdir deb; fi
-		### Copy project to workspace
-		cp -Rf $CURRENT_BUILD/* .
+		if [ ! -d $WORKSPACE/deb ]; then mkdir $WORKSPACE/deb; fi
 		### Create deb-package with application version for Linux 32-bit
 		cd $WORKSPACE/packager
 		node index.js --target=linux32 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
