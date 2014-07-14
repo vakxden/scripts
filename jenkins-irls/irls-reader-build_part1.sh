@@ -1,13 +1,16 @@
 ### Variables
 BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ -z $FACET ]; then
-	if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
-		FACET=(puddle bahaiebooks farsi farsiref audio audiobywords mediaoverlay lake ocean)
-	elif [ "$BRANCHNAME" = "feature/target" ]; then
-		FACET=(puddle)
-	else
-		FACET=(puddle bahaiebooks audio mediaoverlay lake)
-	fi
+        if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
+                #FACET=(puddle farsi farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
+                FACET=(farsi audio)
+        elif [ "$BRANCHNAME" = "feature/target" ]; then
+                FACET=(puddle)
+		elif [ "$BRANCHNAME" = "feature/readium_0.14" ]; then
+                FACET=(puddle)
+        else
+                FACET=(puddle bahaiebooks audio mediaoverlay lake)
+        fi
 fi
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
 GIT_COMMIT_DATE=$(git show -s --format=%ci)
@@ -24,11 +27,11 @@ CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
 num=$(ls -d $CURRENT_BUILD/* | wc -l)
 # if num>5 -> remove all directories except the five most recent catalogs
 if (($num>5)); then
-	echo "numbers of dir>5"
-	for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$(($num-5)) | awk '{print $9}')
-	do
-		rm -rf $i
-	done
+        echo "numbers of dir>5"
+        for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$(($num-5)) | awk '{print $9}')
+        do
+                rm -rf $i
+        done
 fi
 
 # generate deploymentPackageId
@@ -40,7 +43,7 @@ printf "facet=$FACET \n"
 deploymentPackageId=()
 for i in "${FACET[@]}"
 do
-	deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
+        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
 done
 
 ### generate meta.json
