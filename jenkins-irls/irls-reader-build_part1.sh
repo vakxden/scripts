@@ -9,7 +9,8 @@ if [ -z $FACET ]; then
 		elif [ "$BRANCHNAME" = "feature/readium_0.14" ]; then
                 FACET=(puddle)
         else
-                FACET=(puddle bahaiebooks audio mediaoverlay lake)
+                #FACET=(puddle bahaiebooks audio mediaoverlay lake)
+                FACET=(farsi audio)
         fi
 fi
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
