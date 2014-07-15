@@ -15,7 +15,9 @@ cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 ###
 ### Clone targets-repo
 ###
-git clone git@wpp.isd.dp.ua:irls/targets.git
+if [[ $BRANCHNAME == *target* ]]; then
+	git clone git@wpp.isd.dp.ua:irls/targets.git
+fi
 ###
 ### Web-version with created index in couchdb
 ###

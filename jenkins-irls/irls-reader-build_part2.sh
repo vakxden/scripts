@@ -1,4 +1,14 @@
+###
+### Clone targets-repo
+###
+if [[ $BRANCHNAME == *target* ]]; then
+	git clone git@wpp.isd.dp.ua:irls/targets.git
+fi
+###
+### Build client and server parts
+###
 grunt --no-color
+### Copy
 if [ ! -d $CURRENT_BUILD/$GIT_COMMIT/client ]
 then
     mkdir -p $CURRENT_BUILD/$GIT_COMMIT/client
