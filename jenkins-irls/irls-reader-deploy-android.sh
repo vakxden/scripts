@@ -151,39 +151,39 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
 			# update environment.json file
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
-	elif [ "$dest" = "LIVE" ]; then
-		for i in "${!combineArray[@]}"
-		do
-			# output value for a pair "key-value"
-			echo $i --- ${combineArray[$i]}
-			ssh dvac@devzone.dp.ua "
-				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art ]
-				then
-					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/art
-				else
-					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art/*$i*.apk
-				fi"
-			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
-			if [ -f $ARTIFACTS_DIR/*$i*.apk ]; then
-				scp $ARTIFACTS_DIR/*$i*.apk dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
-			fi
-			ssh dvac@devzone.dp.ua "
-				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
-				cp ~/local.json ~/irls-reader-artifacts/${combineArray[$i]}/packages/server/config
-				INDEX_FILE=index_"$i"_$BRANCH.js
-				cd ~/irls-reader-artifacts/${combineArray[$i]}/packages/
-				PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
-				if [ ! -z \$PID ]
-				then
-					kill -9 \$PID
-					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
-				else
-					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
-				fi"
-			echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
-			# update environment.json file
-			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
-		done
+#	elif [ "$dest" = "LIVE" ]; then
+#		for i in "${!combineArray[@]}"
+#		do
+#			# output value for a pair "key-value"
+#			echo $i --- ${combineArray[$i]}
+#			ssh dvac@devzone.dp.ua "
+#				if [ ! -d  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art ]
+#				then
+#					mkdir -p ~/irls-reader-artifacts/${combineArray[$i]}/packages/art
+#				else
+#					rm -rf  ~/irls-reader-artifacts/${combineArray[$i]}/packages/art/*$i*.apk
+#				fi"
+#			ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
+#			if [ -f $ARTIFACTS_DIR/*$i*.apk ]; then
+#				scp $ARTIFACTS_DIR/*$i*.apk dvac@devzone.dp.ua:~/irls-reader-artifacts/${combineArray[$i]}/packages/art/
+#			fi
+#			ssh dvac@devzone.dp.ua "
+#				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
+#				cp ~/local.json ~/irls-reader-artifacts/${combineArray[$i]}/packages/server/config
+#				INDEX_FILE=index_"$i"_$BRANCH.js
+#				cd ~/irls-reader-artifacts/${combineArray[$i]}/packages/
+#				PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
+#				if [ ! -z \$PID ]
+#				then
+#					kill -9 \$PID
+#					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
+#				else
+#					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
+#				fi"
+#			echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+#			# update environment.json file
+#			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+#		done
 	else
 		printf "[ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest! \n"
 		exit 1
