@@ -55,4 +55,4 @@ do
 		time scp $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa
 	fi
 done
-rm -rf $WORKSPACE/build/*
+rm -rf $CONFIGURATION_BUILD_DIR/*
