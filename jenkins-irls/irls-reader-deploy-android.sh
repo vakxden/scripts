@@ -151,7 +151,8 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
 			# update environment.json file
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		done
-#	elif [ "$dest" = "LIVE" ]; then
+	elif [ "$dest" = "LIVE" ]; then
+		exit 0
 #		for i in "${!combineArray[@]}"
 #		do
 #			# output value for a pair "key-value"
