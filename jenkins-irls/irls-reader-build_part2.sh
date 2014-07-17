@@ -28,8 +28,8 @@ fi
 ###
 ssh jenkins@yuriys-mac-mini.isd.dp.ua 'rm -rf /Users/jenkins/irls-reader-current-build/packager/*'
 scp -r $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client jenkins@yuriys-mac-mini.isd.dp.ua:$CURRENT_REMOTE_BUILD
-ssh jenkins@irls-autotests.design.isd.dp.ua 'rm -rf /home/jenkins/irls-reader-current-build/packager/*'
-scp -r $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client jenkins@irls-autotests.design.isd.dp.ua:$CURRENT_BUILD
+#ssh jenkins@irls-autotests.design.isd.dp.ua 'rm -rf /home/jenkins/irls-reader-current-build/packager/*'
+#scp -r $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client jenkins@irls-autotests.design.isd.dp.ua:$CURRENT_BUILD
 ###
 ### Copy project to remote workspace (for jobs working on host dev02.design.isd.dp.ua)
 ###
