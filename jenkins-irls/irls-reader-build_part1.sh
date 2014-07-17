@@ -3,14 +3,14 @@ BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ -z $FACET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
                 #FACET=(puddle farsi farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
-                FACET=(farsi audio)
+                FACET=(farsi)
         elif [ "$BRANCHNAME" = "feature/target" ]; then
                 FACET=(puddle)
 		elif [ "$BRANCHNAME" = "feature/readium_0.14" ]; then
                 FACET=(puddle)
         else
                 #FACET=(puddle bahaiebooks audio mediaoverlay lake)
-                FACET=(farsi audio)
+                FACET=(farsi)
         fi
 fi
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
