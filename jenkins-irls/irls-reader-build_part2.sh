@@ -4,6 +4,7 @@
 if [ "$BRANCHNAME" = "feature/target" ]; then
 	rm -rf targets
 	git clone git@wpp.isd.dp.ua:irls/targets.git
+	cd $WORKSPACE/client
 	node index.js --target=puddle_FFA
 fi
 ###
