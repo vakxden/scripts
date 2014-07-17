@@ -53,7 +53,7 @@ do
 	###
 	### Create meta.json
 	###
-	if [ ! -f $ARTIFACTS_DIR/$i/meta.json ]; then
+	function_create_meta {
 		echo -e "{" >> $ARTIFACTS_DIR/$i/meta.json
 		echo -e "\t\"buildID\":\""$i"\"," >> $ARTIFACTS_DIR/$i/meta.json
 		echo -e "\t\"facetName\":\""$facetName"\"," >> $ARTIFACTS_DIR/$i/meta.json
@@ -89,5 +89,11 @@ do
 		echo -e "}" >> $ARTIFACTS_DIR/$i/meta.json
 		sudo /bin/chown -Rf jenkins:www-data /home/jenkins/irls-reader-artifacts/$i
 		/bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$i
+	}
+	if [ ! -f $ARTIFACTS_DIR/$i/meta.json ]; then
+		function_create_meta
+	else
+		cat /dev/null > $ARTIFACTS_DIR/$i/meta.json 
+		function_create_meta
 	fi
 done

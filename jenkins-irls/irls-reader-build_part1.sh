@@ -6,8 +6,6 @@ if [ -z $FACET ]; then
                 FACET=(farsi farsi2)
         elif [ "$BRANCHNAME" = "feature/target" ]; then
                 FACET=(puddle)
-		elif [ "$BRANCHNAME" = "feature/readium_0.14" ]; then
-                FACET=(puddle)
         else
                 #FACET=(puddle bahaiebooks audio mediaoverlay lake)
                 FACET=(farsi farsi2)
