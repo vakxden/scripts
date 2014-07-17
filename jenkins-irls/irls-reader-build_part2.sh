@@ -1,9 +1,10 @@
 ###
-### Clone targets-repo
+### Clone targets-repo and running node with target option
 ###
-rm -rf targets
-if [[ $BRANCHNAME == *target* ]]; then
+if [ "$BRANCHNAME" = "feature/target" ]; then
+	rm -rf targets
 	git clone git@wpp.isd.dp.ua:irls/targets.git
+	node index.js --target=puddle_FFA
 fi
 ###
 ### Build client and server parts

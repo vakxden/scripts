@@ -15,7 +15,7 @@ cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 ###
 ### Clone targets-repo
 ###
-if [[ $BRANCHNAME == *target* ]]; then
+if [ "$BRANCHNAME" = "feature/target" ]; then
 	git clone git@wpp.isd.dp.ua:irls/targets.git
 fi
 ###
