@@ -55,7 +55,7 @@ time tar cfz current_build-$GIT_COMMIT.tar.gz $CURRENT_BUILD/$GIT_COMMIT/package
 ssh jenkins@yuriys-mac-mini.isd.dp.ua "
 	if [ ! -d $CURRENT_REMOTE_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_REMOTE_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/* ; fi
 "
-time scp current_build-$GIT_COMMIT.tar.xf jenkins@yuriys-mac-mini.isd.dp.ua:~
+time scp current_build-$GIT_COMMIT.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
 ssh jenkins@yuriys-mac-mini.isd.dp.ua "
 	tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
 	mv $CURRENT_REMOTE_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
@@ -68,7 +68,7 @@ ssh jenkins@yuriys-mac-mini.isd.dp.ua "
 ssh jenkins@dev02.design.isd.dp.ua "
 	if [ ! -d $CURRENT_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_BUILD/$GIT_COMMIT/* ; fi
 "
-scp current_build-$GIT_COMMIT.tar.xf  jenkins@dev02.design.isd.dp.ua:~
+scp current_build-$GIT_COMMIT.tar.gz  jenkins@dev02.design.isd.dp.ua:~
 ssh jenkins@dev02.design.isd.dp.ua "
 	tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_BUILD/$GIT_COMMIT/
 	mv $CURRENT_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_BUILD/$GIT_COMMIT/
