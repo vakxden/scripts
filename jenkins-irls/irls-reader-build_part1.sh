@@ -19,19 +19,6 @@ CURRENT_BUILD=/home/jenkins/irls-reader-current-build
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
 
-###
-### Removing outdated directories from a directory $CURRENT_BUILD
-###
-#numbers of directories in $CURRENT_BUILD/
-num=$(ls -d $CURRENT_BUILD/* | wc -l)
-# if num>5 -> remove all directories except the five most recent catalogs
-if (($num>5)); then
-        echo "numbers of dir>5"
-        for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$(($num-5)) | awk '{print $9}')
-        do
-                rm -rf $i
-        done
-fi
 
 # generate deploymentPackageId
 META_SUM_ALL=$CURRENT_EPUBS/meta-all

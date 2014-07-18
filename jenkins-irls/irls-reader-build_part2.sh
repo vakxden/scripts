@@ -7,10 +7,26 @@ if [ "$BRANCHNAME" = "feature/target" ]; then
 	cd $WORKSPACE/client
 	node index.js --target=puddle_FFA
 fi
+
 ###
 ### Build client and server parts
 ###
 grunt --no-color
+
+###
+### Removing outdated directories from a directory $CURRENT_BUILD
+###
+#numbers of directories in $CURRENT_BUILD/
+num=$(ls -d $CURRENT_BUILD/* | wc -l)
+# if num>5 -> remove all directories except the five most recent catalogs
+if (($num>5)); then
+        echo "numbers of dir>5"
+        for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$(($num-5)) | awk '{print $9}')
+        do
+                rm -rf $i
+        done
+fi
+
 ### Copy
 if [ ! -d $CURRENT_BUILD/$GIT_COMMIT/client ]
 then
