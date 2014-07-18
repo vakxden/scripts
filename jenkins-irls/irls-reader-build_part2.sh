@@ -28,6 +28,18 @@ function clean_current_build {
 	        done
 	fi
 }
+function clean_current_build_mac-mini {
+	#numbers of directories in $CURRENT_REMOTE_BUILD/
+	num=$(ls -d $CURRENT_REMOTE_BUILD/* | wc -l)
+	# if num>5 -> remove all directories except the five most recent catalogs
+	if (($num>5)); then
+	        echo "numbers of dir>5"
+	        for i in $(ls -lahtrd $CURRENT_REMOTE_BUILD/* | head -$(($num-5)) | awk '{print $9}')
+	        do
+	                rm -rf $i
+	        done
+	fi
+}
 
 clean_current_build
 
@@ -52,17 +64,17 @@ fi
 time tar cfz current_build-$GIT_COMMIT.tar.gz $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client
 
 ### copy to mac-mini
-ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-	if [ ! -d $CURRENT_REMOTE_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_REMOTE_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/* ; fi
-"
-time scp current_build-$GIT_COMMIT.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
-ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-	tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
-	mv $CURRENT_REMOTE_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
-	rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/home
-	rm -f current_build-$GIT_COMMIT.tar.gz
-	$(typeset -f); clean_current_build
-"
+#ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+#	if [ ! -d $CURRENT_REMOTE_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_REMOTE_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/* ; fi
+#"
+#time scp current_build-$GIT_COMMIT.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
+#ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+#	tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
+#	mv $CURRENT_REMOTE_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
+#	rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/home
+#	rm -f current_build-$GIT_COMMIT.tar.gz
+#	$(typeset -f); clean_current_build_mac-mini
+#"
 
 ### copy to dev02
 ssh jenkins@dev02.design.isd.dp.ua "
