@@ -29,8 +29,8 @@ do
 	rm -rf $RESULTS/$i
 	mkdir -p $RESULTS/$i
 	cd $WORKSPACE/$PROJECTNAME/src
-	node main.js $CURRENT_TEXTS $RESULTS/$i $i
-	node --max-old-space-size=7000 $WORKSPACE/$PROJECTNAME/src/createJSON.js $RESULTS/$i/
+	time node main.js $CURRENT_TEXTS $RESULTS/$i $i
+	time node --max-old-space-size=7000 $WORKSPACE/$PROJECTNAME/src/createJSON.js $RESULTS/$i/
 	rm -rf $CURRENT_EPUBS/$i
 	mkdir -p $CURRENT_EPUBS/$i
 	mv $RESULTS/$i/* $CURRENT_EPUBS/$i/
@@ -70,7 +70,7 @@ do
 	else
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir /Users/jenkins/irls-reader-current-epubs/$i; fi"
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "rm -rf /Users/jenkins/irls-reader-current-epubs/$i/*"
-	tar czf - ~/irls-reader-current-epubs/$i/ | ssh jenkins@yuriys-mac-mini.isd.dp.ua "tar xzf - -C /Users/jenkins/irls-reader-current-epubs/$i/"
+	time tar cfJ - ~/irls-reader-current-epubs/$i/ | ssh jenkins@yuriys-mac-mini.isd.dp.ua "tar xfJ - -C /Users/jenkins/irls-reader-current-epubs/$i/"
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "rm -rf /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "mv /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* /Users/jenkins/irls-reader-current-epubs/$i/ && rm -rf /Users/jenkins/irls-reader-current-epubs/$i/home"
 	fi
@@ -83,21 +83,21 @@ for i in "${FACETS[@]}"
 do
 	ssh dvac@devzone.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  ~/irls-reader-current-epubs/$i; fi"
 	ssh dvac@devzone.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
-	tar czf - ~/irls-reader-current-epubs/$i/ | ssh dvac@devzone.dp.ua "tar xzf - -C ~/irls-reader-current-epubs/$i/"
+	time tar cfJ - ~/irls-reader-current-epubs/$i/ | ssh dvac@devzone.dp.ua "tar xfJ - -C ~/irls-reader-current-epubs/$i/"
 	ssh dvac@devzone.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
 	ssh dvac@devzone.dp.ua "mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home"
 done
 ###
 ### Copy current epubs for all facets to irls-autotests.design.isd.dp.ua
 ###
-for i in "${FACETS[@]}"
-do
-	ssh jenkins@irls-autotests.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi"
-	ssh jenkins@irls-autotests.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
-	tar czf - ~/irls-reader-current-epubs/$i/ | ssh jenkins@irls-autotests.design.isd.dp.ua "tar xzf - -C ~/irls-reader-current-epubs/$i/"
-	ssh jenkins@irls-autotests.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
-	ssh jenkins@irls-autotests.design.isd.dp.ua "mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home"
-done
+#for i in "${FACETS[@]}"
+#do
+#	ssh jenkins@irls-autotests.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi"
+#	ssh jenkins@irls-autotests.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
+#	tar czf - ~/irls-reader-current-epubs/$i/ | ssh jenkins@irls-autotests.design.isd.dp.ua "tar xzf - -C ~/irls-reader-current-epubs/$i/"
+#	ssh jenkins@irls-autotests.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
+#	ssh jenkins@irls-autotests.design.isd.dp.ua "mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home"
+#done
 ###
 ### Copy current epubs for all facets to dev02.design.isd.dp.ua
 ###
@@ -105,7 +105,7 @@ for i in "${FACETS[@]}"
 do
 	ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi"
 	ssh jenkins@dev02.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
-	tar czf - ~/irls-reader-current-epubs/$i/ | ssh jenkins@dev02.design.isd.dp.ua "tar xzf - -C ~/irls-reader-current-epubs/$i/"
+	time tar cfJ - ~/irls-reader-current-epubs/$i/ | ssh jenkins@dev02.design.isd.dp.ua "tar xfJ - -C ~/irls-reader-current-epubs/$i/"
 	ssh jenkins@dev02.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
 	ssh jenkins@dev02.design.isd.dp.ua "mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home"
 done
