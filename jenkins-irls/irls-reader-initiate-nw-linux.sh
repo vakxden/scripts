@@ -117,7 +117,7 @@ function create_deb_package {
 ###
 ### Remove old version of project and copy project to workspace
 ###
-rm -rf $WORKSPACW/*
+rm -rf $WORKSPACE/*
 cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 
 ###
