@@ -61,53 +61,61 @@ if [ ! -z "$files_conv_ocean" ]; then
 fi
 
 ###
-### Copy current epubs for not all facets to mac-mini
+### Copy current epubs to jenkins nodes
 ###
 for i in "${FACETS[@]}"
 do
+	# create tar.xz archive
+	time tar cfJ $i.tar.xz ~/irls-reader-current-epubs/$i --exclude="_oldjson"
+	
+	###
+	### Copy current epubs to mac-mini
+	###
 	if [ "$i" = "ocean" ]; then
 		printf "epubs for facet named 'ocean' will not be copying to mac-mini \n"
 	else
-	ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir /Users/jenkins/irls-reader-current-epubs/$i; fi"
-	ssh jenkins@yuriys-mac-mini.isd.dp.ua "rm -rf /Users/jenkins/irls-reader-current-epubs/$i/*"
-	time tar cfJ - ~/irls-reader-current-epubs/$i/ | ssh jenkins@yuriys-mac-mini.isd.dp.ua "tar xfJ - -C /Users/jenkins/irls-reader-current-epubs/$i/"
-	ssh jenkins@yuriys-mac-mini.isd.dp.ua "rm -rf /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
-	ssh jenkins@yuriys-mac-mini.isd.dp.ua "mv /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* /Users/jenkins/irls-reader-current-epubs/$i/ && rm -rf /Users/jenkins/irls-reader-current-epubs/$i/home"
+		ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+			if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir /Users/jenkins/irls-reader-current-epubs/$i; fi
+			rm -rf /Users/jenkins/irls-reader-current-epubs/$i/*
+		"
+		time scp $i.tar.xz jenkins@yuriys-mac-mini.isd.dp.ua:~
+		ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+			tar xfJ $i.tar.xz -C /Users/jenkins/irls-reader-current-epubs/$i/
+			mv /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* /Users/jenkins/irls-reader-current-epubs/$i/ && rm -rf /Users/jenkins/irls-reader-current-epubs/$i/home
+			rm -f $i.tar.xz
+		"
 	fi
-done
 
-###
-### Copy current epubs for all facets to devzone
-###
-for i in "${FACETS[@]}"
-do
-	ssh dvac@devzone.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  ~/irls-reader-current-epubs/$i; fi"
-	ssh dvac@devzone.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
-	time tar cfJ - ~/irls-reader-current-epubs/$i/ | ssh dvac@devzone.dp.ua "tar xfJ - -C ~/irls-reader-current-epubs/$i/"
-	ssh dvac@devzone.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
-	ssh dvac@devzone.dp.ua "mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home"
-done
-###
-### Copy current epubs for all facets to irls-autotests.design.isd.dp.ua
-###
-#for i in "${FACETS[@]}"
-#do
-#	ssh jenkins@irls-autotests.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi"
-#	ssh jenkins@irls-autotests.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
-#	tar czf - ~/irls-reader-current-epubs/$i/ | ssh jenkins@irls-autotests.design.isd.dp.ua "tar xzf - -C ~/irls-reader-current-epubs/$i/"
-#	ssh jenkins@irls-autotests.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
-#	ssh jenkins@irls-autotests.design.isd.dp.ua "mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home"
-#done
-###
-### Copy current epubs for all facets to dev02.design.isd.dp.ua
-###
-for i in "${FACETS[@]}"
-do
-	ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi"
-	ssh jenkins@dev02.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i/*"
-	time tar cfJ - ~/irls-reader-current-epubs/$i/ | ssh jenkins@dev02.design.isd.dp.ua "tar xfJ - -C ~/irls-reader-current-epubs/$i/"
-	ssh jenkins@dev02.design.isd.dp.ua "rm -rf ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/_oldjson ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/*.epub"
-	ssh jenkins@dev02.design.isd.dp.ua "mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home"
+	###
+	### Copy current epubs to devzone
+	###
+	ssh dvac@devzone.dp.ua "
+		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  ~/irls-reader-current-epubs/$i; fi
+		rm -rf ~/irls-reader-current-epubs/$i/*
+	"
+	time scp $i.tar.xz dvac@devzone.dp.ua:~
+	ssh dvac@devzone.dp.ua "
+		tar xfJ $i.tar.xz -C ~/irls-reader-current-epubs/$i/
+		mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home
+		rm -f $i.tar.xz
+	"
+
+	###
+	### Copy current epubs to dev02.design.isd.dp.ua
+	###
+	ssh jenkins@dev02.design.isd.dp.ua "
+		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi
+		rm -rf ~/irls-reader-current-epubs/$i/*
+	"
+	time scp $i.tar.xz jenkins@dev02.design.isd.dp.ua:~
+	ssh jenkins@dev02.design.isd.dp.ua "
+		tar xfJ $i.tar.xz -C ~/irls-reader-current-epubs/$i/
+		mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home
+		rm -f $i.tar.xz
+	"
+	
+	# remove tar.xz archive
+	rm -f $i.tar.xz
 done
 ###
 ### Remove from workspace
