@@ -16,7 +16,7 @@ grunt --no-color
 ###
 ### Removing outdated directories from a directory $CURRENT_BUILD
 ###
-finction clean_current_build {
+function clean_current_build {
 	#numbers of directories in $CURRENT_BUILD/
 	num=$(ls -d $CURRENT_BUILD/* | wc -l)
 	# if num>5 -> remove all directories except the five most recent catalogs
