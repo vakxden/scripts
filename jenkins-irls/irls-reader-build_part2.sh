@@ -16,16 +16,20 @@ grunt --no-color
 ###
 ### Removing outdated directories from a directory $CURRENT_BUILD
 ###
-#numbers of directories in $CURRENT_BUILD/
-num=$(ls -d $CURRENT_BUILD/* | wc -l)
-# if num>5 -> remove all directories except the five most recent catalogs
-if (($num>5)); then
-        echo "numbers of dir>5"
-        for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$(($num-5)) | awk '{print $9}')
-        do
-                rm -rf $i
-        done
-fi
+finction clean_current_build {
+	#numbers of directories in $CURRENT_BUILD/
+	num=$(ls -d $CURRENT_BUILD/* | wc -l)
+	# if num>5 -> remove all directories except the five most recent catalogs
+	if (($num>5)); then
+	        echo "numbers of dir>5"
+	        for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$(($num-5)) | awk '{print $9}')
+	        do
+	                rm -rf $i
+	        done
+	fi
+}
+
+clean_current_build
 
 ### Copy
 if [ ! -d $CURRENT_BUILD/$GIT_COMMIT/client ]
@@ -39,21 +43,44 @@ cp -Rf $WORKSPACE/common $CURRENT_BUILD/$GIT_COMMIT
 if [ -d $WORKSPACE/portal ]; then
 cp -Rf $WORKSPACE/portal $CURRENT_BUILD/$GIT_COMMIT
 fi
-###
-### Copy project to remote workspace (for iOS build job)
-###
-ssh jenkins@yuriys-mac-mini.isd.dp.ua 'rm -rf /Users/jenkins/irls-reader-current-build/packager/*'
-scp -r $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client jenkins@yuriys-mac-mini.isd.dp.ua:$CURRENT_REMOTE_BUILD
-#ssh jenkins@irls-autotests.design.isd.dp.ua 'rm -rf /home/jenkins/irls-reader-current-build/packager/*'
-#scp -r $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client jenkins@irls-autotests.design.isd.dp.ua:$CURRENT_BUILD
-###
-### Copy project to remote workspace (for jobs working on host dev02.design.isd.dp.ua)
-###
-ssh jenkins@dev02.design.isd.dp.ua 'rm -rf /home/jenkins/irls-reader-current-build/packager/*'
-scp -r $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client jenkins@dev02.design.isd.dp.ua:$CURRENT_BUILD
 
+###
+### Copy project to remote current build directory
+###
+
+### create archive
+time tar cfz current_build-$GIT_COMMIT.tar.gz $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client
+
+### copy to mac-mini
+ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+	if [ ! -d $CURRENT_REMOTE_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_REMOTE_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/* ; fi
+"
+time scp current_build-$GIT_COMMIT.tar.xf jenkins@yuriys-mac-mini.isd.dp.ua:~
+ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+	tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
+	mv $CURRENT_REMOTE_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
+	rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/home
+	rm -f current_build-$GIT_COMMIT.tar.gz
+	$(typeset -f); clean_current_build
+"
+
+### copy to dev02
+ssh jenkins@dev02.design.isd.dp.ua "
+	if [ ! -d $CURRENT_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_BUILD/$GIT_COMMIT/* ; fi
+"
+scp current_build-$GIT_COMMIT.tar.xf  jenkins@dev02.design.isd.dp.ua:~
+ssh jenkins@dev02.design.isd.dp.ua "
+	tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_BUILD/$GIT_COMMIT/
+	mv $CURRENT_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_BUILD/$GIT_COMMIT/
+	rm -rf $CURRENT_BUILD/$GIT_COMMIT/home
+	rm -f current_build-$GIT_COMMIT.tar.gz
+	$(typeset -f); clean_current_build
+"
+
+###
+### Create meta.json
+###
 ID=($(echo $deploymentPackageId))
-
 for i in "${ID[@]}"
 do
 	###
@@ -66,9 +93,6 @@ do
 	### Determine facet name
 	###
 	facetName=$(echo $i | awk -F "_" '{print $2}')
-	###
-	### Create meta.json
-	###
 	function_create_meta {
 		echo -e "{" >> $ARTIFACTS_DIR/$i/meta.json
 		echo -e "\t\"buildID\":\""$i"\"," >> $ARTIFACTS_DIR/$i/meta.json

@@ -31,15 +31,16 @@ do
 		fi
 	done
 done
+
+###
+### Remove old version of project copy code of project from current build directory
+###
+rm -rf $WORKSPACE/*
+cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
+
 ###
 ### Body (working with all facets exclude only facet named "ocean")
 ###
-### Remove old version of project and zip-archives
-rm -rf client packager server
-# this line commented because this job was moved to host dev02.design.isd.dp.ua
-#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
-# this line there because this job working in host dev02.design.isd.dp.ua
-cp -Rf $CURRENT_BUILD/* .
 # Main loop
 for i in "${!combineArray[@]}"
 do

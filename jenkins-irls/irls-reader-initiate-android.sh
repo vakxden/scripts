@@ -40,12 +40,9 @@ done
 ###
 
 ### Remove old version of project
-rm -rf $WORKSPACE/client $WORKSPACE/packager $WORKSPACE/server
+rm -rf $WORKSPACE/*
 ### Copy project to workspace
-# this line commented because this job was moved to host dev02.design.isd.dp.ua
-#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
-# this line there because this job working in host dev02.design.isd.dp.ua
-cp -Rf $CURRENT_BUILD/* .
+cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 ### Main loop
 for i in "${!combineArray[@]}"
 do

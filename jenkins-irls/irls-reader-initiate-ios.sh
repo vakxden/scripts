@@ -33,8 +33,8 @@ do
 	done
 done
 # Copy code of project from the current code directory to workspace of job
-rm -rf $WORKSPACE/packager/* $WORKSPACE/packager $WORKSPACE/client/
-cp -Rf $CURRENT_BUILD/packager $CURRENT_BUILD/client $WORKSPACE
+rm -rf $WORKSPACE/*
+cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 ### Clean old ipa-file from workspace of job
 rm -rf $WORKSPACE/*.ipa
 ### Create ipa-file with application version for iOS

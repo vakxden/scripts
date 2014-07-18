@@ -115,12 +115,14 @@ function create_deb_package {
 	cd ../ && rm -rf $NAME
 	}
 ###
+### Remove old version of project and copy project to workspace
+###
+rm -rf $WORKSPACW/*
+cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
+
+###
 ### Body (working with all facets exclude only facet named "ocean")
 ###
-### Remove old version of project and zip-archives
-rm -rf client packager server
-### Copy project to workspace
-cp -Rf $CURRENT_BUILD/* .
 for i in "${!combineArray[@]}"
 do
 	echo $i --- ${combineArray[$i]}

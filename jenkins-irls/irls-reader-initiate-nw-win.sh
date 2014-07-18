@@ -22,15 +22,16 @@ do
 		fi
 	done
 done
+
+###
+### Copy project to workspace
+###
+rm -rf $WORKSPACE/*
+cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
+
 ###
 ### Body (working with all facets exclude only facet named "ocean")
 ###
-rm -rf client packager
-### Copy project to workspace
-# this line commented because this job was moved to host dev02.design.isd.dp.ua
-#cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
-# this line there because this job working in host dev02.design.isd.dp.ua
-cp -Rf $CURRENT_BUILD/* .
 for i in "${!combineArray[@]}"
 do
 	echo $i --- ${combineArray[$i]}
