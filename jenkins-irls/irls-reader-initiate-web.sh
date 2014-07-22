@@ -15,9 +15,9 @@ cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 ###
 ### Clone targets-repo
 ###
-if [ "$BRANCHNAME" = "feature/target" ]; then
-	git clone git@wpp.isd.dp.ua:irls/targets.git
-fi
+#if [ "$BRANCHNAME" = "feature/target" ]; then
+#	git clone git@wpp.isd.dp.ua:irls/targets.git
+#fi
 ###
 ### Web-version with created index in couchdb
 ###
@@ -39,7 +39,7 @@ do
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager
 	if [ "$BRANCHNAME" = "feature/target" ]; then
-		node index.js --platform=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
+		node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
 	else
 		node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
 	fi
