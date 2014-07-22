@@ -44,34 +44,41 @@ rm -rf $WORKSPACE/*
 ### Copy project to workspace
 cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 ### Main loop
-for i in "${!combineArray[@]}"
-do
-	echo $i --- ${combineArray[$i]}
-	if [ $(echo "$i" | egrep "ocean$") ]; then
-		getAbort()
-		{
-                	printf "we do not create the apk-file for facet named 'ocean'\n"
-		}
-		getAbort
-		trap 'getAbort; exit' SIGTERM
-        else
-		# Create apk-file
-		cd $WORKSPACE/packager
-		node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-		# Remove unaligned apk-file
-		rm -f out/dest/platforms/android/bin/*$i*unaligned.apk
-		# Move apk-file to directory for archiving artifacts
-		mv $WORKSPACE/packager/out/dest/platforms/android/bin/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
-		# this lines commented because this job was moved to host dev02.design.isd.dp.ua
-		#if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-		#	mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
-		#fi
-		#cp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
-		ssh jenkins@dev01.isd.dp.ua "
-		if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
-		fi
-		"
-		time scp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
-        fi
-done
+function main_loop {
+	for i in "${!combineArray[@]}"
+	do
+		echo $i --- ${combineArray[$i]}
+		if [ $(echo "$i" | egrep "ocean$") ]; then
+			getAbort()
+			{
+	                	printf "we do not create the apk-file for facet named 'ocean'\n"
+			}
+			getAbort
+			trap 'getAbort; exit' SIGTERM
+	        else
+			# Create apk-file
+			cd $WORKSPACE/packager
+			node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+			# Remove unaligned apk-file
+			rm -f out/dest/platforms/android/bin/*$i*unaligned.apk
+			# Move apk-file to directory for archiving artifacts
+			mv $WORKSPACE/packager/out/dest/platforms/android/bin/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
+			# this lines commented because this job was moved to host dev02.design.isd.dp.ua
+			#if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
+			#	mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+			#fi
+			#cp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+			ssh jenkins@dev01.isd.dp.ua "
+			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
+				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+			fi
+			"
+			time scp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
+	        fi
+	done
+}
+if [ "$BRANCHNAME" = "feature/target" ]; then
+	exit 0
+else
+	main_loop
+fi
