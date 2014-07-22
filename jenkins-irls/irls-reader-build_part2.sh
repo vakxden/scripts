@@ -14,20 +14,18 @@ fi
 grunt --no-color
 
 ###
-### Removing outdated directories from a directory $CURRENT_BUILD
+### Removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
 ###
-#function clean_current_build {
-        #numbers of directories in $CURRENT_BUILD/
-#        num=$(ls -d $CURRENT_BUILD/* | wc -l)
-        # if num>5 -> remove all directories except the five most recent catalogs
-#        if (($num>5)); then
-#                echo "numbers of dir>5"
-#                for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$(($num-5)) | awk '{print $9}')
-#                do
-#                        rm -rf $i
-#                done
-#        fi
-#}
+# Numbers of directories in the $CURRENT_BUILD/
+NUM=$(ls -d $CURRENT_BUILD/* | wc -l)
+# If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
+if [ "\$NUM" > "5" ]; then
+	echo "Number of directories is more than 5"
+	for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$(($num-5)) | awk '{print $9}')
+	do
+		rm -rf $i
+	done
+fi
 
 ### Copy
 if [ ! -d $CURRENT_BUILD/$GIT_COMMIT/client ]
@@ -50,17 +48,30 @@ fi
 time tar cfz current_build-$GIT_COMMIT.tar.gz $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client
 
 ### copy to mac-mini
-#ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-#       if [ ! -d $CURRENT_REMOTE_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_REMOTE_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/* ; fi
-#"
-#time scp current_build-$GIT_COMMIT.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
-#ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-#       tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
-#       mv $CURRENT_REMOTE_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
-#       rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/home
-#       rm -f current_build-$GIT_COMMIT.tar.gz
-#       $(typeset -f); clean_current_build_mac-mini
-#"
+ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+       if [ ! -d $CURRENT_REMOTE_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_REMOTE_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/* ; fi
+"
+time scp current_build-$GIT_COMMIT.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
+ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+       tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
+       mv $CURRENT_REMOTE_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
+       rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/home
+       rm -f current_build-$GIT_COMMIT.tar.gz
+"
+### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
+ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+	#numbers of directories in the $CURRENT_REMOTE_BUILD/
+	NUM=\$(ls -d $CURRENT_REMOTE_BUILD/* | wc -l);
+	HEAD_NUM=\$((NUM-5))
+	# If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
+	if [ "\$NUM" > "5" ]; then
+		echo "Number of directories is more than 5"
+		for i in \$(ls -lahtrd $CURRENT_REMOTE_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
+		do
+			rm -rf \$i
+		done
+fi
+"
 
 ### copy to dev02
 ssh jenkins@dev02.design.isd.dp.ua "
@@ -72,6 +83,20 @@ ssh jenkins@dev02.design.isd.dp.ua "
         mv $CURRENT_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_BUILD/$GIT_COMMIT/
         rm -rf $CURRENT_BUILD/$GIT_COMMIT/home
         rm -f current_build-$GIT_COMMIT.tar.gz
+"
+### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
+ssh jenkins@dev02.design.isd.dp.ua "
+	#numbers of directories in the $CURRENT_BUILD/
+	NUM=\$(ls -d $CURRENT_BUILD/* | wc -l);
+	HEAD_NUM=\$((NUM-5))
+	# If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
+	if [ "\$NUM" > "5" ]; then
+		echo "Number of directories is more than 5"
+		for i in \$(ls -lahtrd $CURRENT_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
+		do
+			rm -rf \$i
+		done
+fi
 "
 
 ###
