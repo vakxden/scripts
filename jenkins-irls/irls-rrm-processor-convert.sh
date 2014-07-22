@@ -75,7 +75,7 @@ do
 		printf "epubs for facet named 'ocean' will not be copying to mac-mini \n"
 	else
 		ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-			if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir /Users/jenkins/irls-reader-current-epubs/$i; fi
+			if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$i; fi
 			rm -rf /Users/jenkins/irls-reader-current-epubs/$i/*
 		"
 		time scp $i.tar.xz jenkins@yuriys-mac-mini.isd.dp.ua:~
@@ -90,7 +90,7 @@ do
 	### Copy current epubs to devzone
 	###
 	ssh dvac@devzone.dp.ua "
-		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  ~/irls-reader-current-epubs/$i; fi
+		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  -p ~/irls-reader-current-epubs/$i; fi
 		rm -rf ~/irls-reader-current-epubs/$i/*
 	"
 	time scp $i.tar.xz dvac@devzone.dp.ua:~
@@ -104,7 +104,7 @@ do
 	### Copy current epubs to dev02.design.isd.dp.ua
 	###
 	ssh jenkins@dev02.design.isd.dp.ua "
-		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir ~/irls-reader-current-epubs/$i; fi
+		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir -p ~/irls-reader-current-epubs/$i; fi
 		rm -rf ~/irls-reader-current-epubs/$i/*
 	"
 	time scp $i.tar.xz jenkins@dev02.design.isd.dp.ua:~
