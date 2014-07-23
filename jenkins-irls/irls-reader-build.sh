@@ -18,6 +18,7 @@ GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
 CURRENT_BUILD=/home/jenkins/irls-reader-current-build
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
+ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 
 
 # generate deploymentPackageId
@@ -25,17 +26,15 @@ META_SUM_ALL=$CURRENT_EPUBS/meta-all
 GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_SHORT=$(echo $GIT_COMMIT | cut -c1-7)
-printf "facet=$FACET \n"
 deploymentPackageId=()
 for i in "${FACET[@]}"
 do
         deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
 done
 
-### generate meta.json
-ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
-
-## variables for meta.json
+###
+### Create  variables for meta.json
+###
 # rrm-processor
 GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
 GIT_COMMIT_MESSAGE_RRM=$( grep "rrm-processor.git" $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
@@ -75,6 +74,18 @@ fi
 ###
 grunt --no-color
 
+
+###
+### Copy project to current build directory (on the host dev01)
+###
+if [ ! -d $CURRENT_BUILD/$GIT_COMMIT/client ]; then mkdir -p $CURRENT_BUILD/$GIT_COMMIT/client ; fi
+cp -Rf $WORKSPACE/client/out/dist/* $CURRENT_BUILD/$GIT_COMMIT/client
+cp -Rf $WORKSPACE/packager $CURRENT_BUILD/$GIT_COMMIT
+cp -Rf $WORKSPACE/server $CURRENT_BUILD/$GIT_COMMIT
+cp -Rf $WORKSPACE/common $CURRENT_BUILD/$GIT_COMMIT
+if [ -d $WORKSPACE/portal ]; then cp -Rf $WORKSPACE/portal $CURRENT_BUILD/$GIT_COMMIT ; fi
+cp -Rf $WORKSPACE/targets $CURRENT_BUILD/$GIT_COMMIT
+
 ###
 ### Removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
 ###
@@ -90,27 +101,12 @@ if [ "$NUM" > "5" ]; then
         done
 fi
 
-### Copy
-if [ ! -d $CURRENT_BUILD/$GIT_COMMIT/client ]
-then
-    mkdir -p $CURRENT_BUILD/$GIT_COMMIT/client
-fi
-cp -Rf $WORKSPACE/client/out/dist/* $CURRENT_BUILD/$GIT_COMMIT/client
-cp -Rf $WORKSPACE/packager $CURRENT_BUILD/$GIT_COMMIT
-cp -Rf $WORKSPACE/server $CURRENT_BUILD/$GIT_COMMIT
-cp -Rf $WORKSPACE/common $CURRENT_BUILD/$GIT_COMMIT
-if [ -d $WORKSPACE/portal ]; then
-cp -Rf $WORKSPACE/portal $CURRENT_BUILD/$GIT_COMMIT
-fi
-cp -Rf $WORKSPACE/targets $CURRENT_BUILD/$GIT_COMMIT
-
 ###
 ### Copy project to remote current build directory
 ###
 
 ### create archive
 time tar cfz current_build-$GIT_COMMIT.tar.gz $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client $CURRENT_BUILD/$GIT_COMMIT/targets $CURRENT_BUILD/$GIT_COMMIT/portal
-
 ### copy to mac-mini
 ssh jenkins@yuriys-mac-mini.isd.dp.ua "
        if [ ! -d $CURRENT_REMOTE_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_REMOTE_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/* ; fi
@@ -121,6 +117,17 @@ ssh jenkins@yuriys-mac-mini.isd.dp.ua "
        mv $CURRENT_REMOTE_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
        rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/home
        rm -f current_build-$GIT_COMMIT.tar.gz
+"
+### copy to dev02
+ssh jenkins@dev02.design.isd.dp.ua "
+        if [ ! -d $CURRENT_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_BUILD/$GIT_COMMIT/* ; fi
+"
+scp current_build-$GIT_COMMIT.tar.gz  jenkins@dev02.design.isd.dp.ua:~
+ssh jenkins@dev02.design.isd.dp.ua "
+        tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_BUILD/$GIT_COMMIT/
+        mv $CURRENT_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_BUILD/$GIT_COMMIT/
+        rm -rf $CURRENT_BUILD/$GIT_COMMIT/home
+        rm -f current_build-$GIT_COMMIT.tar.gz
 "
 ### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
 ssh jenkins@yuriys-mac-mini.isd.dp.ua "
@@ -137,18 +144,6 @@ ssh jenkins@yuriys-mac-mini.isd.dp.ua "
                 done
 fi
 "
-
-### copy to dev02
-ssh jenkins@dev02.design.isd.dp.ua "
-        if [ ! -d $CURRENT_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_BUILD/$GIT_COMMIT/* ; fi
-"
-scp current_build-$GIT_COMMIT.tar.gz  jenkins@dev02.design.isd.dp.ua:~
-ssh jenkins@dev02.design.isd.dp.ua "
-        tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_BUILD/$GIT_COMMIT/
-        mv $CURRENT_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_BUILD/$GIT_COMMIT/
-        rm -rf $CURRENT_BUILD/$GIT_COMMIT/home
-        rm -f current_build-$GIT_COMMIT.tar.gz
-"
 ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
 ssh jenkins@dev02.design.isd.dp.ua "
         #numbers of directories in the $CURRENT_BUILD/
@@ -164,67 +159,71 @@ ssh jenkins@dev02.design.isd.dp.ua "
                 done
 fi
 "
-
+### removing archive
 rm -f $WORKSPACE/current_build-$GIT_COMMIT.tar.gz
 
 ###
 ### Create meta.json
 ###
-ID=($(echo $deploymentPackageId))
-for i in ${ID[@]}
+for i in ${deploymentPackageId[@]}
 do
-        ###
+	echo "numbers of element in array deploymentPackageId=${#deploymentPackageId[@]}"
         ### check exists directory $ARTIFACTS_DIR/$i
-        ###
         if [ ! -d $ARTIFACTS_DIR/$i ]; then
         mkdir -p $ARTIFACTS_DIR/$i
         fi
-        ###
         ### Determine facet name
-        ###
-        facetName=$(echo $i | awk -F "_" '{print $2}')
+        FACET_NAME=""
+        FACET_NAME=$(echo $i | awk -F "_" '{print $2}')
+	echo FACET_NAME=$FACET_NAME
         function create_meta {
-                echo -e "{" >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\"buildID\":\""$i"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\"facetName\":\""$facetName"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\"rrm-processor\" : {" >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitID\":\""$GIT_COMMIT_RRM"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE_RRM"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"branchName\":\""$GIT_BRANCHNAME_RRM"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMITTER_NAME_RRM"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE_RRM"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL_RRM"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_RRM"\"" >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t}," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\"rrm-ocean\" : {" >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitID\":\""$GIT_COMMIT_OC"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE_OC"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"branchName\":\""$GIT_BRANCHNAME_OC"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMITTER_NAME_OC"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE_OC"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL_OC"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_OC"\"" >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t}," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\"reader\" : {" >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitID\":\""$GIT_COMMIT"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"branchName\":\""$BRANCHNAME"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMIT_AUTHOR"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL"\"," >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_READER"\"" >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "\t}" >> $ARTIFACTS_DIR/$i/meta.json
-                echo -e "}" >> $ARTIFACTS_DIR/$i/meta.json
-                sudo /bin/chown -Rf jenkins:www-data /home/jenkins/irls-reader-artifacts/$i
-                /bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$i
+		echo "Starting of function create_meta with variables $1 and $2"
+		### $1 - it is deploymentPackageId
+		### $2 - it is FACET_NAME
+		CURRENT_META_JSON=""
+		CURRENT_META_JSON=$ARTIFACTS_DIR/$1/meta.json
+		echo CURRENT_META_JSON=$CURRENT_META_JSON
+                echo -e "{" >> $CURRENT_META_JSON
+                echo -e "\t\"buildID\":\""$1"\"," >> $CURRENT_META_JSON
+                echo -e "\t\"facetName\":\""$2"\"," >> $CURRENT_META_JSON
+                echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $CURRENT_META_JSON
+                echo -e "\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
+                echo -e "\t\"rrm-processor\" : {" >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitID\":\""$GIT_COMMIT_RRM"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE_RRM"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"branchName\":\""$GIT_BRANCHNAME_RRM"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMITTER_NAME_RRM"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE_RRM"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL_RRM"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_RRM"\"" >> $CURRENT_META_JSON
+                echo -e "\t}," >> $CURRENT_META_JSON
+                echo -e "\t\"rrm-ocean\" : {" >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitID\":\""$GIT_COMMIT_OC"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE_OC"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"branchName\":\""$GIT_BRANCHNAME_OC"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMITTER_NAME_OC"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE_OC"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL_OC"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_OC"\"" >> $CURRENT_META_JSON
+                echo -e "\t}," >> $CURRENT_META_JSON
+                echo -e "\t\"reader\" : {" >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitID\":\""$GIT_COMMIT"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"branchName\":\""$BRANCHNAME"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMIT_AUTHOR"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_READER"\"" >> $CURRENT_META_JSON
+                echo -e "\t}" >> $CURRENT_META_JSON
+                echo -e "}" >> $CURRENT_META_JSON
+                sudo /bin/chown -Rf jenkins:www-data /home/jenkins/irls-reader-artifacts/$1
+                /bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$1
         }
-        if [ ! -f $ARTIFACTS_DIR/$i/meta.json ]; then
-                create_meta
-        else
+        if [  -f $ARTIFACTS_DIR/$i/meta.json ]; then
                 cat /dev/null > $ARTIFACTS_DIR/$i/meta.json
-                create_meta
+                create_meta $i $FACET_NAME
+        else
+                create_meta $i $FACET_NAME
         fi
 done
 
