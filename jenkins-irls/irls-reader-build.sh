@@ -67,30 +67,23 @@ do
 done
 
 ###
-### Clone targets-repo and running node with target option
+### Build client and server parts
 ###
+### Clone targets-repo and running node with target option
 if [ "$BRANCHNAME" = "feature/target" ]; then
         rm -rf targets
         git clone git@wpp.isd.dp.ua:irls/targets.git
         cd $WORKSPACE/client
         node index.js --target=puddle_FFA
 fi
-
-###
-### Build client and server parts
-###
 grunt --no-color
 
 ###
 ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
 ###
-if [ ! -d $CURRENT_BUILD/$GIT_COMMIT/client ]; then mkdir -p $CURRENT_BUILD/$GIT_COMMIT/client ; fi
+if [ -d $CURRENT_BUILD/$GIT_COMMIT/client ]; then rm -rf $CURRENT_BUILD/$GIT_COMMIT/client/* ; else mkdir -p $CURRENT_BUILD/$GIT_COMMIT/client ; fi
 cp -Rf $WORKSPACE/client/out/dist/* $CURRENT_BUILD/$GIT_COMMIT/client
-cp -Rf $WORKSPACE/packager $CURRENT_BUILD/$GIT_COMMIT
-cp -Rf $WORKSPACE/server $CURRENT_BUILD/$GIT_COMMIT
-cp -Rf $WORKSPACE/common $CURRENT_BUILD/$GIT_COMMIT
-if [ -d $WORKSPACE/portal ]; then cp -Rf $WORKSPACE/portal $CURRENT_BUILD/$GIT_COMMIT ; fi
-cp -Rf $WORKSPACE/targets $CURRENT_BUILD/$GIT_COMMIT
+cp -Rf $WORKSPACE/packager $WORKSPACE/server $WORKSPACE/common $WORKSPACE/portal $WORKSPACE/targets $CURRENT_BUILD/$GIT_COMMIT/
 # Numbers of directories in the $CURRENT_BUILD/
 NUM=$(ls -d $CURRENT_BUILD/* | wc -l)
 HEAD_NUM=$(($NUM-5))
