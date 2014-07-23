@@ -139,7 +139,7 @@ fi
 ssh jenkins@dev02.design.isd.dp.ua "
         #numbers of directories in the $CURRENT_BUILD/
         NUM=\$(ls -d $CURRENT_BUILD/* | wc -l);
-	echo HEAD_NUM=\$HEAD_NUM
+        HEAD_NUM=\$((NUM-5))
         # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
         if [ "\$NUM" > "5" ]; then
                 for i in \$(ls -lahtrd $CURRENT_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
