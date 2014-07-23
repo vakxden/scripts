@@ -46,7 +46,11 @@ function main_loop {
 			printf "we can only work with the all facets exclude 'ocean' \n not $facet ! \n"
 		else
 			cd $WORKSPACE/packager
-			time node index.js --target=ios --config=$BUILD_CONFIG --from=$WORKSPACE/client --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+			if [ "$BRANCHNAME" = "feature/target" ]; then
+				time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+			else
+				time node index.js --target=ios --config=$BUILD_CONFIG --from=$WORKSPACE/client --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+			fi
 			#unlock keychain
 			security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
 			#build with xcodebuild
@@ -58,8 +62,5 @@ function main_loop {
 	done
 	rm -rf $CONFIGURATION_BUILD_DIR/*
 }
-if [ "$BRANCHNAME" = "feature/target" ]; then
-        exit 0
-else
-        main_loop
-fi
+
+main_loop

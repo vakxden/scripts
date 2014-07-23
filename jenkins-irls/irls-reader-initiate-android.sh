@@ -58,7 +58,11 @@ function main_loop {
 	        else
 			# Create apk-file
 			cd $WORKSPACE/packager
-			node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+			if [ "$BRANCHNAME" = "feature/target" ]; then
+				node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+			else
+				node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+			fi
 			# Remove unaligned apk-file
 			rm -f out/dest/platforms/android/bin/*$i*unaligned.apk
 			# Move apk-file to directory for archiving artifacts
@@ -77,8 +81,5 @@ function main_loop {
 	        fi
 	done
 }
-if [ "$BRANCHNAME" = "feature/target" ]; then
-	exit 0
-else
-	main_loop
-fi
+
+main_loop
