@@ -1,4 +1,6 @@
-### Variables
+###
+### Conditions for the base and non-base branches and facets for next initiate- and deploy-jobs
+###
 BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ -z $FACET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
@@ -11,6 +13,10 @@ if [ -z $FACET ]; then
                 FACET=(farsi farsi2)
         fi
 fi
+
+###
+### Variables
+###
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
 GIT_COMMIT_DATE=$(git show -s --format=%ci)
 GIT_COMMITTER_NAME=$(git show -s --format=%cn)
@@ -19,21 +25,13 @@ CURRENT_BUILD=/home/jenkins/irls-reader-current-build
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
-
-
-# generate deploymentPackageId
 META_SUM_ALL=$CURRENT_EPUBS/meta-all
 GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_SHORT=$(echo $GIT_COMMIT | cut -c1-7)
-deploymentPackageId=()
-for i in "${FACET[@]}"
-do
-        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
-done
 
 ###
-### Create  variables for meta.json
+### Create variables for meta.json
 ###
 # rrm-processor
 GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
@@ -60,6 +58,15 @@ GIT_REPO=$(echo $GIT_URL | awk -F ":" '{print $2}' | sed 's/\.git//g')
 GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$GIT_REPO/commit/$GIT_COMMIT"
 
 ###
+### Generate deploymentPackageId
+###
+deploymentPackageId=()
+for i in "${FACET[@]}"
+do
+        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
+done
+
+###
 ### Clone targets-repo and running node with target option
 ###
 if [ "$BRANCHNAME" = "feature/target" ]; then
@@ -74,9 +81,8 @@ fi
 ###
 grunt --no-color
 
-
 ###
-### Copy project to current build directory (on the host dev01)
+### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
 ###
 if [ ! -d $CURRENT_BUILD/$GIT_COMMIT/client ]; then mkdir -p $CURRENT_BUILD/$GIT_COMMIT/client ; fi
 cp -Rf $WORKSPACE/client/out/dist/* $CURRENT_BUILD/$GIT_COMMIT/client
@@ -85,16 +91,11 @@ cp -Rf $WORKSPACE/server $CURRENT_BUILD/$GIT_COMMIT
 cp -Rf $WORKSPACE/common $CURRENT_BUILD/$GIT_COMMIT
 if [ -d $WORKSPACE/portal ]; then cp -Rf $WORKSPACE/portal $CURRENT_BUILD/$GIT_COMMIT ; fi
 cp -Rf $WORKSPACE/targets $CURRENT_BUILD/$GIT_COMMIT
-
-###
-### Removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
-###
 # Numbers of directories in the $CURRENT_BUILD/
 NUM=$(ls -d $CURRENT_BUILD/* | wc -l)
 HEAD_NUM=$(($NUM-5))
 # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
 if [ "$NUM" > "5" ]; then
-        echo "Number of directories is more than 5"
         for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$HEAD_NUM | awk '{print $9}')
         do
                 rm -rf $i
@@ -102,9 +103,8 @@ if [ "$NUM" > "5" ]; then
 fi
 
 ###
-### Copy project to remote current build directory
+### Copy project to remote current build directory and removing outdated directories
 ###
-
 ### create archive
 time tar cfz current_build-$GIT_COMMIT.tar.gz $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client $CURRENT_BUILD/$GIT_COMMIT/targets $CURRENT_BUILD/$GIT_COMMIT/portal
 ### copy to mac-mini
@@ -134,10 +134,8 @@ ssh jenkins@yuriys-mac-mini.isd.dp.ua "
         #numbers of directories in the $CURRENT_REMOTE_BUILD/
         NUM=\$(ls -d $CURRENT_REMOTE_BUILD/* | wc -l);
         HEAD_NUM=\$((NUM-5))
-	echo HEAD_NUM=\$HEAD_NUM
         # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
         if [ "\$NUM" > "5" ]; then
-                echo "Number of directories is more than 5"
                 for i in \$(ls -lahtrd $CURRENT_REMOTE_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
                 do
                         rm -rf \$i
@@ -148,11 +146,9 @@ fi
 ssh jenkins@dev02.design.isd.dp.ua "
         #numbers of directories in the $CURRENT_BUILD/
         NUM=\$(ls -d $CURRENT_BUILD/* | wc -l);
-        HEAD_NUM=\$((NUM-5))
 	echo HEAD_NUM=\$HEAD_NUM
         # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
         if [ "\$NUM" > "5" ]; then
-                echo "Number of directories is more than 5"
                 for i in \$(ls -lahtrd $CURRENT_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
                 do
                         rm -rf \$i
@@ -227,7 +223,9 @@ do
         fi
 done
 
+###
 ### Variables for EnvInject plugin
+###
 cat /dev/null > $WORKSPACE/myenv
 echo "$GIT_URL=$GIT_URL" >> $WORKSPACE/myenv
 echo "BRANCHNAME=$BRANCHNAME" >> $WORKSPACE/myenv
@@ -260,4 +258,3 @@ echo "GIT_COMMIT_DATE=$GIT_COMMIT_DATE" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_AUTHOR=$GIT_COMMIT_AUTHOR" >> $WORKSPACE/myenv
 echo "GIT_COMMITTER_EMAIL=$GIT_COMMITTER_EMAIL" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_URL_READER=$GIT_COMMIT_URL_READER" >> $WORKSPACE/myenv
-
