@@ -4,13 +4,11 @@
 BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ -z $FACET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
-                #FACET=(puddle farsi farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
-                FACET=(farsi farsi2)
+                FACET=(puddle farsi farsi2 farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
         elif [ "$BRANCHNAME" = "feature/target" ]; then
                 FACET=(puddle)
         else
-                #FACET=(puddle bahaiebooks audio mediaoverlay lake)
-                FACET=(farsi farsi2)
+                FACET=(puddle farsi bahaiebooks audio mediaoverlay lake)
         fi
 fi
 
