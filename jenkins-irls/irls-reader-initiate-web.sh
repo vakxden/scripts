@@ -39,16 +39,16 @@ do
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager
 	if [ "$BRANCHNAME" = "feature/target" ]; then
-		node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
+		time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
 	else
-		node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
+		time node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
 	fi
 	#create index
 	cd $WORKSPACE
 	sudo $SCRIPTS_DIR/portgenerator-for-convert.sh $i
 	cp local.json $WORKSPACE/server/config && rm -f local.json
 	cd $WORKSPACE/server
-	node initDB.js
+	time node initDB.js
 	if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
 		mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
 	fi

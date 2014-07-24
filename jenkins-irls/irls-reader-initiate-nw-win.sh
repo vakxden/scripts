@@ -49,9 +49,9 @@ function main_loop {
 			### Create zip-archive with application version for Windows
 			cd $WORKSPACE/packager
 			if [ "$BRANCHNAME" = "feature/target" ]; then
-				node index.js --platform=win --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+				time node index.js --platform=win --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
 			else
-				node index.js --target=win --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+				time node index.js --target=win --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
 			fi
 			mv $WORKSPACE/packager/out/dest/*.zip $WORKSPACE/zip/
 			# this lines commented because this job was moved to host dev02.design.isd.dp.ua
