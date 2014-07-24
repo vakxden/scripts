@@ -6,7 +6,7 @@ if [ -z $FACET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
                 FACET=(puddle farsi farsi2 farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
         elif [ "$BRANCHNAME" = "feature/target" ]; then
-                FACET=(farsi)
+                FACET=(puddle)
         else
                 FACET=(puddle farsi bahaiebooks audio mediaoverlay lake)
         fi
