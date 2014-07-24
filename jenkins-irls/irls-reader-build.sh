@@ -72,7 +72,7 @@ if [ "$BRANCHNAME" = "feature/target" ]; then
         rm -rf targets
         git clone git@wpp.isd.dp.ua:irls/targets.git
         cd $WORKSPACE/client
-        node index.js --target=$FACET\_FFA
+        node index.js --target=$FACET\_FFA --targetPath=$WORKSPACE/targets
 fi
 grunt --no-color
 
