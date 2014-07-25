@@ -10,7 +10,7 @@ if [ -z $FACET ]; then
                 FACET=(puddle)
         else
                 #FACET=(puddle farsi audio)
-                FACET=(farsi3)
+                FACET=(puddle)
         fi
 fi
 
