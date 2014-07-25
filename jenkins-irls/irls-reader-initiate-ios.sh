@@ -58,6 +58,12 @@ function main_loop {
 			#create ipa-file
 			time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$BRANCH-FFA_Reader-$i.app" -o $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
 			time scp -v $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa
+			until !!; do :; done #Retry the previous command until it exits successfully
+			#if [ "$?" != "0" ]; then
+			#	echo "[ERROR_SCP!!!] Repeat command..."
+			#	sleep 2
+			#	time scp -v $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa
+			#fi
 		fi
 	done
 	rm -rf $CONFIGURATION_BUILD_DIR/*
