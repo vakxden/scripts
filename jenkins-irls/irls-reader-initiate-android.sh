@@ -2,16 +2,12 @@
 ### Variables
 ###
 
-env | grep -i proxy
-
 export NO_PROXY="127.0.0.1, 10.98.244.26, localhost, *.loc"
 export FTP_PROXY="http://10.98.192.120:3128"
 export HTTPS_PROXY="http://10.98.192.120:3128"
 export https_proxy="http://10.98.192.120:3128"
 export HTTP_PROXY="http://10.98.192.120:3128"
 export http_proxy="http://10.98.192.120:3128"
-
-env | grep -i proxy
 
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
