@@ -39,7 +39,7 @@ do
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager
 	if [ "$BRANCHNAME" = "feature/target" ]; then
-		time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
+		time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=/home/jenkins/fake
 	else
 		time node index.js --target=web --config=$BUILD_CONFIG --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
 	fi
