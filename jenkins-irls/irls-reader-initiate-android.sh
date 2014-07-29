@@ -60,9 +60,11 @@ function main_loop {
 				time node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
 			fi
 			# Remove unaligned apk-file
-			rm -f out/dest/platforms/android/bin/*$i*unaligned.apk
+			#rm -f out/dest/platforms/android/bin/*$i*unaligned.apk
+			rm -f out/dest/platforms/android/ant-build/*$i*unaligned.apk
 			# Move apk-file to directory for archiving artifacts
-			mv $WORKSPACE/packager/out/dest/platforms/android/bin/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
+			#mv $WORKSPACE/packager/out/dest/platforms/android/bin/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
+			mv $WORKSPACE/packager/out/dest/platforms/android/ant-build/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
 			# this lines commented because this job was moved to host dev02.design.isd.dp.ua
 			#if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
 			#	mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
