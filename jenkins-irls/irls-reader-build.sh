@@ -83,7 +83,11 @@ grunt --no-color
 ###
 if [ -d $CURRENT_BUILD/$GIT_COMMIT/client ]; then rm -rf $CURRENT_BUILD/$GIT_COMMIT/client/* ; else mkdir -p $CURRENT_BUILD/$GIT_COMMIT/client ; fi
 cp -Rf $WORKSPACE/client/out/dist/* $CURRENT_BUILD/$GIT_COMMIT/client
-cp -Rf $WORKSPACE/packager $WORKSPACE/server $WORKSPACE/common $WORKSPACE/portal $WORKSPACE/targets $CURRENT_BUILD/$GIT_COMMIT/
+if [ -d "$WORKSPACE/targets" ]; then cp -Rf $WORKSPACE/targets $CURRENT_BUILD/$GIT_COMMIT/ ; fi
+if [ -d "$WORKSPACE/packager" ]; then cp -Rf $WORKSPACE/packager $CURRENT_BUILD/$GIT_COMMIT/ ; fi
+if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CURRENT_BUILD/$GIT_COMMIT/ ; fi
+if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CURRENT_BUILD/$GIT_COMMIT/ ; fi
+if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CURRENT_BUILD/$GIT_COMMIT/ ; fi
 # Numbers of directories in the $CURRENT_BUILD/
 NUM=$(ls -d $CURRENT_BUILD/* | wc -l)
 HEAD_NUM=$(($NUM-5))
