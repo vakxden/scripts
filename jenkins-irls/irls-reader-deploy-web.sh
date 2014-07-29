@@ -155,7 +155,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			TGZ="IRLS.reader-$i\.tar.gz"
 			ssh dvac@devzone.dp.ua "rm -f ~/$TGZ"
 			tar -zc $STAGE_PKG_DIR/* | ssh dvac@devzone.dp.ua "cat > ~/$TGZ"
-			ssh dvac@devzone.dp.ua "
+			time ssh dvac@devzone.dp.ua "
 				# values
 				INDEX_FILE=index_"$i"_$BRANCH.js
 				# check exist remote artifacts directory
@@ -194,6 +194,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 				else
 					nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				fi"
+			ssh dvac@devzone.dp.ua "rm -f ~/$TGZ"
 			# update environment.json file
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 			# generate links for description job
