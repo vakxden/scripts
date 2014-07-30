@@ -36,7 +36,7 @@ done
 ###
 
 ### Main loop
-functiono main_loop {
+function main_loop {
 
 	for i in "${!combineArray[@]}"
 	do
