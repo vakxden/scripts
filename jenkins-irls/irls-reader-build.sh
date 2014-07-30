@@ -78,7 +78,8 @@ do
 	rm -rf targets
 	git clone git@wpp.isd.dp.ua:irls/targets.git
 	cd $WORKSPACE/client
-	node index.js --target=$FACET\_FFA --targetPath=$WORKSPACE/targets
+	TARG=$(echo "$i"_FFA)
+	node index.js --target=$TARG --targetPath=$WORKSPACE/targets
 	grunt --no-color
 	###
 	### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
