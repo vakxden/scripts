@@ -72,7 +72,7 @@ done
 ### Clone targets-repo and running node with target option
 for i in "${FACET[@]}"
 do
-	GIT_COMMIT_TARGET="$GIT_COMMIT-$i\_FFA"
+	GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i"_"FFA")
 	CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
 	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET"
 	rm -rf targets
