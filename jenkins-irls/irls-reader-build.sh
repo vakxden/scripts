@@ -213,6 +213,8 @@ do
                 /bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$1
         }
         if [  -f $ARTIFACTS_DIR/$i/meta.json ]; then
+		sudo /bin/chown -Rf jenkins:www-data /home/jenkins/irls-reader-artifacts/$1
+		/bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$1
                 cat /dev/null > $ARTIFACTS_DIR/$i/meta.json
                 create_meta $i $FACET_NAME
         else
