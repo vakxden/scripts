@@ -4,12 +4,12 @@
 BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ -z $FACET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
-                #FACET=(puddle farsi farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
+                #FACET=(puddle farsi farsi2 farsi3 farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
                 FACET=(farsi3)
         elif [ "$BRANCHNAME" = "feature/target" ]; then
                 FACET=(puddle)
         else
-                #FACET=(puddle farsi audio)
+                #FACET=(puddle farsi3)
                 FACET=(puddle)
         fi
 fi
@@ -70,12 +70,12 @@ done
 ### Build client and server parts
 ###
 ### Clone targets-repo and running node with target option
-if [ "$BRANCHNAME" = "feature/target" ]; then
-        rm -rf targets
-        git clone git@wpp.isd.dp.ua:irls/targets.git
-        cd $WORKSPACE/client
-        node index.js --target=$FACET\_FFA --targetPath=$WORKSPACE/targets
-fi
+#if [ "$BRANCHNAME" = "feature/target" ]; then
+rm -rf targets
+git clone git@wpp.isd.dp.ua:irls/targets.git
+cd $WORKSPACE/client
+node index.js --target=$FACET\_FFA --targetPath=$WORKSPACE/targets
+#fi
 grunt --no-color
 
 ###

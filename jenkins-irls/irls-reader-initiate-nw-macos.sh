@@ -58,11 +58,11 @@ function main_loop {
 			if [ ! -d $WORKSPACE/zip ]; then mkdir $WORKSPACE/zip; fi
 			### Create zip-archive with application version for MacOS
 			cd $WORKSPACE/packager
-			if [ "$BRANCHNAME" = "feature/target" ]; then
-				time node index.js --platform=macos --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-			else
-				time node index.js --target=macos --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-			fi
+			#if [ "$BRANCHNAME" = "feature/target" ]; then
+			time node index.js --platform=macos --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+			#else
+			#	time node index.js --target=macos --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+			#fi
 			mv $WORKSPACE/packager/out/dest/*.zip $WORKSPACE/zip/
 			# this lines commented because this job was moved to host dev02.design.isd.dp.ua
 			#if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
