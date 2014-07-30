@@ -8,11 +8,6 @@ PREFIX=$(echo $BRANCHNAME | sed 's/\//-/g')
 BUILD_CONFIG="$HOME/build_config"
 SCRIPTS_DIR="$HOME/scripts"
 ###
-### Copy project to workspace
-###
-rm -rf ./*
-cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
-###
 ### Clone targets-repo
 ###
 #if [ "$BRANCHNAME" = "feature/target" ]; then
@@ -35,6 +30,11 @@ done
 ### Create web-version of application
 for i in "${!combineArray[@]}"
 do
+
+	rm -rf $WORKSPACE/*
+	GIT_COMMIT_TARGET="$GIT_COMMIT-$i\_FFA"
+	cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
+
 	# $i - it is facet
 	echo $i --- ${combineArray[$i]}
 	cd $WORKSPACE/packager

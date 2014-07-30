@@ -35,14 +35,15 @@ done
 ### Body (working with all facets exclude "ocean")
 ###
 
-### Remove old version of project
-rm -rf $WORKSPACE/*
-### Copy project to workspace
-cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
 ### Main loop
-function main_loop {
+functiono main_loop {
+
 	for i in "${!combineArray[@]}"
 	do
+		rm -rf $WORKSPACE/*
+		GIT_COMMIT_TARGET="$GIT_COMMIT-$i\_FFA"
+		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
+
 		echo $i --- ${combineArray[$i]}
 		if [ $(echo "$i" | egrep "ocean$") ]; then
 			getAbort()

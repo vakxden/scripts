@@ -32,15 +32,15 @@ do
 		fi
 	done
 done
-# Copy code of project from the current code directory to workspace of job
-rm -rf $WORKSPACE/*
-cp -Rf $CURRENT_BUILD/$GIT_COMMIT/* .
-### Clean old ipa-file from workspace of job
-rm -rf $WORKSPACE/*.ipa
 ### Create ipa-file with application version for iOS
 function main_loop {
+
 	for i in "${!combineArray[@]}"
 	do
+		rm -rf $WORKSPACE/*
+		GIT_COMMIT_TARGET="$GIT_COMMIT-$i\_FFA"
+		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
+
 		echo $i --- ${combineArray[$i]}
 		if [ $(echo "$i" | grep "ocean$") ]; then
 			printf "we can only work with the all facets exclude 'ocean' \n not $facet ! \n"

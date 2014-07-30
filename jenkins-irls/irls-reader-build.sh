@@ -70,90 +70,92 @@ done
 ### Build client and server parts
 ###
 ### Clone targets-repo and running node with target option
-#if [ "$BRANCHNAME" = "feature/target" ]; then
-rm -rf targets
-git clone git@wpp.isd.dp.ua:irls/targets.git
-cd $WORKSPACE/client
-node index.js --target=$FACET\_FFA --targetPath=$WORKSPACE/targets
-#fi
-grunt --no-color
-
-###
-### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
-###
-if [ -d $CURRENT_BUILD/$GIT_COMMIT/client ]; then rm -rf $CURRENT_BUILD/$GIT_COMMIT/client/* ; else mkdir -p $CURRENT_BUILD/$GIT_COMMIT/client ; fi
-cp -Rf $WORKSPACE/client/out/dist/* $CURRENT_BUILD/$GIT_COMMIT/client
-if [ -d "$WORKSPACE/targets" ]; then cp -Rf $WORKSPACE/targets $CURRENT_BUILD/$GIT_COMMIT/ ; fi
-if [ -d "$WORKSPACE/packager" ]; then cp -Rf $WORKSPACE/packager $CURRENT_BUILD/$GIT_COMMIT/ ; fi
-if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CURRENT_BUILD/$GIT_COMMIT/ ; fi
-if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CURRENT_BUILD/$GIT_COMMIT/ ; fi
-if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CURRENT_BUILD/$GIT_COMMIT/ ; fi
-# Numbers of directories in the $CURRENT_BUILD/
-NUM=$(ls -d $CURRENT_BUILD/* | wc -l)
-HEAD_NUM=$(($NUM-5))
-# If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
-if [ "$NUM" > "5" ]; then
-        for i in $(ls -lahtrd $CURRENT_BUILD/* | head -$HEAD_NUM | awk '{print $9}')
-        do
-                rm -rf $i
-        done
-fi
-
-###
-### Copy project to remote current build directory and removing outdated directories
-###
-### create archive
-time tar cfz current_build-$GIT_COMMIT.tar.gz $CURRENT_BUILD/$GIT_COMMIT/packager $CURRENT_BUILD/$GIT_COMMIT/client $CURRENT_BUILD/$GIT_COMMIT/targets $CURRENT_BUILD/$GIT_COMMIT/portal
-### copy to mac-mini
-ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-       if [ ! -d $CURRENT_REMOTE_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_REMOTE_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/* ; fi
-"
-time scp current_build-$GIT_COMMIT.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
-ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-       tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
-       mv $CURRENT_REMOTE_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_REMOTE_BUILD/$GIT_COMMIT/
-       rm -rf $CURRENT_REMOTE_BUILD/$GIT_COMMIT/home
-       rm -f current_build-$GIT_COMMIT.tar.gz
-"
-### copy to dev02
-ssh jenkins@dev02.design.isd.dp.ua "
-        if [ ! -d $CURRENT_BUILD/$GIT_COMMIT ]; then mkdir -p $CURRENT_BUILD/$GIT_COMMIT ; else rm -rf $CURRENT_BUILD/$GIT_COMMIT/* ; fi
-"
-scp current_build-$GIT_COMMIT.tar.gz  jenkins@dev02.design.isd.dp.ua:~
-ssh jenkins@dev02.design.isd.dp.ua "
-        tar xfz current_build-$GIT_COMMIT.tar.gz -C $CURRENT_BUILD/$GIT_COMMIT/
-        mv $CURRENT_BUILD/$GIT_COMMIT/$CURRENT_BUILD/$GIT_COMMIT/* $CURRENT_BUILD/$GIT_COMMIT/
-        rm -rf $CURRENT_BUILD/$GIT_COMMIT/home
-        rm -f current_build-$GIT_COMMIT.tar.gz
-"
-### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
-ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-        #numbers of directories in the $CURRENT_REMOTE_BUILD/
-        NUM=\$(ls -d $CURRENT_REMOTE_BUILD/* | wc -l);
-        HEAD_NUM=\$((NUM-5))
-        # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
-        if [ "\$NUM" > "5" ]; then
-                for i in \$(ls -lahtrd $CURRENT_REMOTE_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
-                do
-                        rm -rf \$i
-                done
-fi
-"
-### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
-ssh jenkins@dev02.design.isd.dp.ua "
-        #numbers of directories in the $CURRENT_BUILD/
-        NUM=\$(ls -d $CURRENT_BUILD/* | wc -l);
-        HEAD_NUM=\$((NUM-5))
-        # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
-        if [ "\$NUM" > "5" ]; then
-                for i in \$(ls -lahtrd $CURRENT_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
-                do
-                        rm -rf \$i
-                done
-fi
-"
-### removing archive
-rm -f $WORKSPACE/current_build-$GIT_COMMIT.tar.gz
+for i in "${FACET[@]}"
+do
+	GIT_COMMIT_TARGET="$GIT_COMMIT-$i\_FFA"
+	CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
+	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET"
+	rm -rf targets
+	git clone git@wpp.isd.dp.ua:irls/targets.git
+	cd $WORKSPACE/client
+	node index.js --target=$FACET\_FFA --targetPath=$WORKSPACE/targets
+	grunt --no-color
+	###
+	### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
+	###
+	if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
+	cp -Rf $WORKSPACE/client/out/dist/* $CB_DIR/client
+	if [ -d "$WORKSPACE/targets" ]; then cp -Rf $WORKSPACE/targets $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/packager" ]; then cp -Rf $WORKSPACE/packager $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CB_DIR/ ; fi
+	# Numbers of directories in the $CURRENT_BUILD/
+	NUM=$(ls -d $CURRENT_BUILD/* | wc -l)
+	HEAD_NUM=$(($NUM-20))
+	# If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
+	if [ "$NUM" > "20" ]; then
+	        for k in $(ls -lahtrd $CURRENT_BUILD/* | head -$HEAD_NUM | awk '{print $9}')
+	        do
+	                rm -rf $k
+	        done
+	fi
+	###
+	### Copy project to remote current build directory and removing outdated directories
+	###
+	### create archive
+	time tar cfz current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal
+	### copy to mac-mini
+	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+	       if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
+	"
+	time scp current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
+	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+	       tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_REMOTE_DIR/
+	       mv $CB_REMOTE_DIR/$CB_DIR//* $CB_REMOTE_DIR/
+	       rm -rf $CB_REMOTE_DIR/home
+	       rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
+	"
+	### copy to dev02
+	ssh jenkins@dev02.design.isd.dp.ua "
+	        if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
+	"
+	scp current_build-$GIT_COMMIT_TARGET.tar.gz  jenkins@dev02.design.isd.dp.ua:~
+	ssh jenkins@dev02.design.isd.dp.ua "
+	        tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_DIR/
+	        mv $CB_DIR/$CB_DIR/* $CB_DIR/
+	        rm -rf $CB_DIR/home
+	        rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
+	"
+	### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
+	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+	        #numbers of directories in the $CURRENT_REMOTE_BUILD/
+	        NUM=\$(ls -d $CURRENT_REMOTE_BUILD/* | wc -l);
+	        HEAD_NUM=\$((NUM-20))
+	        # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
+	        if [ "\$NUM" > "20" ]; then
+	                for k in \$(ls -lahtrd $CURRENT_REMOTE_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
+	                do
+	                        rm -rf \$k
+	                done
+	fi
+	"
+	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
+	ssh jenkins@dev02.design.isd.dp.ua "
+	        #numbers of directories in the $CURRENT_BUILD/
+	        NUM=\$(ls -d $CURRENT_BUILD/* | wc -l);
+	        HEAD_NUM=\$((NUM-20))
+	        # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
+	        if [ "\$NUM" > "20" ]; then
+	                for k in \$(ls -lahtrd $CURRENT_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
+	                do
+	                        rm -rf \$k
+	                done
+	fi
+	"
+	### removing archive
+	rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
+done
 
 ###
 ### Create meta.json
