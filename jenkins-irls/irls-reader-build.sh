@@ -105,12 +105,12 @@ do
 	### Copy project to remote current build directory and removing outdated directories
 	###
 	### create archive
-	time tar cfz current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal
+	time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal
 	### copy to mac-mini
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
 	       if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
 	"
-	time scp current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
+	time scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
 	       tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_REMOTE_DIR/
 	       mv $CB_REMOTE_DIR/$CB_DIR//* $CB_REMOTE_DIR/
@@ -121,7 +121,7 @@ do
 	ssh jenkins@dev02.design.isd.dp.ua "
 	        if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
 	"
-	scp current_build-$GIT_COMMIT_TARGET.tar.gz  jenkins@dev02.design.isd.dp.ua:~
+	scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz  jenkins@dev02.design.isd.dp.ua:~
 	ssh jenkins@dev02.design.isd.dp.ua "
 	        tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_DIR/
 	        mv $CB_DIR/$CB_DIR/* $CB_DIR/
