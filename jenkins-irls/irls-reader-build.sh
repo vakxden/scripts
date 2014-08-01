@@ -54,34 +54,28 @@ GIT_COMMIT_AUTHOR=$(git show -s --format=%an)
 GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
 GIT_REPO=$(echo $GIT_URL | awk -F ":" '{print $2}' | sed 's/\.git//g')
 GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$GIT_REPO/commit/$GIT_COMMIT"
-
-###
-### Generate deploymentPackageId
-###
 deploymentPackageId=()
-for i in "${FACET[@]}"
-do
-        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
-done
 
 ###
-### Build client and server parts
+### Main loop
 ###
-### Clone targets-repo and running node with target option
 for i in "${FACET[@]}"
 do
-	GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i"_"FFA")
+	### Generate deploymentPackageId
+        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
+	### Temporary variables
+	TARG=$(echo "$i"_FFA)
+	GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$TARG")
 	CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
-	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET"
+	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
+	### Clone targets-repo and running node with target option
 	rm -rf targets
 	git clone git@wpp.isd.dp.ua:irls/targets.git
 	cd $WORKSPACE/client
-	TARG=$(echo "$i"_FFA)
+	### Build client and server parts
 	node index.js --target=$TARG --targetPath=$WORKSPACE/targets
 	grunt --no-color
-	###
 	### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
-	###
 	if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
 	cp -Rf $WORKSPACE/client/out/dist/* $CB_DIR/client
 	if [ -d "$WORKSPACE/targets" ]; then cp -Rf $WORKSPACE/targets $CB_DIR/ ; fi
@@ -89,6 +83,7 @@ do
 	if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CB_DIR/ ; fi
 	if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CB_DIR/ ; fi
 	if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CB_DIR/ ; fi
+	### Create function for cleaning outdated directories from the directory of current code build
 	function build_dir_clean (){
 		# Numbers of directories in the $CURRENT_BUILD/
 		NUM=$(ls -d $1/* | wc -l)
@@ -103,13 +98,11 @@ do
 			done
 		fi
 	}
+	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
 	build_dir_clean $CURRENT_BUILD
-	###
-	### Copy project to remote current build directory and removing outdated directories
-	###
 	### create archive
 	time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal
-	### copy to mac-mini
+	### copy project to mac-mini
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
 	       if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
 	"
@@ -120,7 +113,7 @@ do
 	       rm -rf $CB_REMOTE_DIR/home
 	       rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
 	"
-	### copy to dev02
+	### copy project to dev02
 	ssh jenkins@dev02.design.isd.dp.ua "
 	        if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
 	"
