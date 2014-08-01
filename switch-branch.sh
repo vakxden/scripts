@@ -5,7 +5,7 @@
 ###
 COJ="/var/lib/jenkins/jobs/irls-reader-build/config.xml" # Path to the configuration file of jenkins job
 NOL=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F "-" '{print $1}') # Number of line (for sed processing)
-JUSER="login"
+JUSER="user"
 JPASSWD="pass"
 CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" /var/lib/jenkins/jobs/irls-reader-build/config.xml | grep name | awk -F"[<>]" '{print $3}') # the current branch in the configuration file of jenkins job
 ###
