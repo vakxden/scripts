@@ -5,9 +5,7 @@ BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ -z $FACET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
                 #FACET=(puddle farsi farsi2 farsi3 farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
-                FACET=(farsi3 puddle audio)
-        elif [ "$BRANCHNAME" = "feature/target" ]; then
-                FACET=(puddle)
+                FACET=(farsi3)
         else
                 #FACET=(puddle farsi3)
                 FACET=(puddle)
@@ -91,16 +89,21 @@ do
 	if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CB_DIR/ ; fi
 	if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CB_DIR/ ; fi
 	if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CB_DIR/ ; fi
-	# Numbers of directories in the $CURRENT_BUILD/
-	NUM=$(ls -d $CURRENT_BUILD/* | wc -l)
-	HEAD_NUM=$(($NUM-20))
-	# If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
-	if [ "$NUM" > "20" ]; then
-	        for k in $(ls -lahtrd $CURRENT_BUILD/* | head -$HEAD_NUM | awk '{print $9}')
-	        do
-	                rm -rf $k
-	        done
-	fi
+	function build_dir_clean (){
+		# Numbers of directories in the $CURRENT_BUILD/
+		NUM=$(ls -d $1/* | wc -l)
+		echo NUM=$NUM
+		HEAD_NUM=$(($NUM-20))
+		echo HEAD_NUM=$HEAD_NUM
+		# If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
+		if [ "$NUM" > "20" ]; then
+			for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
+			do
+				rm -rf $k
+			done
+		fi
+	}
+	build_dir_clean $CURRENT_BUILD
 	###
 	### Copy project to remote current build directory and removing outdated directories
 	###
@@ -129,31 +132,9 @@ do
 	        rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
 	"
 	### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
-	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-	        #numbers of directories in the $CURRENT_REMOTE_BUILD/
-	        NUM=\$(ls -d $CURRENT_REMOTE_BUILD/* | wc -l);
-	        HEAD_NUM=\$((NUM-20))
-	        # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
-	        if [ "\$NUM" > "20" ]; then
-	                for k in \$(ls -lahtrd $CURRENT_REMOTE_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
-	                do
-	                        rm -rf \$k
-	                done
-	fi
-	"
+	typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD/"
 	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
-	ssh jenkins@dev02.design.isd.dp.ua "
-	        #numbers of directories in the $CURRENT_BUILD/
-	        NUM=\$(ls -d $CURRENT_BUILD/* | wc -l);
-	        HEAD_NUM=\$((NUM-20))
-	        # If number of directories is more than 5, then we will remove all directories except the five most recent catalogs
-	        if [ "\$NUM" > "20" ]; then
-	                for k in \$(ls -lahtrd $CURRENT_BUILD/* | head -\$HEAD_NUM | awk '{print \$9}')
-	                do
-	                        rm -rf \$k
-	                done
-	fi
-	"
+	typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD/"
 	### removing archive
 	rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
 done
