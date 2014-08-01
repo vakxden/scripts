@@ -109,7 +109,7 @@ do
 	time scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
 	       tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_REMOTE_DIR/
-	       mv $CB_REMOTE_DIR/$CB_DIR//* $CB_REMOTE_DIR/
+	       mv $CB_REMOTE_DIR/$CB_DIR/* $CB_REMOTE_DIR/
 	       rm -rf $CB_REMOTE_DIR/home
 	       rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
 	"
