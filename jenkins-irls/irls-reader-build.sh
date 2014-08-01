@@ -125,9 +125,9 @@ do
 	        rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
 	"
 	### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
-	typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD/"
+	typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
 	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
-	typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD/"
+	typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
 	### removing archive
 	rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
 done
