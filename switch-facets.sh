@@ -5,17 +5,16 @@
 ###
 
 # $1 - for case
-# $2 - add facet
-ADD_FACET=$2
+LIST_OF_ALL_FACETS=$(grep list_of_all_facets /var/lib/jenkins/jobs/irls-reader-build/config.xml | awk -F"[()]" '{print $2}')
 COJ="/var/lib/jenkins/jobs/irls-reader-build/config.xml" # Path to the configuration file of jenkins job
 NOL1=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F "-" '{print $1}') # Number of line (for sed processing)
-NOL2=$(grep -A2 -n 'if \[ "$BRANCHNAME" = "develop" \]' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F "-" '{print $1}')
-NOL3=$(grep -A5 -n 'if \[ "$BRANCHNAME" = "develop" \]' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F "-" '{print $1}' | awk -F "-" '{print $1}')
-JUSER="login"
-JPASSWD="pass"
+NOL2=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F "-" '{print $1}')
+NOL3=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F "-" '{print $1}' | awk -F "-" '{print $1}')
+JUSER="dvac"
+JPASSWD=",tkjvjh"
 CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F"[<>]" '{print $3}') # the current branch in the configuration file of jenkins job
-CURRENT_FACET_DEVELOP=$(grep -A2 -n 'if \[ "$BRANCHNAME" = "develop" \]' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
-CURRENT_FACET_ALL=$(grep -A5 -n 'if \[ "$BRANCHNAME" = "develop" \]' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
+CURRENT_FACET_DEVELOP=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
+CURRENT_FACET_ALL=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
 
 function switch_to_develop {
         if [ "$CURRENT_BRANCH" == "**" ]; then
@@ -25,6 +24,7 @@ function switch_to_develop {
 
 function deploy_conf_file {
         wget --auth-no-challenge --user="$JUSER" --password="$JPASSWD" --post-file="$COJ" --no-check-certificate http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/config.xml
+        rm -f config.xml
 }
 
 function run_of_job {
@@ -37,55 +37,60 @@ function switch_to_all {
         fi
 }
 
-function add_facet_to_develop () {
-        # $1 = $ADD_FACET
-        sed -i "$NOL2""s/$CURRENT_FACET_DEVELOP/$CURRENT_FACET_DEVELOP $1/" $COJ
-}
-
-function add_facet_to_all () {
-        # $1 = $ADD_FACET
-        sed -i "$NOL3""s/$CURRENT_FACET_ALL/$CURRENT_FACET_ALL $1/" $COJ
+function replace_facet () {
+        # $1 = $BRANCH (develop or all)
+        # $2 = $FACET_NAME
+        if [ "$1" = "all" ]; then
+                sed -i "$NOL3""s/$CURRENT_FACET_ALL/$2/" $COJ
+        elif [ "$1" = "develop" ]; then
+                sed -i "$NOL2""s/$CURRENT_FACET_DEVELOP/$2/" $COJ
+        else
+                echo Branch must be \"develop\" or \"all\"
+        fi
 }
 
 case $1 in
         current)
                 if [ "$CURRENT_BRANCH" == "**" ]; then
                         echo Current branch is \"all\"
-                        echo Current facet is \"$CURRENT_FACET_ALL\"
+                        echo Current facet for \"all\" branches is \"$CURRENT_FACET_ALL\"
+                        echo Current facet for \"develop\" branch is \"$CURRENT_FACET_DEVELOP\"
                 else
                         echo Current branch is \"$CURRENT_BRANCH\"
-                        echo Current facet is \"$CURRENT_FACET_DEVELOP\"
+                        echo Current facet for \"develop\" branch is \"$CURRENT_FACET_DEVELOP\"
+                        echo Current facet for \"all\" branches is \"$CURRENT_FACET_ALL\"
                 fi
         ;;
-        switch_to_develop)
+        switch_branch_to_develop)
                 switch_to_develop
                 deploy_conf_file
         ;;
-        switch_to_all)
+        switch_branch_to_all)
                 switch_to_all
                 deploy_conf_file
         ;;
         run_of_job)
                 run_of_job
         ;;
-        add_facet_to_develop)
+        change_facet)
+                BRANCH="$2"
+                FACET_NAME=$3
                 if [ -z "$2" ]; then
-                        echo Parameter FACET_NAME must be passed...
-                        echo exit
+                        echo Parameter BRANCH must be passed...
                         exit 1
                 fi
-                add_facet_to_develop $ADD_FACET
-        ;;
-        add_facet_to_all)
-                if [ -z "$2" ]; then
+                if [ -z "$3" ]; then
                         echo Parameter FACET_NAME must be passed...
-                        echo exit
                         exit 1
                 fi
-                add_facet_to_all $ADD_FACET
+                replace_facet "$BRANCH" "$FACET_NAME"
+                deploy_conf_file
         ;;
         *)
-                echo "Usage: ./switch-facets.sh {current|switch_to_develop|switch_to_all|run_of_job|add_facet_to_develop FACET_NAME|add_facet_to_all FACET_NAME}"
+                echo "Usage: ./switch-facets.sh {current|switch_branch_to_develop|switch_branch_to_all|run_of_job|change_facet BRANCH FACET_NAME}"
+                echo Parameter BRANCH must be \"develop\" or \"all\"
+                echo Parameter FACET_NAME must be one word or list, e.g. change_facet \"all\" \"puddle audiobywords farsi3\"
+                echo List of all facets is \"$LIST_OF_ALL_FACETS\"
                 exit 1
         ;;
 
