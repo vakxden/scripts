@@ -103,7 +103,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			# update environment.json file
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 			# generate links for description job
-			echo link-$i-$dest="http://wpp.isd.dp.ua/irls/current/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
 			sed -i "s/link-$i-$dest/link$i/g" $WORKSPACE/myenv
 		done
 	elif [ "$dest" = "STAGE" ]; then
@@ -142,7 +142,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			# update environment.json file
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 			# generate links for description job
-			echo link-$i-$dest="http://wpp.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
 			sed -i "s/link-$i-$dest/link$i/g" $WORKSPACE/myenv
 		done
 	elif [ "$dest" = "LIVE" ]; then
@@ -198,7 +198,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 			# update environment.json file
 			/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 			# generate links for description job
-			echo link-$i-$dest="http://irls.websolutions.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+			echo link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
 			sed -i "s/link-$i-$dest/link$i/g" $WORKSPACE/myenv
 		done
 	else
