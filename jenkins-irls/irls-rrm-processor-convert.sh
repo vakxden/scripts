@@ -89,17 +89,17 @@ do
 	###
 	### Copy current epubs to devzone
 	###
-	ssh dvac@devzone.dp.ua "
-		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  -p ~/irls-reader-current-epubs/$i; fi
-		rm -rf ~/irls-reader-current-epubs/$i/*
-	"
-	time scp $i.tar.xz dvac@devzone.dp.ua:~
-	ssh dvac@devzone.dp.ua "
-		tar xfJ $i.tar.xz -C ~/irls-reader-current-epubs/$i/
-		mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home
-		rm -f $i.tar.xz
-	"
-
+#	ssh dvac@devzone.dp.ua "
+#		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  -p ~/irls-reader-current-epubs/$i; fi
+#		rm -rf ~/irls-reader-current-epubs/$i/*
+#	"
+#	time scp $i.tar.xz dvac@devzone.dp.ua:~
+#	ssh dvac@devzone.dp.ua "
+#		tar xfJ $i.tar.xz -C ~/irls-reader-current-epubs/$i/
+#		mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home
+#		rm -f $i.tar.xz
+#	"
+#
 	###
 	### Copy current epubs to dev02.design.isd.dp.ua
 	###
