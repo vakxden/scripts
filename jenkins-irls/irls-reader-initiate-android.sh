@@ -17,6 +17,7 @@ export ANDROID_HOME=/opt/android-sdk-linux
 export PATH=$PATH:$NODE_HOME/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin
 FACETS=($(echo $FACET))
 
+
 ### Create associative array
 deploymentPackageId=($(echo $ID))
 declare -A combineArray
@@ -37,47 +38,48 @@ done
 
 ### Main loop
 function main_loop {
+	function sub_main_loop {
+	if [ $(echo "$i" | egrep "ocean$") ]; then
+		getAbort()
+		{
+                	printf "we do not create the apk-file for facet named 'ocean'\n"
+		}
+		getAbort
+		trap 'getAbort; exit' SIGTERM
+        else
+		# Create apk-file
+		cd $WORKSPACE/packager
+		time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		rm -f out/dest/platforms/android/ant-build/*$i*unaligned.apk
+		mv $WORKSPACE/packager/out/dest/platforms/android/ant-build/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
+		ssh jenkins@dev01.isd.dp.ua "
+		if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
+			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		fi
+		"
+		time scp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
+        fi}
 
 	for i in "${!combineArray[@]}"
 	do
 		rm -rf $WORKSPACE/*
 		GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i"_"FFA")
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
+		
 
 		echo $i --- ${combineArray[$i]}
-		if [ $(echo "$i" | egrep "ocean$") ]; then
-			getAbort()
-			{
-	                	printf "we do not create the apk-file for facet named 'ocean'\n"
-			}
-			getAbort
-			trap 'getAbort; exit' SIGTERM
-	        else
-			# Create apk-file
-			cd $WORKSPACE/packager
-			#if [ "$BRANCHNAME" = "feature/target" ]; then
-			time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-			#else
-			#	time node index.js --target=android --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-			#fi
-			# Remove unaligned apk-file
-			#rm -f out/dest/platforms/android/bin/*$i*unaligned.apk
-			rm -f out/dest/platforms/android/ant-build/*$i*unaligned.apk
-			# Move apk-file to directory for archiving artifacts
-			#mv $WORKSPACE/packager/out/dest/platforms/android/bin/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
-			mv $WORKSPACE/packager/out/dest/platforms/android/ant-build/*$i*.apk $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
-			# this lines commented because this job was moved to host dev02.design.isd.dp.ua
-			#if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-			#	mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
-			#fi
-			#cp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
-			ssh jenkins@dev01.isd.dp.ua "
-			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		### Checking
+		if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
+			grep "platforms.*android" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json
+			if [ $? -eq 0 ]; then
+				sub_main_loop
+			else
+				echo "Shutdown of this job because platform \"android\" not found in config targetConfig.json"
+				exit 0
 			fi
-			"
-			time scp $WORKSPACE/$BRANCH-FFA_Reader-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.apk
-	        fi
+		else
+			sub_main_loop
+		fi
 	done
 }
 
