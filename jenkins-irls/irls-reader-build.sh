@@ -73,7 +73,7 @@ do
 	git clone git@wpp.isd.dp.ua:irls/targets.git
 	cd $WORKSPACE/client
 	### Build client and server parts
-	node index.js --target=$TARG --targetPath=$WORKSPACE/targets
+	node index.js --target=$TARG --targetPath=$WORKSPACE/targets --readerPath=$WORKSPACE
 	grunt --no-color
 	### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
 	if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
@@ -88,10 +88,10 @@ do
 		# Numbers of directories in the $CURRENT_BUILD/
 		NUM=$(ls -d $1/* | wc -l)
 		echo NUM=$NUM
-		HEAD_NUM=$(($NUM-20))
-		echo HEAD_NUM=$HEAD_NUM
 		# If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
-		if [ "$NUM" > "20" ]; then
+		if (( $NUM > 20 )); then
+			HEAD_NUM=$(($NUM-20))
+			echo HEAD_NUM=$HEAD_NUM
 			for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
 			do
 				rm -rf $k

@@ -136,25 +136,25 @@ do
         CB_REMOTE_DIR="$NIGHTLY_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
         cd $WORKSPACE/$READER_REPO_NAME/client
         ### Build client and server parts
-        node index.js --target=$TARG --targetPath=$WORKSPACE/$TARGETS_REPO_NAME
+        node index.js --target=$TARG --targetPath=$WORKSPACE/$TARGETS_REPO_NAME --readerPath=$WORKSPACE/$READER_REPO_NAME
         grunt --no-color
         ### Copy code of project to the directory $NIGHTLY_BUILD and removing outdated directories from the directory $NIGHTLY_BUILD (on the host dev01)
         if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
-        cp -Rf $WORKSPACE/client/out/dist/* $CB_DIR/client
-        if [ -d "$WORKSPACE/targets" ]; then cp -Rf $WORKSPACE/targets $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/packager" ]; then cp -Rf $WORKSPACE/packager $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CB_DIR/ ; fi
+        cp -Rf $WORKSPACE/$READER_REPO_NAME/client/out/dist/* $CB_DIR/client
+        if [ -d "$WORKSPACE/$TARGETS_REPO_NAME" ]; then cp -Rf $WORKSPACE/$TARGETS_REPO_NAME $CB_DIR/ ; fi
+        if [ -d "$WORKSPACE/$READER_REPO_NAME/packager" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/packager $CB_DIR/ ; fi
+        if [ -d "$WORKSPACE/$READER_REPO_NAME/server" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/server $CB_DIR/ ; fi
+        if [ -d "$WORKSPACE/$READER_REPO_NAME/common" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/common $CB_DIR/ ; fi
+        if [ -d "$WORKSPACE/$READER_REPO_NAME/portal" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/portal $CB_DIR/ ; fi
         ### Create function for cleaning outdated directories from the directory of current code build
         function build_dir_clean (){
                 # Numbers of directories in the $NIGHTLY_BUILD/
                 NUM=$(ls -d $1/* | wc -l)
                 echo NUM=$NUM
-                HEAD_NUM=$(($NUM-20))
-                echo HEAD_NUM=$HEAD_NUM
                 # If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
-                if [ "$NUM" > "20" ]; then
+                if (( $NUM > 20 )); then
+                	HEAD_NUM=$(($NUM-20))
+                	echo HEAD_NUM=$HEAD_NUM
                         for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
                         do
                                 rm -rf $k
