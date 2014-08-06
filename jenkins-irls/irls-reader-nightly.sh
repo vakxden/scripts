@@ -195,6 +195,8 @@ do
         rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
 done
 
+rm -rf $WORKSPACE/reader/client/out
+
 ### Create meta.json
 for i in ${deploymentPackageId[@]}
 do
