@@ -249,6 +249,8 @@ do
                 echo -e "\t}" >> $CURRENT_META_JSON
                 echo -e "}" >> $CURRENT_META_JSON
                 sudo /bin/chown -Rf jenkins:www-data $NIGHTLY_ARTIFACTS_DIR/$1
+		# Notify! Add next to sudoers:
+		#jenkins ALL= NOPASSWD:/usr/bin/rrdtool,/home/jenkins/scripts/portgenerator-for-convert.sh,/home/jenkins/scripts/portgenerator-for-deploy.sh,/bin/chown -Rf jenkins\:www-data /home/jenkins/irls-reader-artifacts/*,/bin/chown -Rf jenkins\:www-data /home/jenkins/irls-reader-artifacts-nightly/*,/bin/bash
                 /bin/chmod -Rf g+w $NIGHTLY_ARTIFACTS_DIR/$1
         }
         if [  -f $NIGHTLY_ARTIFACTS_DIR/$i/meta.json ]; then
