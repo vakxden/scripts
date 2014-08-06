@@ -44,54 +44,55 @@ else
 fi
 
 ### Convert
-#for i in ${FACET[@]}
-#do
-#	rm -rf $NIGHTLY_EPUBS/$i
-#	mkdir -p $NIGHTLY_EPUBS/$i
-#	cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src
-#	time node main.js $WORKSPACE/$RRM_OCEAN_REPO_NAME $NIGHTLY_EPUBS/$i $i
-#	time node --max-old-space-size=7000 $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src/createJSON.js $NIGHTLY_EPUBS/$i/
-#done
+#####for i in ${FACET[@]}
+#####do
+#####	rm -rf $NIGHTLY_EPUBS/$i
+#####	mkdir -p $NIGHTLY_EPUBS/$i
+#####	cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src
+#####	time node main.js $WORKSPACE/$RRM_OCEAN_REPO_NAME $NIGHTLY_EPUBS/$i $i
+#####	time node --max-old-space-size=7000 $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src/createJSON.js $NIGHTLY_EPUBS/$i/
+#####done
 
 ### Copy current epubs to jenkins nodes
-#for i in "${FACET[@]}"
-#do
-#        # create tar.xz archive
-#	NIGHTLY_ARCH_NAME="nightly-$i.tar.xz"
-#        time tar cfJ $NIGHTLY_ARCH_NAME $NIGHTLY_EPUBS/$i --exclude="_oldjson"
-#        ### Copy current epubs to mac-mini
-#        if [ "$i" = "ocean" ]; then
-#                printf "epubs for facet named 'ocean' will not be copying to mac-mini \n"
-#        else
-#                ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-#                        if [ ! -d $NIGHTLY_MACMINI_EPUBS/$i ]; then mkdir -p $NIGHTLY_MACMINI_EPUBS/$i; fi
-#                        rm -rf $NIGHTLY_MACMINI_EPUBS/$i/*
-#                "
-#                time scp $NIGHTLY_ARCH_NAME jenkins@yuriys-mac-mini.isd.dp.ua:~
-#                ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-#                        tar xfJ $NIGHTLY_ARCH_NAME -C $NIGHTLY_MACMINI_EPUBS/$i/
-#                        mv $NIGHTLY_MACMINI_EPUBS/$i$NIGHTLY_EPUBS/$i/* $NIGHTLY_MACMINI_EPUBS/$i/ && rm -rf $NIGHTLY_MACMINI_EPUBS/$i/home
-#                        rm -f $NIGHTLY_ARCH_NAME
-#                "
-#        fi
-#        ### Copy current epubs to dev02.design.isd.dp.ua
-#        if [ "$i" = "ocean" ]; then
-#                printf "epubs for facet named 'ocean' will not be copying to dev02 \n"
-#        else
-#		ssh jenkins@dev02.design.isd.dp.ua "
-#			if [ ! -d $NIGHTLY_EPUBS/$i ]; then mkdir -p $NIGHTLY_EPUBS/$i; fi
-#			rm -rf $NIGHTLY_EPUBS/$i/*
-#		"
-#		time scp $NIGHTLY_ARCH_NAME jenkins@dev02.design.isd.dp.ua:~
-#		ssh jenkins@dev02.design.isd.dp.ua "
-#			tar xfJ $NIGHTLY_ARCH_NAME -C $NIGHTLY_EPUBS/$i/
-#			mv $NIGHTLY_EPUBS/$i$NIGHTLY_EPUBS/$i/* $NIGHTLY_EPUBS/$i/ && rm -rf $NIGHTLY_EPUBS/$i/home
-#			rm -f $NIGHTLY_ARCH_NAME
-#		"
-#	fi
-#        # remove tar.xz archive
-#        rm -f $NIGHTLY_ARCH_NAME
-#done
+#####for i in "${FACET[@]}"
+#####do
+#####        # create tar.xz archive
+#####	NIGHTLY_ARCH_NAME="nightly-$i.tar.xz"
+#####        time tar cfJ $NIGHTLY_ARCH_NAME $NIGHTLY_EPUBS/$i --exclude="_oldjson"
+#####        ### Copy current epubs to mac-mini
+#####        if [ "$i" = "ocean" ]; then
+#####                printf "epubs for facet named 'ocean' will not be copying to mac-mini \n"
+#####        else
+#####                ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+#####                        if [ ! -d $NIGHTLY_MACMINI_EPUBS/$i ]; then mkdir -p $NIGHTLY_MACMINI_EPUBS/$i; fi
+#####                        rm -rf $NIGHTLY_MACMINI_EPUBS/$i/*
+#####                "
+#####                time scp $NIGHTLY_ARCH_NAME jenkins@yuriys-mac-mini.isd.dp.ua:~
+#####                ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+#####                        tar xfJ $NIGHTLY_ARCH_NAME -C $NIGHTLY_MACMINI_EPUBS/$i/
+#####                        mv $NIGHTLY_MACMINI_EPUBS/$i$NIGHTLY_EPUBS/$i/* $NIGHTLY_MACMINI_EPUBS/$i/ && rm -rf $NIGHTLY_MACMINI_EPUBS/$i/home
+#####                        rm -f $NIGHTLY_ARCH_NAME
+#####                "
+#####        fi
+#####        ### Copy current epubs to dev02.design.isd.dp.ua
+#####        if [ "$i" = "ocean" ]; then
+#####                printf "epubs for facet named 'ocean' will not be copying to dev02 \n"
+#####        else
+#####		ssh jenkins@dev02.design.isd.dp.ua "
+#####			if [ ! -d $NIGHTLY_EPUBS/$i ]; then mkdir -p $NIGHTLY_EPUBS/$i; fi
+#####			rm -rf $NIGHTLY_EPUBS/$i/*
+#####		"
+#####		time scp $NIGHTLY_ARCH_NAME jenkins@dev02.design.isd.dp.ua:~
+#####		ssh jenkins@dev02.design.isd.dp.ua "
+#####			tar xfJ $NIGHTLY_ARCH_NAME -C $NIGHTLY_EPUBS/$i/
+#####			mv $NIGHTLY_EPUBS/$i$NIGHTLY_EPUBS/$i/* $NIGHTLY_EPUBS/$i/ && rm -rf $NIGHTLY_EPUBS/$i/home
+#####			rm -f $NIGHTLY_ARCH_NAME
+#####		"
+#####	fi
+#####        # remove tar.xz archive
+#####        rm -f $NIGHTLY_ARCH_NAME
+#####done
+
 ### Create variables for meta.json
 # rrm-processor
 cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME
