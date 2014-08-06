@@ -247,12 +247,12 @@ do
                 echo -e "\t\t\"commitURL\":\""$READER_COMMIT_URL"\"" >> $CURRENT_META_JSON
                 echo -e "\t}" >> $CURRENT_META_JSON
                 echo -e "}" >> $CURRENT_META_JSON
-                sudo /bin/chown -Rf jenkins:www-data /home/jenkins/irls-reader-artifacts/$1
-                /bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$1
+                sudo /bin/chown -Rf jenkins:www-data $NIGHTLY_ARTIFACTS_DIR/$1
+                /bin/chmod -Rf g+w $NIGHTLY_ARTIFACTS_DIR/$1
         }
         if [  -f $NIGHTLY_ARTIFACTS_DIR/$i/meta.json ]; then
-                sudo /bin/chown -Rf jenkins:www-data /home/jenkins/irls-reader-artifacts/$i
-                /bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$i
+                sudo /bin/chown -Rf jenkins:www-data $NIGHTLY_ARTIFACTS_DIR/$i
+                /bin/chmod -Rf g+w $NIGHTLY_ARTIFACTS_DIR/$i
                 cat /dev/null > $NIGHTLY_ARTIFACTS_DIR/$i/meta.json
                 create_meta $i $FACET_NAME
         else
