@@ -134,8 +134,6 @@ done
 ###
 for i in "${FACET[@]}"
 do
-	### Generate deploymentPackageId
-        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
 	### Temporary variables
 	TARG=$(echo "$i"_FFA)
 	GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$TARG")
