@@ -60,16 +60,17 @@ function main_loop {
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
 		echo $i --- ${combineArray[$i]}
-		if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
+		### Checking contain platform
+		#if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
 			if grep "platforms.*win" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
 				notmainloop
 			else
 				echo "Shutdown of this job because platform \"win\" not found in config targetConfig.json"
 				exit 0
 			fi
-		else
-			notmainloop
-		fi
+		#else
+		#	notmainloop
+		#fi
 	done
 }
 
