@@ -14,6 +14,7 @@ NIGHTLY_MACMINI_EPUBS="/Users/jenkins/irls-reader-nigtly-epubs/"
 NIGHTLY_ARTIFACTS_DIR="/home/jenkins/irls-reader-artifacts-nightly"
 NIGHTLY_BUILD="/home/jenkins/irls-reader-nightly-build"
 NIGHTLY_REMOTE_BUILD="/Users/jenkins/irls-reader-nightly-build"
+dest="NIGHT"
 
 ### Check exists directory
 if [ ! -d "$NIGHTLY_EPUBS" ]; then mkdir $NIGHTLY_EPUBS; fi
@@ -280,3 +281,4 @@ echo "FACET=$(for i in ${FACET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
 echo "NIGHTLY_MACMINI_EPUBS=$NIGHTLY_MACMINI_EPUBS" >> $WORKSPACE/myenv
 echo "NIGHTLY_ARTIFACTS_DIR=$NIGHTLY_ARTIFACTS_DIR" >> $WORKSPACE/myenv
 echo "NIGHTLY_REMOTE_BUILD=$NIGHTLY_REMOTE_BUILD" >> $WORKSPACE/myenv
+echo "dest=$dest" >> $WORKSPACE/myenv
