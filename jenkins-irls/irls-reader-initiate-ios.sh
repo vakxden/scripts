@@ -34,6 +34,24 @@ do
 done
 ### Create ipa-file with application version for iOS
 function main_loop {
+	notmainloop ()
+	{
+	if [ $(echo "$i" | grep "ocean$") ]; then
+		printf "we can only work with the all facets exclude 'ocean' \n not $facet ! \n"
+	else
+		cd $WORKSPACE/packager
+		time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		#unlock keychain
+		security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
+		#build with xcodebuild
+		time /usr/bin/xcodebuild -target "$BRANCH-FFA_Reader-$i" -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$BRANCH-FFA_Reader-$i.xcodeproj/ > /dev/null
+		#create ipa-file
+		time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$BRANCH-FFA_Reader-$i.app" -o $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
+		rm -f $WORKSPACE/*$i*debug.ipa
+		until time scp -v $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa; do :; done
+		rm -rf $CONFIGURATION_BUILD_DIR/*
+	fi
+	}
 
 	for i in "${!combineArray[@]}"
 	do
@@ -42,26 +60,18 @@ function main_loop {
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
 		echo $i --- ${combineArray[$i]}
-		if [ $(echo "$i" | grep "ocean$") ]; then
-			printf "we can only work with the all facets exclude 'ocean' \n not $facet ! \n"
+		### Checking
+		if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
+			if grep "platforms.*ios" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
+				notmainloop
+			else
+				echo "Shutdown of this job because platform \"android\" not found in config targetConfig.json"
+				exit 0
+			fi
 		else
-			cd $WORKSPACE/packager
-			#if [ "$BRANCHNAME" = "feature/target" ]; then
-			time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-			#else
-			#	time node index.js --target=ios --config=$BUILD_CONFIG --from=$WORKSPACE/client --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i/
-			#fi
-			#unlock keychain
-			security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
-			#build with xcodebuild
-			time /usr/bin/xcodebuild -target "$BRANCH-FFA_Reader-$i" -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$BRANCH-FFA_Reader-$i.xcodeproj/ > /dev/null
-			#create ipa-file
-			time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$BRANCH-FFA_Reader-$i.app" -o $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
-			rm -f $WORKSPACE/*$i*debug.ipa
-			until time scp -v $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa; do :; done
+			notmainloop
 		fi
 	done
-	rm -rf $CONFIGURATION_BUILD_DIR/*
 }
 
 main_loop
