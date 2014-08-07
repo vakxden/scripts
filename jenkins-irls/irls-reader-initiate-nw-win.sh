@@ -28,7 +28,31 @@ done
 ### Body (working with all facets exclude only facet named "ocean")
 ###
 function main_loop {
-
+	notmainloop ()
+	{
+	if [ $(echo "$i" | egrep "ocean$") ]; then
+		getAbort()
+		{
+                	printf "we do not create the zip-file for facet named 'ocean'\n"
+		}
+		getAbort
+		trap 'getAbort; exit' SIGTERM
+	else
+		### Remove old version of project and zip-archives
+		if [ ! -d $WORKSPACE/zip ]; then mkdir $WORKSPACE/zip; fi
+		### Create zip-archive with application version for Windows
+		cd $WORKSPACE/packager
+		time node index.js --platform=win --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		mv $WORKSPACE/packager/out/dest/*.zip $WORKSPACE/zip/
+		ssh jenkins@dev01.isd.dp.ua "
+		if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
+			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		fi
+		"
+		time scp $WORKSPACE/zip/*$i-win*.zip jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/zip/*$i-win*.zip
+		rm -rf $WORKSPACE/zip
+	fi
+	}
 	for i in "${!combineArray[@]}"
 	do
 		rm -rf $WORKSPACE/*
@@ -36,38 +60,15 @@ function main_loop {
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
 		echo $i --- ${combineArray[$i]}
-		if [ $(echo "$i" | egrep "ocean$") ]; then
-			getAbort()
-			{
-	                	printf "we do not create the zip-file for facet named 'ocean'\n"
-			}
-			getAbort
-			trap 'getAbort; exit' SIGTERM
-		else
-			### Remove old version of project and zip-archives
-			if [ ! -d $WORKSPACE/zip ]; then mkdir $WORKSPACE/zip; fi
-			### Create zip-archive with application version for Windows
-			cd $WORKSPACE/packager
-			#if [ "$BRANCHNAME" = "feature/target" ]; then
-			time node index.js --platform=win --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-			#else
-			#	time node index.js --target=win --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-			#fi
-			mv $WORKSPACE/packager/out/dest/*.zip $WORKSPACE/zip/
-			# this lines commented because this job was moved to host dev02.design.isd.dp.ua
-			#if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-			#	mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
-			#fi
-			ssh jenkins@dev01.isd.dp.ua "
-			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
+			if grep "platforms.*win" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
+				notmainloop
+			else
+				echo "Shutdown of this job because platform \"win\" not found in config targetConfig.json"
+				exit 0
 			fi
-			"
-			# this line commented because this job was moved to host dev02.design.isd.dp.ua
-			#cp $WORKSPACE/zip/*$i-win*.zip $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
-			# this line there because this job working in host dev02.design.isd.dp.ua
-			time scp $WORKSPACE/zip/*$i-win*.zip jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/zip/*$i-win*.zip
-			rm -rf $WORKSPACE/zip
+		else
+			notmainloop
 		fi
 	done
 }
