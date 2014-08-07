@@ -63,4 +63,11 @@ do
 	cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
 	cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
 	cp -Rf /home/couchdb/$i* $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
+	### Check text clustering
+#	cd $WORKSPACE
+#	git clone git@wpp.isd.dp.ua:irls/rrm-processor.git
+#	cd $WORKSPACE/rrm-processor
+#	git checkout feature-texts-clustering
+#	cd $WORKSPACE/rrm-processor/src
+#	node main_metainfo.js $CURRENT_EPUBS/$i http://localhost:5984 $i
 done
