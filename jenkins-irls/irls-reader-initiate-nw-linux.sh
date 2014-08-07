@@ -120,7 +120,50 @@ function create_deb_package {
 ### Body (working with all facets exclude only facet named "ocean")
 ###
 function main_loop {
-
+	notmainloop ()
+	{
+	if [ $(echo "$i" | egrep "ocean$") ]; then
+		getAbort()
+		{
+                	printf "we do not create the deb-file for facet named 'ocean'\n"
+		}
+		getAbort
+		trap 'getAbort; exit' SIGTERM
+        else
+		if [ ! -d $WORKSPACE/deb ]; then mkdir $WORKSPACE/deb; fi
+		### Create deb-package with application version for Linux 32-bit
+		cd $WORKSPACE/packager
+		#if [ "$BRANCHNAME" = "feature/target" ]; then
+		time node index.js --platform=linux32 --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		#else
+		#	time node index.js --target=linux32 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+		#fi
+		create_deb_package $i i386
+		# Move deb-package
+		ssh jenkins@dev01.isd.dp.ua "
+		if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
+			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		fi
+		"
+		time scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/deb/$NAME_DEB_PKG 
+		### Create deb-package with application version for Linux 64-bit
+		cd $WORKSPACE/packager
+		#if [ "$BRANCHNAME" = "feature/target" ]; then
+		time node index.js --platform=linux64 --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		#else
+		#	time node index.js --target=linux64 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
+		#fi
+		create_deb_package $i amd64	
+		# Move deb-package
+		ssh jenkins@dev01.isd.dp.ua "
+		if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
+			mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		fi
+		"
+		time scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/deb/$NAME_DEB_PKG
+		rm -rf $WORKSPACE/deb
+	fi
+	}
 	for i in "${!combineArray[@]}"
 	do
 		rm -rf $WORKSPACE/*
@@ -128,46 +171,16 @@ function main_loop {
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
 		echo $i --- ${combineArray[$i]}
-		if [ $(echo "$i" | egrep "ocean$") ]; then
-			getAbort()
-			{
-	                	printf "we do not create the deb-file for facet named 'ocean'\n"
-			}
-			getAbort
-			trap 'getAbort; exit' SIGTERM
-	        else
-			if [ ! -d $WORKSPACE/deb ]; then mkdir $WORKSPACE/deb; fi
-			### Create deb-package with application version for Linux 32-bit
-			cd $WORKSPACE/packager
-			#if [ "$BRANCHNAME" = "feature/target" ]; then
-			time node index.js --platform=linux32 --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-			#else
-			#	time node index.js --target=linux32 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-			#fi
-			create_deb_package $i i386
-			# Move deb-package
-			ssh jenkins@dev01.isd.dp.ua "
-			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
+		### Checking
+		if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
+			if grep "platforms.*linux[0-9][0-9]" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
+				notmainloop
+			else
+				echo "Shutdown of this job because platform \"linux[0-9][0-9]\" not found in config targetConfig.json"
+				exit 0
 			fi
-			"
-			time scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/deb/$NAME_DEB_PKG 
-			### Create deb-package with application version for Linux 64-bit
-			cd $WORKSPACE/packager
-			#if [ "$BRANCHNAME" = "feature/target" ]; then
-			time node index.js --platform=linux64 --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-			#else
-			#	time node index.js --target=linux64 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-			#fi
-			create_deb_package $i amd64	
-			# Move deb-package
-			ssh jenkins@dev01.isd.dp.ua "
-			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
-				mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
-			fi
-			"
-			time scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/deb/$NAME_DEB_PKG
-			rm -rf $WORKSPACE/deb
+		else
+			notmainloop
 		fi
 	done
 }

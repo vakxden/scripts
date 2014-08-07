@@ -65,7 +65,7 @@ function main_loop {
 			if grep "platforms.*ios" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
 				notmainloop
 			else
-				echo "Shutdown of this job because platform \"android\" not found in config targetConfig.json"
+				echo "Shutdown of this job because platform \"ios\" not found in config targetConfig.json"
 				exit 0
 			fi
 		else
