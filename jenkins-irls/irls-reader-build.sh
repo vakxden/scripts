@@ -54,82 +54,12 @@ GIT_COMMIT_AUTHOR=$(git show -s --format=%an)
 GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
 GIT_REPO=$(echo $GIT_URL | awk -F ":" '{print $2}' | sed 's/\.git//g')
 GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$GIT_REPO/commit/$GIT_COMMIT"
-deploymentPackageId=()
 
-###
-### Main loop
-###
+### Generate deploymentPackageId array
+deploymentPackageId=()
 for i in "${FACET[@]}"
 do
-	### Generate deploymentPackageId
         deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
-	### Temporary variables
-	TARG=$(echo "$i"_FFA)
-	GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$TARG")
-	CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
-	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-	### Clone targets-repo and running node with target option
-	rm -rf targets
-	git clone git@wpp.isd.dp.ua:irls/targets.git
-	cd $WORKSPACE/client
-	### Build client and server parts
-	node index.js --target=$TARG --targetPath=$WORKSPACE/targets --readerPath=$WORKSPACE
-	grunt --no-color
-	### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
-	if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
-	cp -Rf $WORKSPACE/client/out/dist/* $CB_DIR/client
-	if [ -d "$WORKSPACE/targets" ]; then cp -Rf $WORKSPACE/targets $CB_DIR/ ; fi
-	if [ -d "$WORKSPACE/packager" ]; then cp -Rf $WORKSPACE/packager $CB_DIR/ ; fi
-	if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CB_DIR/ ; fi
-	if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CB_DIR/ ; fi
-	if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CB_DIR/ ; fi
-	### Create function for cleaning outdated directories from the directory of current code build
-	function build_dir_clean (){
-		# Numbers of directories in the $CURRENT_BUILD/
-		NUM=$(ls -d $1/* | wc -l)
-		echo NUM=$NUM
-		# If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
-		if (( $NUM > 20 )); then
-			HEAD_NUM=$(($NUM-20))
-			echo HEAD_NUM=$HEAD_NUM
-			for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
-			do
-				rm -rf $k
-			done
-		fi
-	}
-	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
-	build_dir_clean $CURRENT_BUILD
-	### create archive
-	time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal
-	### copy project to mac-mini
-	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-	       if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
-	"
-	time scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
-	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-	       tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_REMOTE_DIR/
-	       mv $CB_REMOTE_DIR/$CB_DIR/* $CB_REMOTE_DIR/
-	       rm -rf $CB_REMOTE_DIR/home
-	       rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
-	"
-	### copy project to dev02
-	ssh jenkins@dev02.design.isd.dp.ua "
-	        if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
-	"
-	scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz  jenkins@dev02.design.isd.dp.ua:~
-	ssh jenkins@dev02.design.isd.dp.ua "
-	        tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_DIR/
-	        mv $CB_DIR/$CB_DIR/* $CB_DIR/
-	        rm -rf $CB_DIR/home
-	        rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
-	"
-	### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
-	typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
-	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
-	typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
-	### removing archive
-	rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
 done
 
 ###
@@ -198,6 +128,87 @@ do
                 create_meta $i $FACET_NAME
         fi
 done
+
+###
+### Main loop
+###
+for i in "${FACET[@]}"
+do
+	### Generate deploymentPackageId
+        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
+	### Temporary variables
+	TARG=$(echo "$i"_FFA)
+	GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$TARG")
+	CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
+	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
+	### Clone targets-repo and running node with target option
+	rm -rf targets
+	git clone git@wpp.isd.dp.ua:irls/targets.git
+	cd $WORKSPACE/client
+	### Build client and server parts
+	node index.js --target=$TARG --targetPath=$WORKSPACE/targets --readerPath=$WORKSPACE
+	grunt --no-color
+	### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
+	if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
+	cp -Rf $WORKSPACE/client/out/dist/* $CB_DIR/client
+
+	### Copy meta.json to application directory
+	for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
+
+	if [ -d "$WORKSPACE/targets" ]; then cp -Rf $WORKSPACE/targets $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/packager" ]; then cp -Rf $WORKSPACE/packager $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CB_DIR/ ; fi
+	### Create function for cleaning outdated directories from the directory of current code build
+	function build_dir_clean (){
+		# Numbers of directories in the $CURRENT_BUILD/
+		NUM=$(ls -d $1/* | wc -l)
+		echo NUM=$NUM
+		# If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
+		if (( $NUM > 20 )); then
+			HEAD_NUM=$(($NUM-20))
+			echo HEAD_NUM=$HEAD_NUM
+			for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
+			do
+				rm -rf $k
+			done
+		fi
+	}
+	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
+	build_dir_clean $CURRENT_BUILD
+	### create archive
+	time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal
+	### copy project to mac-mini
+	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+	       if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
+	"
+	time scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
+	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+	       tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_REMOTE_DIR/
+	       mv $CB_REMOTE_DIR/$CB_DIR/* $CB_REMOTE_DIR/
+	       rm -rf $CB_REMOTE_DIR/home
+	       rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
+	"
+	### copy project to dev02
+	ssh jenkins@dev02.design.isd.dp.ua "
+	        if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
+	"
+	scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz  jenkins@dev02.design.isd.dp.ua:~
+	ssh jenkins@dev02.design.isd.dp.ua "
+	        tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_DIR/
+	        mv $CB_DIR/$CB_DIR/* $CB_DIR/
+	        rm -rf $CB_DIR/home
+	        rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
+	"
+	### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
+	typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
+	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
+	typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
+	### removing archive
+	rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
+done
+
 
 ###
 ### Variables for EnvInject plugin
