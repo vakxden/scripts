@@ -210,7 +210,7 @@ do
         if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
         cp -Rf $WORKSPACE/$READER_REPO_NAME/client/out/dist/* $CB_DIR/client
 	### Copy meta.json to application directory
-	for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $NIGHTLY_ARTIFACTS_DIR/$i/meta.json $CB_DIR/client/; fi; done
+	for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $NIGHTLY_ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
         if [ -d "$WORKSPACE/$TARGETS_REPO_NAME" ]; then cp -Rf $WORKSPACE/$TARGETS_REPO_NAME $CB_DIR/ ; fi
         if [ -d "$WORKSPACE/$READER_REPO_NAME/packager" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/packager $CB_DIR/ ; fi
         if [ -d "$WORKSPACE/$READER_REPO_NAME/server" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/server $CB_DIR/ ; fi
@@ -267,3 +267,12 @@ done
 
 rm -rf $WORKSPACE/reader/client/out
 
+###
+### Variables for EnvInject plugin
+###
+cat /dev/null > $WORKSPACE/myenv
+echo "NIGHTLY_BUILD=$NIGHTLY_BUILD" >> $WORKSPACE/myenv
+echo "READER_BRANCH_NAME=$READER_BRANCH_NAME" >> $WORKSPACE/myenv
+echo "READER_COMMIT_HASH=$READER_COMMIT_HASH" >> $WORKSPACE/myenv
+echo deploymentPackageId=${deploymentPackageId[@]} >> $WORKSPACE/myenv
+echo "FACET=$(for i in ${FACET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
