@@ -1,3 +1,5 @@
+### This job should take such variables as NIGHTLY_BUILD, READER_BRANCH_NAME, READER_BRANCH_NAME, ID, FACET, ENVIRONMENT
+
 ###
 ### Variables
 ###

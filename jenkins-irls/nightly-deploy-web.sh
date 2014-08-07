@@ -1,4 +1,4 @@
-## This job should take such variables as ID, READER_BRANCH_NAME, dest, FACET, NIGHTLY_ARTIFACTS_DIR, 
+### This job should take such variables as ID, READER_BRANCH_NAME, ENVIRONMENT, FACET, NIGHTLY_ARTIFACTS_DIR, 
 
 ###
 ### Constant local variables
@@ -29,7 +29,7 @@ done
 function generate_files {
         # $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
         cd $1
-        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
+        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
         #rm -f $1/server/config/local.json
         ls -lah
         echo PWD=$PWD
@@ -71,12 +71,12 @@ function start_node {
 ###
 ### Body
 ###
-if [ "$dest" = "NIGHT" ]; then
+if [ "$ENVIRONMENT" = "NIGHT" ]; then
         for i in "${!combineArray[@]}"
         do
                 # variables
                 PKG_DIR=$NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages
-                INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
+                INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
                 # output value for a pair "key-value"
                 echo $i --- ${combineArray[$i]}
                 # generate index.html and local.json
@@ -84,12 +84,12 @@ if [ "$dest" = "NIGHT" ]; then
                 # run (re-run) node
                 start_node $PKG_DIR $INDEX_FILE
                 # update environment.json file
-                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
                 # generate links for description job
-                echo link-$i-$dest="https://wpps.isd.dp.ua/irls/night/reader/$i/$BRANCH/client/dist/app/index.html"
+                echo link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/night/reader/$i/$BRANCH/client/dist/app/index.html"
         done
 else
-        printf "[ERROR_DEST] dest must be NIGHT! Not $dest! \n"
+        printf "[ERROR_DEST] ENVIRONMENT must be NIGHT! Not $ENVIRONMENT! \n"
         exit 1
 fi
 # End of body
