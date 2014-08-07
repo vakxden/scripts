@@ -133,11 +133,7 @@ function main_loop {
 		if [ ! -d $WORKSPACE/deb ]; then mkdir $WORKSPACE/deb; fi
 		### Create deb-package with application version for Linux 32-bit
 		cd $WORKSPACE/packager
-		#if [ "$BRANCHNAME" = "feature/target" ]; then
 		time node index.js --platform=linux32 --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-		#else
-		#	time node index.js --target=linux32 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-		#fi
 		create_deb_package $i i386
 		# Move deb-package
 		ssh jenkins@dev01.isd.dp.ua "
@@ -148,11 +144,7 @@ function main_loop {
 		time scp $WORKSPACE/deb/$NAME_DEB_PKG jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/deb/$NAME_DEB_PKG 
 		### Create deb-package with application version for Linux 64-bit
 		cd $WORKSPACE/packager
-		#if [ "$BRANCHNAME" = "feature/target" ]; then
 		time node index.js --platform=linux64 --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-		#else
-		#	time node index.js --target=linux64 --config=/home/jenkins/build_config --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --suffix=-$i --epubs=$CURRENT_EPUBS/$i
-		#fi
 		create_deb_package $i amd64	
 		# Move deb-package
 		ssh jenkins@dev01.isd.dp.ua "
