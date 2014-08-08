@@ -45,14 +45,14 @@ do
         # count of strings in block, named $CURRENT
         a=$((($(cat $PFILE | wc -l)-8)/3))
         # find $ID in block named $CURRENT
-        grep $CURRENT -A $a $PFILE | grep $ID #/dev/null 2>&1
+        grep $CURRENT -A $a $PFILE | grep "\"$ID\"" #/dev/null 2>&1
         # if $ID not found check exist name $FACET in current $ID in block named $CURRENT
         if [ $(echo $?) -eq 1 ]; then
                 printf "\n"
                 printf "environment named $CURRENT in file $PFILE not contains ID=$ID \n"
                 FACET=$(echo $ID | sed 's/^.*_//g')
                 printf "check whether a facet named $FACET in current ID=$ID, in environment named $CURRENT ... \n"
-                grep $CURRENT -A $a $PFILE | grep $FACET #/dev/null 2>&1
+                grep $CURRENT -A $a $PFILE | egrep "$FACET\"\,$|$FACET\"$" #/dev/null 2>&1
                 if [ $(echo $?) -eq 1 ]; then
                         printf "environment $CURRENT in file $PFILE not contains facet named $FACET \n"
                         printf "add $FACET to $PFILE \n"
@@ -61,7 +61,7 @@ do
                         printf "environment $CURRENT in file $PFILE contains facet named $FACET \n"
                         printf "replacing old ID to new ID named $ID ... \n"
                         # number of line contain $FACET
-                        num=$(grep $CURRENT -n -A $a $PFILE | grep $FACET | cut -d- -f1)
+                        num=$(grep $CURRENT -n -A $a $PFILE | egrep  "$FACET\"\,$|$FACET\"$" | cut -d- -f1)
                         # replace line with old $ID in file $PFILE
                         sed -i "$num s/\(.*\)$FACET/\t\t\"$ID/" $PFILE
                         printf "Done... \n"
