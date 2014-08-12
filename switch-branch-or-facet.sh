@@ -1,10 +1,3 @@
-
-cat /dev/null > switch-facets.sh
-
-cat > switch-facets.sh <<'endmsg'
-
-#!/bin/bash
-
 ###
 ### Variables
 ###
@@ -45,7 +38,7 @@ function switch_to_all {
 
 function replace_facet () {
         # $1 = $BRANCH (develop or all)
-        # $2 = $FACET_NAME
+        # $2 = $CHANGE_FACET
         if [ "$1" = "all" ]; then
                 sed -i "$NOL3""s/$CURRENT_FACET_ALL/$2/" $COJ
         elif [ "$1" = "develop" ]; then
@@ -55,75 +48,33 @@ function replace_facet () {
         fi
 }
 
-case $1 in
-        current)
-                if [ "$CURRENT_BRANCH" == "**" ]; then
-                        echo Current branch is \"all\"
-                        echo Current facet for \"all\" branches is \"$CURRENT_FACET_ALL\"
-                        echo Current facet for \"develop\" branch is \"$CURRENT_FACET_DEVELOP\"
-                else
-                        echo Current branch is \"$CURRENT_BRANCH\"
-                        echo Current facet for \"develop\" branch is \"$CURRENT_FACET_DEVELOP\"
-                        echo Current facet for \"all\" branches is \"$CURRENT_FACET_ALL\"
-                fi
-        ;;
-        switch_branch_to_develop)
-                switch_to_develop
-                deploy_conf_file
-        ;;
-        switch_branch_to_all)
-                switch_to_all
-                deploy_conf_file
-        ;;
-        run_of_job)
-                run_of_job
-        ;;
-        change_facet)
-                BRANCH="$2"
-                FACET_NAME=$3
-                if [ -z "$2" ]; then
-                        echo Parameter BRANCH must be passed...
-                        exit 1
-                fi
-                if [ -z "$3" ]; then
-                        echo Parameter FACET_NAME must be passed...
-                        exit 1
-                fi
-                replace_facet "$BRANCH" "$FACET_NAME"
-                deploy_conf_file
-        ;;
-        *)
-                echo "Usage: ./switch-facets.sh {current|switch_branch_to_develop|switch_branch_to_all|run_of_job|change_facet BRANCH FACET_NAME}"
-                echo Parameter BRANCH must be \"develop\" or \"all\"
-                echo Parameter FACET_NAME must be one word or list, e.g. change_facet \"all\" \"puddle audiobywords farsi3\"
-                echo List of all facets is \"$LIST_OF_ALL_FACETS\"
-                exit 1
-        ;;
-
-esac
-endmsg
-
-chmod +x switch-facets.sh
+#        current)
+#                if [ "$CURRENT_BRANCH" == "**" ]; then
+#                        echo Current branch is \"all\"
+#                        echo Current facet for \"all\" branches is \"$CURRENT_FACET_ALL\"
+#                        echo Current facet for \"develop\" branch is \"$CURRENT_FACET_DEVELOP\"
+#                else
+#                        echo Current branch is \"$CURRENT_BRANCH\"
+#                        echo Current facet for \"develop\" branch is \"$CURRENT_FACET_DEVELOP\"
+#                        echo Current facet for \"all\" branches is \"$CURRENT_FACET_ALL\"
+#                fi
+#        ;;
 
 if [ "$SWITCH_BRANCH" = "switch_branch_to_develop" ]; then
-	SWITCH_PARAM="switch_branch_to_develop"
-	./switch-facets.sh $SWITCH_PARAM
+	switch_to_develop
+	deploy_conf_file
 elif [ "$SWITCH_BRANCH" = "switch_branch_to_all" ]; then
-	SWITCH_PARAM="switch_branch_to_all"
-	./switch-facets.sh $SWITCH_PARAM
+	switch_to_all
+	deploy_conf_file
 fi
 
 if [ "$RUN_OF_JOB" = "run_of_job" ]; then
-	RUN_OF_JOB="run_of_job"
-	./switch-facets.sh $RUN_OF_JOB
+	run_of_job
 fi
 
 if [ ! -z "$CHANGE_FACET" ]; then
-	if [ "$BRANCH" = "all" ]; then
-		BRANCH="all"
-		./switch-facets.sh change_facet \"$BRANCH\" \"$CHANGE_FACET\"
-	elif [ "$BRANCH" = "develop" ]; then
-		BRANCH="develop"
-		./switch-facets.sh change_facet \"$BRANCH\" \"$CHANGE_FACET\"
+	if [ "$BRANCH" = "all" ] || [ "$BRANCH" = "develop" ]; then
+                replace_facet "$BRANCH" "$CHANGE_FACET"
+		deploy_conf_file
 	fi
 fi
