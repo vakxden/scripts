@@ -1,8 +1,17 @@
+#This job modifies the configuration file of the job named "irls-reader-build" ( http://wpp.isd.dp.ua/jenkins/job/irls-reader-build )
+
+#Name of job: switch-branch-or-facet ( http://wpp.isd.dp.ua/jenkins/job/switch-branch-or-facet )
+#Authentication Token: neLei5ie
+#Parameters of this job:
+#	SWITCH_BRANCH - option to change the branch which focuses job, may be "switch_branch_to_develop" or "switch_branch_to_all"
+#	RUN_OF_JOB - option to run the job, may be "run_of_job"
+#	CHANGE_FACET - list of facets that will be passed to the job (e.g. "farsi3 audiobywords audio puddle")
+#	BRANCH - target branch for which will be changed  the list of facets, may be "all" or "develop"
+
 ###
 ### Variables
 ###
 
-# $1 - for case
 LIST_OF_ALL_FACETS=$(grep list_of_all_facets /var/lib/jenkins/jobs/irls-reader-build/config.xml | awk -F"[()]" '{print $2}')
 COJ="/var/lib/jenkins/jobs/irls-reader-build/config.xml" # Path to the configuration file of jenkins job
 NOL1=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F "-" '{print $1}') # Number of line (for sed processing)
@@ -12,7 +21,7 @@ JUSER="dvac"
 CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F"[<>]" '{print $3}') # the current branch in the configuration file of jenkins job
 CURRENT_FACET_DEVELOP=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
 CURRENT_FACET_ALL=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
-JENKINS_USER_TOKEN="0f64d6238d107249f79deda4d6a2f9fc"
+JUSER_TOKEN="0f64d6238d107249f79deda4d6a2f9fc"
 
 function switch_to_develop {
         if [ "$CURRENT_BRANCH" == "**" ]; then
@@ -21,8 +30,7 @@ function switch_to_develop {
 }
 
 function deploy_conf_file {
-        #wget --auth-no-challenge --user="$JUSER" --password="$JPASSWD" --post-file="$COJ" --no-check-certificate http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/config.xml
-        wget --auth-no-challenge --http-user=$JUSER --http-password=$JENKINS_USER_TOKEN --post-file="$COJ" http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/config.xml
+        wget --auth-no-challenge --http-user=$JUSER --http-password=$JUSER_TOKEN --post-file="$COJ" http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/config.xml
         rm -f config.xml
 }
 
@@ -37,14 +45,12 @@ function switch_to_all {
 }
 
 function replace_facet () {
-        # $1 = $BRANCH (develop or all)
+        # $1 = $BRANCH
         # $2 = $CHANGE_FACET
         if [ "$1" = "all" ]; then
                 sed -i "$NOL3""s/$CURRENT_FACET_ALL/$2/" $COJ
         elif [ "$1" = "develop" ]; then
                 sed -i "$NOL2""s/$CURRENT_FACET_DEVELOP/$2/" $COJ
-        else
-                echo Branch must be \"develop\" or \"all\"
         fi
 }
 
@@ -66,15 +72,25 @@ if [ "$SWITCH_BRANCH" = "switch_branch_to_develop" ]; then
 elif [ "$SWITCH_BRANCH" = "switch_branch_to_all" ]; then
 	switch_to_all
 	deploy_conf_file
+else
+	printf "Parameter SWITCH_BRANCH must be \"switch_branch_to_develop\" or \"switch_branch_to_all\". Not $SWITCH_BRANCH \n"
+	exit 1
 fi
 
 if [ "$RUN_OF_JOB" = "run_of_job" ]; then
 	run_of_job
+else
+	printf "Parameter RUN_OF_JOB must be \"run_of_job\". Not $RUN_OF_JOBi \n"
+	exit 1
 fi
 
+#checking for the existence of a parameter "BRANCH" occurs only when the parameter "CHANGE_FACET" is present
 if [ ! -z "$CHANGE_FACET" ]; then
 	if [ "$BRANCH" = "all" ] || [ "$BRANCH" = "develop" ]; then
                 replace_facet "$BRANCH" "$CHANGE_FACET"
 		deploy_conf_file
+	else
+		printf "Parameter BRANCH must be \"all\" or \"develop\". Not $BRANCH \n"
+		exit 1
 	fi
 fi
