@@ -99,6 +99,6 @@ if [ "$VJF_CURRENT_BRANCH" == "**" ]; then
 else
 	echo -e "\t\"currentBranch\":  \""$VJF_CURRENT_BRANCH"\"," >> $JSON_FILE
 fi
-echo -e "\t\"currentFacetsNotDevelop\": \""$VJF_CURRENT_FACET_ALL"\","
-echo -e "\t\"currentFacetsDevelop\": \""$VJF_CURRENT_FACET_DEVELOP"\""
+echo -e "\t\"currentFacetsNotDevelop\": \""$VJF_CURRENT_FACET_ALL"\"," >> $JSON_FILE
+echo -e "\t\"currentFacetsDevelop\": \""$VJF_CURRENT_FACET_DEVELOP"\"" >> $JSON_FILE
 echo -e "}" >> $JSON_FILE
