@@ -22,6 +22,7 @@ CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name 
 CURRENT_FACET_DEVELOP=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
 CURRENT_FACET_ALL=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
 JUSER_TOKEN="0f64d6238d107249f79deda4d6a2f9fc"
+JSON_FILE="/home/jenkins/irls-reader-artifacts/irls-reader-build.json"
 
 function switch_to_develop {
         if [ "$CURRENT_BRANCH" == "**" ]; then
@@ -54,33 +55,25 @@ function replace_facet () {
         fi
 }
 
-#        current)
-#                if [ "$CURRENT_BRANCH" == "**" ]; then
-#                        echo Current branch is \"all\"
-#                        echo Current facet for \"all\" branches is \"$CURRENT_FACET_ALL\"
-#                        echo Current facet for \"develop\" branch is \"$CURRENT_FACET_DEVELOP\"
-#                else
-#                        echo Current branch is \"$CURRENT_BRANCH\"
-#                        echo Current facet for \"develop\" branch is \"$CURRENT_FACET_DEVELOP\"
-#                        echo Current facet for \"all\" branches is \"$CURRENT_FACET_ALL\"
-#                fi
-#        ;;
-
 if [ "$SWITCH_BRANCH" = "switch_branch_to_develop" ]; then
 	switch_to_develop
 	deploy_conf_file
 elif [ "$SWITCH_BRANCH" = "switch_branch_to_all" ]; then
 	switch_to_all
 	deploy_conf_file
+elif [ "$SWITCH_BRANCH" = "" ]; then
+	printf "Parameter SWITCH_BRANCH is null"
 else
-	printf "Parameter SWITCH_BRANCH must be \"switch_branch_to_develop\" or \"switch_branch_to_all\". Not $SWITCH_BRANCH \n"
+	printf "Parameter SWITCH_BRANCH must be \"switch_branch_to_develop\" or \"switch_branch_to_all\". Not \"$SWITCH_BRANCH\" \n"
 	exit 1
 fi
 
 if [ "$RUN_OF_JOB" = "run_of_job" ]; then
 	run_of_job
+elif [ "$RUN_OF_JOB" = "" ]; then
+	printf "Parameter RUN_OF_JOB is null"
 else
-	printf "Parameter RUN_OF_JOB must be \"run_of_job\". Not $RUN_OF_JOBi \n"
+	printf "Parameter RUN_OF_JOB must be \"run_of_job\". Not \"$RUN_OF_JOB\" \n"
 	exit 1
 fi
 
@@ -90,7 +83,22 @@ if [ ! -z "$CHANGE_FACET" ]; then
                 replace_facet "$BRANCH" "$CHANGE_FACET"
 		deploy_conf_file
 	else
-		printf "Parameter BRANCH must be \"all\" or \"develop\". Not $BRANCH \n"
+		printf "Parameter BRANCH must be \"all\" or \"develop\". Not \"$BRANCH\" \n"
 		exit 1
 	fi
 fi
+
+#generating of json-file
+cat /dev/null > $JSON_FILE
+VJF_CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F"[<>]" '{print $3}') #variable for json-file
+VJF_CURRENT_FACET_ALL=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
+VJF_CURRENT_FACET_DEVELOP=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
+echo -e "{" >> $JSON_FILE
+if [ "$VJF_CURRENT_BRANCH" == "**" ]; then
+	echo -e "\t\"currentBranch\":  \"all\"," >> $JSON_FILE
+else
+	echo -e "\t\"currentBranch\":  \""$VJF_CURRENT_BRANCH"\"," >> $JSON_FILE
+fi
+echo -e "\t\"currentFacetsNotDevelop\": \""$VJF_CURRENT_FACET_ALL"\","
+echo -e "\t\"currentFacetsDevelop\": \""$VJF_CURRENT_FACET_DEVELOP"\""
+echo -e "}" >> $JSON_FILE
