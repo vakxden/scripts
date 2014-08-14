@@ -159,7 +159,7 @@ function main_loop {
 	for i in "${!combineArray[@]}"
 	do
 		rm -rf $WORKSPACE/*
-		if [ "$i" = "ocean" ]; then BRAND="$i"_"Ocean"; else BRAND="$i"_"Ocean"; fi
+		if [ "$i" = "ocean" ]; then BRAND="$i"_"Ocean"; else BRAND="$i"_"FFA"; fi
                 GIT_COMMIT_TARGET="$GIT_COMMIT"-"$BRAND"
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 

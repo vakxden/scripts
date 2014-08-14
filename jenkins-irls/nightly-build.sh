@@ -45,6 +45,7 @@ else
 fi
 
 ### Convert
+if ps aux | grep node.*main.js | grep -v grep; then echo "node main.js is executing"; fi
 for i in ${FACET[@]}
 do
 	rm -rf $NIGHTLY_EPUBS/$i
