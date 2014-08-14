@@ -159,13 +159,14 @@ function main_loop {
 	for i in "${!combineArray[@]}"
 	do
 		rm -rf $WORKSPACE/*
-		GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i"_"FFA")
+		if [ "$i" = "ocean" ]; then BRAND="$i"_"Ocean"; else BRAND="$i"_"Ocean"; fi
+                GIT_COMMIT_TARGET="$GIT_COMMIT"-"$BRAND"
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
 		echo $i --- ${combineArray[$i]}
 		### Checking contain platform
 		#if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
-			if grep "platforms.*linux[0-9][0-9]" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
+			if grep "platforms.*linux[0-9][0-9]" $WORKSPACE/targets/$BRAND/targetConfig.json; then
 				notmainloop
 			else
 				echo "Shutdown of this job because platform \"linux[0-9][0-9]\" not found in config targetConfig.json"

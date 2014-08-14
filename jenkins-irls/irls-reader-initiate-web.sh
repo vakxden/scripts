@@ -56,13 +56,14 @@ function main_loop {
 	do
 	
 		rm -rf $WORKSPACE/*
-		GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i"_"FFA")
+		if [ "$i" = "ocean" ]; then BRAND="$i"_"Ocean"; else BRAND="$i"_"Ocean"; fi
+		GIT_COMMIT_TARGET="$GIT_COMMIT"-"$BRAND"
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 	
 		echo $i --- ${combineArray[$i]}
 		### Checking contain platform
 		#if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
-			if grep "platforms.*web" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
+			if grep "platforms.*web" $WORKSPACE/targets/$BRAND/targetConfig.json; then
 				notmainloop
 			else
 				echo "Shutdown of this job because platform \"web\" not found in config targetConfig.json"
