@@ -135,7 +135,7 @@ done
 for i in "${FACET[@]}"
 do
 	### Temporary variables
-	TARG=$(echo "$i"_FFA)
+	if [ "$i" = "ocean" ];then TARG=$(echo "$i"_Ocean); else TARG=$(echo "$i"_FFA); fi
 	GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$TARG")
 	CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
 	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
