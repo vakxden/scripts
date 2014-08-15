@@ -1,8 +1,8 @@
 if [ "$BRANCHNAME" = "master" ]; then
-	#FACET=(puddle farsi farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean)
-	FACET=(farsi3)
-	for i in ${FACET[@]}
-	do
-		curl http://wpp.isd.dp.ua/jenkins/view/irls-rrm-processor/job/irls-rrm-processor-convert/buildWithParameters?token=Sheedah8\&FACET=$i
-	done
+        #FACET=(puddle refbahai farsi farsi3 bahaiebooks audio audiobywords mediaoverlay lake ocean)
+        FACET=(audio refbahai audiobywords)
+        for i in ${FACET[@]}
+        do
+                curl http://wpp.isd.dp.ua/jenkins/view/irls-rrm-processor/job/irls-rrm-processor-convert/buildWithParameters?token=Sheedah8\&FACET=$i
+        done
 fi
