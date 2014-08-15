@@ -57,7 +57,7 @@ function main_loop {
 	do
 		rm -rf $WORKSPACE/*
 		if [ "$i" = "ocean" ]; then BRAND="$i"_"Ocean"; else BRAND="$i"_"FFA"; fi
-		GIT_COMMIT_TARGET="$GIT_COMMIT"-"BRAND"
+		GIT_COMMIT_TARGET="$GIT_COMMIT"-"$BRAND"
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
 		echo $i --- ${combineArray[$i]}
