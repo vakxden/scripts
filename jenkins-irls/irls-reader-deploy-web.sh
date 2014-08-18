@@ -182,6 +182,7 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
 				cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/packages/server/config
 				rm -rf /home/dvac/couchdb/var/lib/couchdb/"$i"_*.couch
 				cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes/"$i"_*.couch /home/dvac/couchdb/var/lib/couchdb/
+				/home/dvac/couchdb/etc/init.d/couchdb restart
 				
 				cd $REMOTE_ART_PATH/${combineArray[$i]}/packages/
 				PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
