@@ -4,7 +4,7 @@ cat - > $TMP_FILE
 
 newrev=$(cat $TMP_FILE | awk '{print $2}')
 
-git_commit_notifier_config=/usr/local/lib/ruby/gems/2.0.0/gems/git-commit-notifier-0.12.5/config/git-notifier-config.yml
+git_commit_notifier_config="/usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.6/config/git-notifier-config"
 
 FILE=/home/jenkins/irls-reader-artifacts/branches.json
 
