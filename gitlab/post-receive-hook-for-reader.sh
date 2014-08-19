@@ -10,7 +10,8 @@ FILE=/home/jenkins/irls-reader-artifacts/branches.json
 
 if [[ "$newrev" == "0000000000000000000000000000000000000000" ]]
 then
-        list=($( git for-each-ref --format="%(refname)" refs/heads | sed 's/refs\/heads\///g'))
+        #list=($( git for-each-ref --format="%(refname)" refs/heads | sed 's/refs\/heads\///g'))
+	list=($(git branch -r | sed 's/origin\///g' | grep -v HEAD | sort | uniq))
         cat /dev/null > $FILE
         echo '{' >> $FILE
         echo -e '\t"branches":' >> $FILE
