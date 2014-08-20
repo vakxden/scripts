@@ -93,17 +93,6 @@ cat /dev/null > $JSON_FILE
 VJF_CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F"[<>]" '{print $3}') #variable for json-file
 VJF_CURRENT_FACET_ALL=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
 VJF_CURRENT_FACET_DEVELOP=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
-if [ -d $WORKSPACE/reader ]; then
-	cd $WORKSPACE/reader
-else
-	cd $WORKSPACE
-	git clone git@wpp.isd.dp.ua:irls/reader.git
-	cd $WORKSPACE/reader
-	git checkout develop
-fi	 
-git pull
-GIT_HASH=$(git log -1 --pretty=format:"%H")
-LAST_BRANCH_READER=$(git for-each-ref | grep commit | grep -v "refs/heads" | grep $GIT_HASH | awk '{print $3}' |sed 's/refs\/remotes\/origin\///g' | grep -v develop)
 echo -e "{" >> $JSON_FILE
 if [ "$VJF_CURRENT_BRANCH" == "**" ]; then
 	echo -e "\t\"currentBranch\":  \"all\"," >> $JSON_FILE
@@ -112,6 +101,5 @@ else
 fi
 echo -e "\t\"currentFacetsNotDevelop\": \""$VJF_CURRENT_FACET_ALL"\"," >> $JSON_FILE
 echo -e "\t\"listOfAllFacets\": \""$LIST_OF_ALL_FACETS"\"," >> $JSON_FILE
-echo -e "\t\"lastReaderBranch\": \""$LAST_BRANCH_READER"\"," >> $JSON_FILE
 echo -e "\t\"currentFacetsDevelop\": \""$VJF_CURRENT_FACET_DEVELOP"\"" >> $JSON_FILE
 echo -e "}" >> $JSON_FILE
