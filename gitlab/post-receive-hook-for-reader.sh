@@ -1,17 +1,23 @@
 #!/bin/bash
 TMP_FILE=temptemptemp
+cat /dev/null > $TMP_FILE
 cat - > $TMP_FILE
 
-newrev=$(cat $TMP_FILE | awk '{print $2}')
+NEWREW=$(cat $TMP_FILE | awk '{print $2}')
+BRANCH=$(cat $TMP_FILE | awk '{print $3}' | sed 's/refs\/heads\///g')
+JSON="/home/jenkins/irls-reader-artifacts/irls-reader-build.json"
+if ! [ "$BRANCH" == "develop" ]; then
+        NUM=$(grep lastReaderBranchCommit $JSON -n | awk -F ":" '{print $1}')
+        sed -i "$NUM""s/"lastReaderBranchCommit.*/"lastReaderBranch\": \""$BRANCH"\",/g" $JSON
+fi
 
 git_commit_notifier_config="/usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.6/config/git-notifier-config"
 
 FILE=/home/jenkins/irls-reader-artifacts/branches.json
 
-if [[ "$newrev" == "0000000000000000000000000000000000000000" ]]
+if [[ "$NEWREW" == "0000000000000000000000000000000000000000" ]]
 then
-        #list=($( git for-each-ref --format="%(refname)" refs/heads | sed 's/refs\/heads\///g'))
-	list=($(git branch -r | sed 's/origin\///g' | grep -v HEAD | sort | uniq))
+        list=($( git for-each-ref --format="%(refname)" refs/heads | sed 's/refs\/heads\///g'))
         cat /dev/null > $FILE
         echo '{' >> $FILE
         echo -e '\t"branches":' >> $FILE
@@ -40,4 +46,3 @@ if [ `git rev-parse --abbrev-ref develop` = "develop" ]; then
 fi
 
 cat $TMP_FILE | git-commit-notifier $git_commit_notifier_config
-cat /dev/null > $TMP_FILE
