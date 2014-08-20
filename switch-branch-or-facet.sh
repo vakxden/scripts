@@ -89,6 +89,7 @@ if [ ! -z "$CHANGE_FACET" ]; then
 fi
 
 #generating of json-file
+LAST_BRANCH_READER=$(grep lastReaderBranchCommit $JSON_FILE | awk -F'["|"]' '{print $4}')
 cat /dev/null > $JSON_FILE
 VJF_CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F"[<>]" '{print $3}') #variable for json-file
 VJF_CURRENT_FACET_ALL=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
@@ -101,5 +102,6 @@ else
 fi
 echo -e "\t\"currentFacetsNotDevelop\": \""$VJF_CURRENT_FACET_ALL"\"," >> $JSON_FILE
 echo -e "\t\"listOfAllFacets\": \""$LIST_OF_ALL_FACETS"\"," >> $JSON_FILE
+echo -e "\t\"lastReaderBranchCommit\": \""$LAST_BRANCH_READER"\"," >> $JSON_FILE
 echo -e "\t\"currentFacetsDevelop\": \""$VJF_CURRENT_FACET_DEVELOP"\"" >> $JSON_FILE
 echo -e "}" >> $JSON_FILE
