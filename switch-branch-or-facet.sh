@@ -89,6 +89,10 @@ if [ ! -z "$CHANGE_FACET" ]; then
 fi
 
 #generating of json-file
+if grep "currentFacetsConverter" $JSON_FILE; then
+	CGC=$(grep "currentFacetsConverter" $JSON_FILE) ### preserve "currentFacetsConverter"
+	echo "CGC=$CGC"
+fi
 LAST_BRANCH_READER=$(grep lastReaderBranchCommit $JSON_FILE | awk -F'["|"]' '{print $4}')
 sudo chown jenkins:git /home/jenkins/irls-reader-artifacts/irls-reader-build.json
 sudo chmod 664 /home/jenkins/irls-reader-artifacts/irls-reader-build.json
@@ -105,5 +109,6 @@ fi
 echo -e "\t\"currentFacetsNotDevelop\": \""$VJF_CURRENT_FACET_ALL"\"," >> $JSON_FILE
 echo -e "\t\"listOfAllFacets\": \""$LIST_OF_ALL_FACETS"\"," >> $JSON_FILE
 echo -e "\t\"lastReaderBranchCommit\": \""$LAST_BRANCH_READER"\"," >> $JSON_FILE
+echo -e "$CGC" >> $JSON_FILE
 echo -e "\t\"currentFacetsDevelop\": \""$VJF_CURRENT_FACET_DEVELOP"\"" >> $JSON_FILE
 echo -e "}" >> $JSON_FILE
