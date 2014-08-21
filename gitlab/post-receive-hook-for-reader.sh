@@ -8,7 +8,7 @@ BRANCH=$(cat $TMP_FILE | awk '{print $3}' | sed 's/refs\/heads\///g')
 JSON="/home/jenkins/irls-reader-artifacts/irls-reader-build.json"
 if ! [ "$BRANCH" == "develop" ]; then
         NUM=$(grep lastReaderBranchCommit $JSON -n | awk -F ":" '{print $1}')
-        sed -i "$NUM""s/"lastReaderBranchCommit.*/"lastReaderBranch\": \""$BRANCH"\",/g" $JSON
+        sed -i "$NUM""s#\"lastReaderBranchCommit.*#\"lastReaderBranchCommit\": \""$BRANCH"\",#g" $JSON
 fi
 
 git_commit_notifier_config="/usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.6/config/git-notifier-config"
