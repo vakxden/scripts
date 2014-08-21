@@ -2,12 +2,17 @@
 ### Checking variables that were passed to the current bash-script
 ###
 if [ -z $BRANCHNAME ]; then
-    printf "[ERROR_BRANCHNAME] Branchname must be passed \n"
-    exit 1
+	printf "[ERROR_BRANCHNAME] Branchname must be passed \n"
+	exit 1
 fi
 if [ -z $mark ]; then
-    echo "[ERROR_MARK] mark must be passed \n"
-    exit 1
+	printf "[ERROR_MARK] mark must be passed \n"
+	exit 1
+elif [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
+	printf "[WARN_MARK] mark is \"all\" or \"initiate-android\" \n"
+elif [ "$mark" ! = "all" ] || [ "$mark" ! = "initiate-android" ]; then
+	printf "[ERROR_MARK] mark must be \"all\" or \"initiate-android\"! Not \"$mark\"! \n"
+	exit 1
 fi
 ###
 ### Constant local variables
@@ -101,7 +106,7 @@ function start_node {
 ###
 ### If the variable $mark is equal to the value of "all" or "initiate-nw-win", then perform the body of this script
 ###
-if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
+#if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
         ###
         ### Body
         ###
@@ -189,4 +194,4 @@ if [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
                 printf "[ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest! \n"
                 exit 1
         fi
-fi
+#fi
