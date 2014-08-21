@@ -12,6 +12,7 @@ elif [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
 	printf "[WARN_MARK] mark is \"all\" or \"initiate-android\" \n"
 elif [ "$mark" ! = "all" ] || [ "$mark" ! = "initiate-android" ]; then
 	printf "[ERROR_MARK] mark must be \"all\" or \"initiate-android\"! Not \"$mark\"! \n"
+	#mark is <b>$mark</b><br>branch name is <b>$BRANCHNAME</b><br>dest is <b>$dest</b> <br> and ID== <b> $ID</b>
 	exit 1
 fi
 ###
