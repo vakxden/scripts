@@ -1,0 +1,11 @@
+#! /bin/sh
+#
+# Created by configure
+
+"./configure" \
+"--prefix=/home/dvac/apache2" \
+"--enable-proxy" \
+"--enable-proxy-connect" \
+"--enable-proxy-http" \
+"--enable-rewrite" \
+"$@"
