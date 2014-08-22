@@ -10,10 +10,10 @@ if [ -z $mark ]; then
 	printf "[ERROR_MARK] mark must be passed \n"
 	exit 1
 elif [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
-	echo "[WARN_MARK] branch name is <b>$BRANCHNAME</b><br>dest is <b>$dest</b><br>ID is <b>$ID</b>"
-elif [ "$mark" ! = "all" ] || [ "$mark" ! = "initiate-android" ]; then
-	printf "[ERROR_MARK] mark must be \"all\" or \"initiate-android\"! Not \"$mark\"! \n"
-	exit 1
+	echo \[WARN_MARK\] branch name is \<b\>$BRANCHNAME\</b\>\<br\>dest is \<b\>$dest\</b\>\<br\>ID is \<b\>$ID\</b\>
+elif ! [ "$mark"  = "all" ] || ! [ "$mark"  = "initiate-android" ]; then
+	echo \[WARN_MARK\] just running on empty
+	exit 0
 fi
 
 ###
