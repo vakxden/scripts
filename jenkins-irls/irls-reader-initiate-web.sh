@@ -44,7 +44,7 @@ function main_loop {
 		cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
 		cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
 		ls -l /home/couchdb/"$i"_*.couch
-		sudo service couchdb restart
+		#sudo service couchdb restart
 		ls -l /home/couchdb/"$i"_*.couch
 		sleep 15
 		ls -l /home/couchdb/"$i"_*.couch
