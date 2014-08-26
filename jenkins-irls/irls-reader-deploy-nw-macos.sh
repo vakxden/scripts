@@ -10,6 +10,12 @@ if [ -z $mark ]; then
 	printf "[ERROR_MARK] mark must be passed \n"
 	exit 1
 elif [ "$mark" = "all" ] || [ "$mark" = "initiate-nw-macos" ]; then
+	if [ "$dest" = "STAGE" ]; then
+		echo \[WARN_MARK\] dest=STAGE, so just running on empty
+	fi
+	if [ "$dest" = "LIVE" ]; then
+		echo \[WARN_MARK\] dest=LIVE, so just running on empty
+	fi
 	echo \[WARN_MARK\] branch name is \<b\>$BRANCHNAME\</b\>\<br\>dest is \<b\>$dest\</b\>\<br\>ID is \<b\>$ID\</b\>
 elif ! [ "$mark"  = "all" ] || ! [ "$mark"  = "initiate-nw-macos" ]; then
 	echo \[WARN_MARK\] just running on empty
@@ -136,29 +142,7 @@ if [ "$dest" = "DEVELOPMENT" ]; then
 		/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 	done
 elif [ "$dest" = "STAGE" ]; then
-	for i in "${!combineArray[@]}"
-	do
-		# variables
-		CURRENT_ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
-		STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
-		PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
-		INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
-		# output value for a pair "key-value"
-		echo $i --- ${combineArray[$i]}
-		# checking the existence of a directory with the artifacts
-		if [ ! -d $STAGE_ARTIFACTS_DIR ]; then
-			mkdir -p $STAGE_ARTIFACTS_DIR
-		fi
-		cd $STAGE_ARTIFACTS_DIR
-		# search node-webkit for MacOS (nw-macos) zip-files, if not exists - copy from artifacts dir to stage artifacts dir
-		search_and_copy $STAGE_ARTIFACTS_DIR/ $CURRENT_ARTIFACTS_DIR/
-		# generate index.html and local.json
-		generate_files $PKG_DIR
-		# run (re-run) node
-		start_node $PKG_DIR $INDEX_FILE
-		# update environment.json file
-		/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
-	done
+	exit 0
 elif [ "$dest" = "LIVE" ]; then
 	exit 0
 else
