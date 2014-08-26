@@ -43,7 +43,7 @@ function main_loop {
 		cp -Rf $WORKSPACE/server $ARTIFACTS_DIR/${combineArray[$i]}/packages/
 		cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
 		cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
-		cp -Rf /home/couchdb/$i* $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
+		cp -Rf /home/couchdb/"$i"_*.couch $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
 		### Check text clustering
 #		cd $WORKSPACE
 #		git clone git@wpp.isd.dp.ua:irls/rrm-processor.git
