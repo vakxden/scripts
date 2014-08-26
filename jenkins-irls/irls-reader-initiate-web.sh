@@ -80,16 +80,12 @@ function main_loop {
 	
 		echo $i --- ${combineArray[$i]}
 		### Checking contain platform
-		#if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
-			if grep "platforms.*web" $WORKSPACE/targets/$BRAND/targetConfig.json; then
-				notmainloop
-			else
-				echo "Shutdown of this job because platform \"web\" not found in config targetConfig.json"
-				exit 0
-			fi
-		#else
-		#	notmainloop
-		#fi
+		if grep "platforms.*web" $WORKSPACE/targets/$BRAND/targetConfig.json; then
+			notmainloop
+		else
+			echo "Shutdown of this job because platform \"web\" not found in config targetConfig.json"
+			exit 0
+		fi
 	done
 }
 
