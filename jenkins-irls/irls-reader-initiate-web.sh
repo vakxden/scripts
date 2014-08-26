@@ -44,13 +44,13 @@ function main_loop {
 		cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
 		cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
 		ls -l /home/couchdb/"$i"_*.couch
-		sleep 1
+		sleep 10
 		ls -l /home/couchdb/"$i"_*.couch
 		cp -f /home/couchdb/"$i"_books.couch $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/ && ls -l $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/
 		cp -f /home/couchdb/"$i"_sentences.couch $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/ && ls -l $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/
 		cp -f /home/couchdb/"$i"_words.couch $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/ && ls -l $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/
 		ls -l $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/
-		sleep 1
+		sleep 5
 		ls -l $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/
 		MD5SUM_BOOKS_COUCH=$(md5sum /home/couchdb/"$i"_books.couch | awk '{print $1}')
 		MD5SUM_BOOKS_COPYED=$(md5sum $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/"$i"_books.couch | awk '{print $1}')
