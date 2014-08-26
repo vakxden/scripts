@@ -1,3 +1,4 @@
+env
 ### Variables
 RRM_PROCESSOR_REPO_NAME="rrm-processor"
 RRM_PROCESSOR_BRANCH_NAME="master"
@@ -21,45 +22,47 @@ if [ ! -d "$NIGHTLY_ARTIFACTS_DIR" ]; then mkdir -p $NIGHTLY_ARTIFACTS_DIR; fi
 
 ### git operations
 if [ ! -d "$WORKSPACE/$RRM_PROCESSOR_REPO_NAME" ]; then
-	cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$RRM_PROCESSOR_REPO_NAME".git && cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME && git checkout $RRM_PROCESSOR_BRANCH_NAME
+        cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$RRM_PROCESSOR_REPO_NAME".git && cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME && git checkout $RRM_PROCESSOR_BRANCH_NAME
 else
-	cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME && git pull && git checkout $RRM_PROCESSOR_BRANCH_NAME
+        cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME && git pull && git checkout $RRM_PROCESSOR_BRANCH_NAME
 fi
 
 if [ ! -d "$WORKSPACE/$RRM_OCEAN_REPO_NAME" ]; then
-	cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$RRM_OCEAN_REPO_NAME".git && cd $WORKSPACE/$RRM_OCEAN_REPO_NAME  && git checkout $RRM_OCEAN_BRANCH_NAME
+        cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$RRM_OCEAN_REPO_NAME".git && cd $WORKSPACE/$RRM_OCEAN_REPO_NAME  && git checkout $RRM_OCEAN_BRANCH_NAME
 else
-	cd $WORKSPACE/$RRM_OCEAN_REPO_NAME && git pull && git checkout $RRM_OCEAN_BRANCH_NAME
+        cd $WORKSPACE/$RRM_OCEAN_REPO_NAME && git pull && git checkout $RRM_OCEAN_BRANCH_NAME
 fi
 
 if [ ! -d "$WORKSPACE/$READER_REPO_NAME" ]; then
-	cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$READER_REPO_NAME".git && cd $WORKSPACE/$READER_REPO_NAME && git checkout $READER_BRANCH_NAME
+        cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$READER_REPO_NAME".git && cd $WORKSPACE/$READER_REPO_NAME && git checkout $READER_BRANCH_NAME
 else
-	cd $WORKSPACE/$READER_REPO_NAME && git pull && git checkout $READER_BRANCH_NAME
+        cd $WORKSPACE/$READER_REPO_NAME && git pull && git checkout $READER_BRANCH_NAME
 fi
-        
+
 if [ ! -d "$WORKSPACE/$TARGETS_REPO_NAME" ]; then
-	cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$TARGETS_REPO_NAME".git && cd $WORKSPACE/$TARGETS_REPO_NAME && git checkout $TARGETS_BRANCH_NAME
+        cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$TARGETS_REPO_NAME".git && cd $WORKSPACE/$TARGETS_REPO_NAME && git checkout $TARGETS_BRANCH_NAME
 else
-	cd $WORKSPACE/$TARGETS_REPO_NAME && git pull && git checkout $TARGETS_BRANCH_NAME
+        cd $WORKSPACE/$TARGETS_REPO_NAME && git pull && git checkout $TARGETS_BRANCH_NAME
 fi
 
 ### Convert
+# from phantom
+export NODE_PATH=/opt/node/lib/node_modules/
 if ps aux | grep node.*main.js | grep -v grep; then echo "node main.js is executing"; fi
 for i in ${FACET[@]}
 do
-	rm -rf $NIGHTLY_EPUBS/$i
-	mkdir -p $NIGHTLY_EPUBS/$i
-	cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src
-	time node main.js $WORKSPACE/$RRM_OCEAN_REPO_NAME $NIGHTLY_EPUBS/$i $i
-	time node --max-old-space-size=7000 $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src/createJSON.js $NIGHTLY_EPUBS/$i/
+        rm -rf $NIGHTLY_EPUBS/$i
+        mkdir -p $NIGHTLY_EPUBS/$i
+        cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src
+        time node main.js $WORKSPACE/$RRM_OCEAN_REPO_NAME $NIGHTLY_EPUBS/$i $i
+        time node --max-old-space-size=7000 $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src/createJSON.js $NIGHTLY_EPUBS/$i/
 done
 
 ### Copy current epubs to jenkins nodes
 for i in "${FACET[@]}"
 do
         # create tar.xz archive
-	NIGHTLY_ARCH_NAME="nightly-$i.tar.xz"
+        NIGHTLY_ARCH_NAME="nightly-$i.tar.xz"
         time tar cfJ $NIGHTLY_ARCH_NAME $NIGHTLY_EPUBS/$i --exclude="_oldjson"
         ### Copy current epubs to mac-mini
         if [ "$i" = "ocean" ]; then
@@ -80,17 +83,17 @@ do
         if [ "$i" = "ocean" ]; then
                 printf "epubs for facet named 'ocean' will not be copying to dev02 \n"
         else
-		ssh jenkins@dev02.design.isd.dp.ua "
-			if [ ! -d $NIGHTLY_EPUBS/$i ]; then mkdir -p $NIGHTLY_EPUBS/$i; fi
-			rm -rf $NIGHTLY_EPUBS/$i/*
-		"
-		time scp $NIGHTLY_ARCH_NAME jenkins@dev02.design.isd.dp.ua:~
-		ssh jenkins@dev02.design.isd.dp.ua "
-			tar xfJ $NIGHTLY_ARCH_NAME -C $NIGHTLY_EPUBS/$i/
-			mv $NIGHTLY_EPUBS/$i$NIGHTLY_EPUBS/$i/* $NIGHTLY_EPUBS/$i/ && rm -rf $NIGHTLY_EPUBS/$i/home
-			rm -f $NIGHTLY_ARCH_NAME
-		"
-	fi
+                ssh jenkins@dev02.design.isd.dp.ua "
+                        if [ ! -d $NIGHTLY_EPUBS/$i ]; then mkdir -p $NIGHTLY_EPUBS/$i; fi
+                        rm -rf $NIGHTLY_EPUBS/$i/*
+                "
+                time scp $NIGHTLY_ARCH_NAME jenkins@dev02.design.isd.dp.ua:~
+                ssh jenkins@dev02.design.isd.dp.ua "
+                        tar xfJ $NIGHTLY_ARCH_NAME -C $NIGHTLY_EPUBS/$i/
+                        mv $NIGHTLY_EPUBS/$i$NIGHTLY_EPUBS/$i/* $NIGHTLY_EPUBS/$i/ && rm -rf $NIGHTLY_EPUBS/$i/home
+                        rm -f $NIGHTLY_ARCH_NAME
+                "
+        fi
         # remove tar.xz archive
         rm -f $NIGHTLY_ARCH_NAME
 done
@@ -128,7 +131,7 @@ READER_COMMIT_URL="http://wpp.isd.dp.ua/gitlab/irls/$READER_REPO_NAME/commit/$RE
 deploymentPackageId=()
 for i in "${FACET[@]}"
 do
-	deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$READER_SHORT_COMMIT_HASH$RRM_PROCESSOR_SHORT_COMMIT_HASH$RRM_OCEAN_SHORT_COMMIT_HASH"_"$i")")
+        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$READER_SHORT_COMMIT_HASH$RRM_PROCESSOR_SHORT_COMMIT_HASH$RRM_OCEAN_SHORT_COMMIT_HASH"_"$i")")
 done
 
 ### Create meta.json
@@ -182,8 +185,8 @@ do
                 echo -e "\t}" >> $CURRENT_META_JSON
                 echo -e "}" >> $CURRENT_META_JSON
                 sudo /bin/chown -Rf jenkins:www-data $NIGHTLY_ARTIFACTS_DIR/$1
-		# Notify! Add next to sudoers:
-		#jenkins ALL= NOPASSWD:/usr/bin/rrdtool,/home/jenkins/scripts/portgenerator-for-convert.sh,/home/jenkins/scripts/portgenerator-for-deploy.sh,/bin/chown -Rf jenkins\:www-data /home/jenkins/irls-reader-artifacts/*,/bin/chown -Rf jenkins\:www-data /home/jenkins/irls-reader-artifacts-nightly/*,/bin/bash
+                # Notify! Add next to sudoers:
+                #jenkins ALL= NOPASSWD:/usr/bin/rrdtool,/home/jenkins/scripts/portgenerator-for-convert.sh,/home/jenkins/scripts/portgenerator-for-deploy.sh,/bin/chown -Rf jenkins\:www-data /home/jenkins/irls-reader-artifacts/*,/bin/chown -Rf jenkins\:www-data /home/jenkins/irls-reader-artifacts-nightly/*,/bin/bash
                 /bin/chmod -Rf g+w $NIGHTLY_ARTIFACTS_DIR/$1
         }
         if [  -f $NIGHTLY_ARTIFACTS_DIR/$i/meta.json ]; then
@@ -211,8 +214,8 @@ do
         ### Copy code of project to the directory $NIGHTLY_BUILD and removing outdated directories from the directory $NIGHTLY_BUILD (on the host dev01)
         if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
         cp -Rf $WORKSPACE/$READER_REPO_NAME/client/out/dist/* $CB_DIR/client
-	### Copy meta.json to application directory
-	for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $NIGHTLY_ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
+        ### Copy meta.json to application directory
+        for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $NIGHTLY_ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
         if [ -d "$WORKSPACE/$TARGETS_REPO_NAME" ]; then cp -Rf $WORKSPACE/$TARGETS_REPO_NAME $CB_DIR/ ; fi
         if [ -d "$WORKSPACE/$READER_REPO_NAME/packager" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/packager $CB_DIR/ ; fi
         if [ -d "$WORKSPACE/$READER_REPO_NAME/server" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/server $CB_DIR/ ; fi
@@ -225,8 +228,8 @@ do
                 echo NUM=$NUM
                 # If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
                 if (( $NUM > 20 )); then
-                	HEAD_NUM=$(($NUM-20))
-                	echo HEAD_NUM=$HEAD_NUM
+                        HEAD_NUM=$(($NUM-20))
+                        echo HEAD_NUM=$HEAD_NUM
                         for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
                         do
                                 rm -rf $k
@@ -283,3 +286,4 @@ echo "NIGHTLY_ARTIFACTS_DIR=$NIGHTLY_ARTIFACTS_DIR" >> $WORKSPACE/myenv
 echo "NIGHTLY_REMOTE_BUILD=$NIGHTLY_REMOTE_BUILD" >> $WORKSPACE/myenv
 echo "ENVIRONMENT=$ENVIRONMENT" >> $WORKSPACE/myenv
 echo "NIGHTLY_EPUBS=$NIGHTLY_EPUBS" >> $WORKSPACE/myenv
+
