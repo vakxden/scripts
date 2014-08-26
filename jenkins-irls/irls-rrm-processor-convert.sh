@@ -66,8 +66,11 @@ fi
 for i in "${FACETS[@]}"
 do
 	# create tar.xz archive
-	time tar cfJ $i.tar.xz ~/irls-reader-current-epubs/$i --exclude="_oldjson"
-	
+	if [ "$i" = "ocean" ]; then
+		printf "archive for facet named 'ocean' will not be creating \n"
+	else
+		time tar cfJ $i.tar.xz ~/irls-reader-current-epubs/$i --exclude="_oldjson"
+	fi
 	###
 	### Copy current epubs to mac-mini
 	###
@@ -103,17 +106,20 @@ do
 	###
 	### Copy current epubs to dev02.design.isd.dp.ua
 	###
-	ssh jenkins@dev02.design.isd.dp.ua "
-		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir -p ~/irls-reader-current-epubs/$i; fi
-		rm -rf ~/irls-reader-current-epubs/$i/*
-	"
-	time scp $i.tar.xz jenkins@dev02.design.isd.dp.ua:~
-	ssh jenkins@dev02.design.isd.dp.ua "
-		tar xfJ $i.tar.xz -C ~/irls-reader-current-epubs/$i/
-		mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home
-		rm -f $i.tar.xz
-	"
-	
+	if [ "$i" = "ocean" ]; then
+		printf "epubs for facet named 'ocean' will not be copying to dev02.design.isd.dp.ua \n"
+	else
+		ssh jenkins@dev02.design.isd.dp.ua "
+			if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir -p ~/irls-reader-current-epubs/$i; fi
+			rm -rf ~/irls-reader-current-epubs/$i/*
+		"
+		time scp $i.tar.xz jenkins@dev02.design.isd.dp.ua:~
+		ssh jenkins@dev02.design.isd.dp.ua "
+			tar xfJ $i.tar.xz -C ~/irls-reader-current-epubs/$i/
+			mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home
+			rm -f $i.tar.xz
+		"
+	fi
 	# remove tar.xz archive
 	rm -f $i.tar.xz
 done
