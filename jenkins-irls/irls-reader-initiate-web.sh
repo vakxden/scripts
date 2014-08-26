@@ -44,6 +44,24 @@ function main_loop {
 		cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
 		cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
 		cp /home/couchdb/"$i"_*.couch $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
+		MD5SUM_BOOKS_COUCH=$(md5sum /home/couchdb/"$i"_books.couch | awk '{print $1}')
+		MD5SUM_BOOKS_COPYED=$(md5sum $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/"$i"_books.couch | awk '{print $1}')
+		if ! [ "$MD5SUM_BOOKS_COUCH" = "$MD5SUM_BOOKS_COPYED" ]; then
+			echo "md5sum of copyed '$i'_books.couch not equal"
+			exit 1
+		fi
+		MD5SUM_SENTENCES_COUCH=$(md5sum /home/couchdb/"$i"_sentences.couch | awk '{print $1}')
+		MD5SUM_SENTENCES_COPYED=$(md5sum $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/"$i"_sentences.couch | awk '{print $1}')
+		if ! [ "$MD5SUM_SENTENCES_COUCH" = "$MD5SUM_SENTENCES_COPYED" ]; then
+			echo "md5sum of copyed '$i'_sentences.couch not equal"
+			exit 1
+		fi
+		MD5SUM_WORDS_COUCH=$(md5sum /home/couchdb/"$i"_words.couch | awk '{print $1}')
+		MD5SUM_WORDS_COPYED=$(md5sum $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/"$i"_words.couch | awk '{print $1}')
+		if ! [ "$MD5SUM_WORDS_COUCH" = "$MD5SUM_WORDS_COPYED" ]; then
+			echo "md5sum of copyed '$i'_words.couch not equal"
+			exit 1
+		fi
 		### Check text clustering
 #		cd $WORKSPACE
 #		git clone git@wpp.isd.dp.ua:irls/rrm-processor.git
