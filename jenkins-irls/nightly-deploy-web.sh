@@ -29,7 +29,7 @@ done
 function generate_files {
         # $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
         cd $1
-        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
+        sudo /home/jenkins/scripts/portgenerator-for-night-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
         #rm -f $1/server/config/local.json
         ls -lah
         echo PWD=$PWD
