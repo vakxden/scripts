@@ -25,7 +25,7 @@ function main_loop {
                 time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$NIGHTLY_EPUBS
                 #create index
                 cd $WORKSPACE
-                sudo $SCRIPTS_DIR/portgenerator-for-convert.sh $i
+                sudo $SCRIPTS_DIR/portgenerator-for-night-convert.sh $i
                 cp local.json $WORKSPACE/server/config && rm -f local.json
                 cd $WORKSPACE/server
                 time node initDB.js
