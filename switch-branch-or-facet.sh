@@ -1,246 +1,114 @@
-###
-### Conditions for the base and non-base branches and facets for next initiate- and deploy-jobs
-###
-BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
-if [ -z $FACET ]; then
-        if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
-                #FACET=(puddle refbahai farsi farsi2 farsi3 farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean) #list_of_all_facets
-                FACET=(audio)
-        else
-                #FACET=(puddle farsi3)
-                FACET=(puddle)
-        fi
-fi
+#This job modifies the configuration file of the job named "irls-reader-build" ( http://wpp.isd.dp.ua/jenkins/job/irls-reader-build )
+
+#Name of job: switch-branch-or-facet ( http://wpp.isd.dp.ua/jenkins/job/switch-branch-or-facet )
+#Authentication Token: neLei5ie
+#Parameters of this job:
+#       SWITCH_BRANCH - option to change the branch which focuses job, may be "switch_branch_to_develop" or "switch_branch_to_all"
+#       RUN_OF_JOB - option to run the job, may be "run_of_job"
+#       CHANGE_FACET - list of facets that will be passed to the job (e.g. "farsi3 audiobywords audio puddle")
+#       BRANCH - target branch for which will be changed  the list of facets, may be "all" or "develop"
 
 ###
 ### Variables
 ###
-GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
-GIT_COMMIT_DATE=$(git show -s --format=%ci)
-GIT_COMMITTER_NAME=$(git show -s --format=%cn)
-GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
-CURRENT_BUILD=/home/jenkins/irls-reader-current-build
-CURRENT_EPUBS=$HOME/irls-reader-current-epubs
-CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
-ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
-META_SUM_ALL=$CURRENT_EPUBS/meta-all
-GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
-GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
-GIT_COMMIT_SHORT=$(echo $GIT_COMMIT | cut -c1-7)
 
-###
-### Create variables for meta.json
-###
-# rrm-processor
-GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
-GIT_COMMIT_MESSAGE_RRM=$( grep "rrm-processor.git" $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-GIT_BRANCHNAME_RRM=$(grep "rrm-processor.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-GIT_COMMITTER_NAME_RRM=$(grep "rrm-processor.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
-GIT_COMMIT_DATE_RRM=$(grep "rrm-processor.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-GIT_COMMITTER_EMAIL_RRM=$(grep "rrm-processor.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-GIT_COMMIT_URL_RRM=$(grep "rrm-processor.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_URL_RRM | awk -F "=" '{print $2}')
-# rrm-ocean
-GIT_COMMIT_OC=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}')
-GIT_COMMIT_MESSAGE_OC=$( grep "rrm-ocean.git" $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-GIT_BRANCHNAME_OC=$(grep "rrm-ocean.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-GIT_COMMITTER_NAME_OC=$(grep "rrm-ocean.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_AUTHOR | awk -F "=" '{print $2}')
-GIT_COMMIT_DATE_OC=$(grep "rrm-ocean.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-GIT_COMMITTER_EMAIL_OC=$(grep "rrm-ocean.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-GIT_COMMIT_URL_OC=$(grep "rrm-ocean.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
-# reader
-GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
-GIT_COMMIT_DATE=$(git show -s --format=%ci)
-GIT_COMMIT_AUTHOR=$(git show -s --format=%an)
-GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
-GIT_REPO=$(echo $GIT_URL | awk -F ":" '{print $2}' | sed 's/\.git//g')
-GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$GIT_REPO/commit/$GIT_COMMIT"
+COJ="/var/lib/jenkins/jobs/irls-reader-build/config.xml" # Path to the configuration file of jenkins job
+LIST_OF_ALL_FACETS=$(grep list_of_all_facets $COJ | awk -F"[()]" '{print $2}')
+NOL1=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F "-" '{print $1}') # Number of line (for sed processing)
+NOL2=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F "-" '{print $1}')
+NOL3=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F "-" '{print $1}' | awk -F "-" '{print $1}')
+JUSER="dvac"
+CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F"[<>]" '{print $3}') # the current branch in the configuration file of jenkins job
+CURRENT_FACET_DEVELOP=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
+CURRENT_FACET_ALL=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
+JUSER_TOKEN="0f64d6238d107249f79deda4d6a2f9fc"
+JSON_FILE="/home/jenkins/irls-reader-artifacts/irls-reader-build.json"
 
-### Generate deploymentPackageId array
-deploymentPackageId=()
-for i in "${FACET[@]}"
-do
-        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
-done
-
-###
-### Create meta.json
-###
-for i in ${deploymentPackageId[@]}
-do
-        echo "numbers of element in array deploymentPackageId=${#deploymentPackageId[@]}"
-        ### check exists directory $ARTIFACTS_DIR/$i
-        if [ ! -d $ARTIFACTS_DIR/$i ]; then
-        mkdir -p $ARTIFACTS_DIR/$i
+function switch_to_develop {
+        if [ "$CURRENT_BRANCH" == "**" ]; then
+                sed -i "$NOL1"'s/\*\*/develop/' $COJ
         fi
-        ### Determine facet name
-        FACET_NAME=""
-        FACET_NAME=$(echo $i | awk -F "_" '{print $2}')
-        echo FACET_NAME=$FACET_NAME
-        function create_meta {
-                echo "Starting of function create_meta with variables $1 and $2"
-                ### $1 - it is deploymentPackageId
-                ### $2 - it is FACET_NAME
-                CURRENT_META_JSON=""
-                CURRENT_META_JSON=$ARTIFACTS_DIR/$1/meta.json
-                echo CURRENT_META_JSON=$CURRENT_META_JSON
-                echo -e "{" >> $CURRENT_META_JSON
-                echo -e "\t\"buildID\":\""$1"\"," >> $CURRENT_META_JSON
-                echo -e "\t\"facetName\":\""$2"\"," >> $CURRENT_META_JSON
-                echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $CURRENT_META_JSON
-                echo -e "\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
-                echo -e "\t\"rrm-processor\" : {" >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitID\":\""$GIT_COMMIT_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"branchName\":\""$GIT_BRANCHNAME_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMITTER_NAME_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_RRM"\"" >> $CURRENT_META_JSON
-                echo -e "\t}," >> $CURRENT_META_JSON
-                echo -e "\t\"rrm-ocean\" : {" >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitID\":\""$GIT_COMMIT_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"branchName\":\""$GIT_BRANCHNAME_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMITTER_NAME_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_OC"\"" >> $CURRENT_META_JSON
-                echo -e "\t}," >> $CURRENT_META_JSON
-                echo -e "\t\"reader\" : {" >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitID\":\""$GIT_COMMIT"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"branchName\":\""$BRANCHNAME"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMIT_AUTHOR"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_READER"\"" >> $CURRENT_META_JSON
-                echo -e "\t}" >> $CURRENT_META_JSON
-                echo -e "}" >> $CURRENT_META_JSON
-                sudo /bin/chown -Rf jenkins:www-data /home/jenkins/irls-reader-artifacts/$1
-                /bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$1
-        }
-        if [  -f $ARTIFACTS_DIR/$i/meta.json ]; then
-                sudo /bin/chown -Rf jenkins:www-data /home/jenkins/irls-reader-artifacts/$i
-                /bin/chmod -Rf g+w /home/jenkins/irls-reader-artifacts/$i
-                cat /dev/null > $ARTIFACTS_DIR/$i/meta.json
-                create_meta $i $FACET_NAME
+}
+
+function deploy_conf_file {
+        wget --auth-no-challenge --http-user=$JUSER --http-password=$JUSER_TOKEN --post-file="$COJ" http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/config.xml
+        rm -f config.xml
+}
+
+function run_of_job {
+        curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&FACET=
+}
+
+function switch_to_all {
+        if [ "$CURRENT_BRANCH" == "develop" ]; then
+                sed -i "$NOL1"'s/develop/\*\*/' $COJ
+        fi
+}
+
+function replace_facet () {
+        # $1 = $BRANCH
+        # $2 = $CHANGE_FACET
+        if [ "$1" = "all" ]; then
+                sed -i "$NOL3""s/$CURRENT_FACET_ALL/$2/" $COJ
+        elif [ "$1" = "develop" ]; then
+                sed -i "$NOL2""s/$CURRENT_FACET_DEVELOP/$2/" $COJ
+        fi
+}
+
+if [ "$SWITCH_BRANCH" = "switch_branch_to_develop" ]; then
+        switch_to_develop
+        deploy_conf_file
+elif [ "$SWITCH_BRANCH" = "switch_branch_to_all" ]; then
+        switch_to_all
+        deploy_conf_file
+elif [ "$SWITCH_BRANCH" = "" ]; then
+        printf "Parameter SWITCH_BRANCH is null"
+else
+        printf "Parameter SWITCH_BRANCH must be \"switch_branch_to_develop\" or \"switch_branch_to_all\". Not \"$SWITCH_BRANCH\" \n"
+        exit 1
+fi
+
+if [ "$RUN_OF_JOB" = "run_of_job" ]; then
+        run_of_job
+elif [ "$RUN_OF_JOB" = "" ]; then
+        printf "Parameter RUN_OF_JOB is null"
+else
+        printf "Parameter RUN_OF_JOB must be \"run_of_job\". Not \"$RUN_OF_JOB\" \n"
+        exit 1
+fi
+
+#checking for the existence of a parameter "BRANCH" occurs only when the parameter "CHANGE_FACET" is present
+if [ ! -z "$CHANGE_FACET" ]; then
+        if [ "$BRANCH" = "all" ] || [ "$BRANCH" = "develop" ]; then
+                replace_facet "$BRANCH" "$CHANGE_FACET"
+                deploy_conf_file
         else
-                create_meta $i $FACET_NAME
+                printf "Parameter BRANCH must be \"all\" or \"develop\". Not \"$BRANCH\" \n"
+                exit 1
         fi
-done
+fi
 
-###
-### Main loop
-###
-for i in "${FACET[@]}"
-do
-        ### Temporary variables
-        if [ "$i" = "ocean" ];then TARG=$(echo "$i"_Ocean); else TARG=$(echo "$i"_FFA); fi
-        GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$TARG")
-        CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
-        CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-        ### Clone targets-repo and running node with target option
-        rm -rf targets
-        git clone git@wpp.isd.dp.ua:irls/targets.git
-        cd $WORKSPACE/client
-        ### Build client and server parts
-        node index.js --target=$TARG --targetPath=$WORKSPACE/targets --readerPath=$WORKSPACE
-        grunt --no-color
-        ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
-        if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
-        cp -Rf $WORKSPACE/client/out/dist/* $CB_DIR/client
-
-        ### Copy meta.json to application directory
-        for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
-
-        if [ -d "$WORKSPACE/targets" ]; then cp -Rf $WORKSPACE/targets $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/packager" ]; then cp -Rf $WORKSPACE/packager $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/books" ]; then cp -Rf $WORKSPACE/books $CB_DIR/ ; fi
-        ### Create function for cleaning outdated directories from the directory of current code build
-        function build_dir_clean (){
-                # Numbers of directories in the $CURRENT_BUILD/
-                NUM=$(ls -d $1/* | wc -l)
-                echo NUM=$NUM
-                # If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
-                if (( $NUM > 20 )); then
-                        HEAD_NUM=$(($NUM-20))
-                        echo HEAD_NUM=$HEAD_NUM
-                        for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
-                        do
-                                rm -rf $k
-                        done
-                fi
-        }
-        ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
-        build_dir_clean $CURRENT_BUILD
-        ### create archive
-        time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal $CB_DIR/books
-        ### copy project to mac-mini
-        ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-               if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
-        "
-        time scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
-        ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-               tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_REMOTE_DIR/
-               mv $CB_REMOTE_DIR/$CB_DIR/* $CB_REMOTE_DIR/
-               rm -rf $CB_REMOTE_DIR/home
-               rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
-        "
-        ### copy project to dev02
-        ssh jenkins@dev02.design.isd.dp.ua "
-                if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
-        "
-        scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz  jenkins@dev02.design.isd.dp.ua:~
-        ssh jenkins@dev02.design.isd.dp.ua "
-                tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_DIR/
-                mv $CB_DIR/$CB_DIR/* $CB_DIR/
-                rm -rf $CB_DIR/home
-                rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
-        "
-        ### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
-        typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
-        ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
-        typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
-        ### removing archive
-        rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
-done
-
-
-###
-### Variables for EnvInject plugin
-###
-cat /dev/null > $WORKSPACE/myenv
-echo "$GIT_URL=$GIT_URL" >> $WORKSPACE/myenv
-echo "BRANCHNAME=$BRANCHNAME" >> $WORKSPACE/myenv
-echo "FACET=$(for i in ${FACET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
-echo "GIT_COMMIT=$GIT_COMMIT" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_MESSAGE=$GIT_COMMIT_MESSAGE" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_DATE=$GIT_COMMIT_DATE" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_NAME=$GIT_COMMITTER_NAME" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_EMAIL=$GIT_COMMITTER_EMAIL" >> $WORKSPACE/myenv
-echo "CURRENT_BUILD=$CURRENT_BUILD" >> $WORKSPACE/myenv
-echo "CURRENT_REMOTE_BUILD=$CURRENT_REMOTE_BUILD" >> $WORKSPACE/myenv
-echo "ARTIFACTS_DIR=$ARTIFACTS_DIR" >> $WORKSPACE/myenv
-echo deploymentPackageId=${deploymentPackageId[@]} >> $WORKSPACE/myenv
-echo "GIT_COMMIT_RRM=$GIT_COMMIT_RRM" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_MESSAGE_RRM=$GIT_COMMIT_MESSAGE_RRM" >> $WORKSPACE/myenv
-echo "GIT_BRANCHNAME_RRM=$GIT_BRANCHNAME_RRM" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_NAME_RRM=$GIT_COMMITTER_NAME_RRM" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_DATE_RRM=$GIT_COMMIT_DATE_RRM" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_EMAIL_RRM=$GIT_COMMITTER_EMAIL_RRM" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_URL_RRM=$GIT_COMMIT_URL_RRM" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_OC=$GIT_COMMIT_OC" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_MESSAGE_OC=$GIT_COMMIT_MESSAGE_OC" >> $WORKSPACE/myenv
-echo "GIT_BRANCHNAME_OC=$GIT_BRANCHNAME_OC" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_NAME_OC=$GIT_COMMITTER_NAME_OC" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_DATE_OC=$GIT_COMMIT_DATE_OC" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_EMAIL_OC=$GIT_COMMITTER_EMAIL_OC" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_URL_OC=$GIT_COMMIT_URL_OC" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_MESSAGE=$GIT_COMMIT_MESSAGE" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_DATE=$GIT_COMMIT_DATE" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_AUTHOR=$GIT_COMMIT_AUTHOR" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_EMAIL=$GIT_COMMITTER_EMAIL" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_URL_READER=$GIT_COMMIT_URL_READER" >> $WORKSPACE/myenv
+#generating of json-file
+if grep "currentFacetsConverter" $JSON_FILE; then
+        CGC=$(grep "currentFacetsConverter" $JSON_FILE) ### preserve "currentFacetsConverter"
+        echo "CGC=$CGC"
+fi
+LAST_BRANCH_READER=$(grep lastReaderBranchCommit $JSON_FILE | awk -F'["|"]' '{print $4}')
+sudo chown jenkins:git /home/jenkins/irls-reader-artifacts/irls-reader-build.json
+sudo chmod 664 /home/jenkins/irls-reader-artifacts/irls-reader-build.json
+cat /dev/null > $JSON_FILE
+VJF_CURRENT_BRANCH=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F"[<>]" '{print $3}') #variable for json-file
+VJF_CURRENT_FACET_ALL=$(grep -A5 -n 'if.*BRANCHNAME.*develop' $COJ | grep -A2 else | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
+VJF_CURRENT_FACET_DEVELOP=$(grep -A2 -n 'if.*BRANCHNAME.*develop' $COJ | grep -v "#FACET" | grep "FACET=" | awk -F"[()]" '{print $2}')
+echo -e "{" >> $JSON_FILE
+if [ "$VJF_CURRENT_BRANCH" == "**" ]; then
+        echo -e "\t\"currentBranch\":  \"all\"," >> $JSON_FILE
+else
+        echo -e "\t\"currentBranch\":  \""$VJF_CURRENT_BRANCH"\"," >> $JSON_FILE
+fi
+echo -e "\t\"currentFacetsNotDevelop\": \""$VJF_CURRENT_FACET_ALL"\"," >> $JSON_FILE
+echo -e "\t\"listOfAllFacets\": \""$LIST_OF_ALL_FACETS"\"," >> $JSON_FILE
+echo -e "\t\"lastReaderBranchCommit\": \""$LAST_BRANCH_READER"\"," >> $JSON_FILE
+echo -e "$CGC" >> $JSON_FILE
+echo -e "\t\"currentFacetsDevelop\": \""$VJF_CURRENT_FACET_DEVELOP"\"" >> $JSON_FILE
+echo -e "}" >> $JSON_FILE
