@@ -158,6 +158,7 @@ do
 	if [ -d "$WORKSPACE/server" ]; then cp -Rf $WORKSPACE/server $CB_DIR/ ; fi
 	if [ -d "$WORKSPACE/common" ]; then cp -Rf $WORKSPACE/common $CB_DIR/ ; fi
 	if [ -d "$WORKSPACE/portal" ]; then cp -Rf $WORKSPACE/portal $CB_DIR/ ; fi
+	if [ -d "$WORKSPACE/books" ]; then cp -Rf $WORKSPACE/books $CB_DIR/ ; fi
 	### Create function for cleaning outdated directories from the directory of current code build
 	function build_dir_clean (){
 		# Numbers of directories in the $CURRENT_BUILD/
@@ -176,7 +177,7 @@ do
 	### removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
 	build_dir_clean $CURRENT_BUILD
 	### create archive
-	time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal
+	time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal $CB_DIR/books
 	### copy project to mac-mini
 	ssh jenkins@yuriys-mac-mini.isd.dp.ua "
 	       if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi

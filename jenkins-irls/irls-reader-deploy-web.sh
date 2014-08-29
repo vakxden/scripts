@@ -127,20 +127,20 @@ elif [ "$dest" = "STAGE" ]; then
 		cd $CURRENT_PKG_DIR
 		if [ ! -d $STAGE_PKG_DIR ]; then
 			mkdir -p $STAGE_PKG_DIR
-			if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ] || [ -d portal ]; then
-				cp -Rf common client server couchdb_indexes artifacts portal $STAGE_PKG_DIR/
+			if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ] || [ -d portal ] || [ -d books ]; then
+				cp -Rf common client server couchdb_indexes artifacts portal books $STAGE_PKG_DIR/
 			fi
 		else
 			cd $STAGE_PKG_DIR
-			rm -rf common client server couchdb_indexes artifacts portal
+			rm -rf common client server couchdb_indexes artifacts portal books
 			rm -rf $STAGE_PKG_DIR/*
 			cd $CURRENT_PKG_DIR
 			# this check is needed because in the job named "irls-reader-initiate-web" was disabled facet named "ocean" 
 			# ( to save time and because was next error:
 			# "Unable to write "/var/lib/jenkins/jobs/irls-reader-initiate-web/workspace/packager/out/dest/develop-FFA_Reader-ocean-web-0.0.1/dist/app/epubs/thumbs/b6621f20d60938e3633132270bcfb263.png" file (Error code: ENOSPC).")
 			# the reason is numbers of opened files ("ulimit -a" command) for user
-			if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ] || [ -d portal ]; then
-				cp -Rf common client server couchdb_indexes artifacts portal $STAGE_PKG_DIR/
+			if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ] || [ -d portal ] || [ -d books ]; then
+				cp -Rf common client server couchdb_indexes artifacts portal books $STAGE_PKG_DIR/
 			fi
 		fi
 		# generate index.html and local.json

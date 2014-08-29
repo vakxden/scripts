@@ -41,6 +41,7 @@ function main_loop {
                 cp -Rf $WORKSPACE/common $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 cp -Rf $WORKSPACE/server $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 cp -Rf $WORKSPACE/portal $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                cp -Rf $WORKSPACE/books $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 cp -Rf $WORKSPACE/packager/out/dest/*/* $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/client
                 cp -Rf /home/couchdb/$i* $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
                 ### Check text clustering
