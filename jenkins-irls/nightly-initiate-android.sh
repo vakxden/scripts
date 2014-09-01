@@ -69,16 +69,12 @@ function main_loop {
 
                 echo $i --- ${combineArray[$i]}
                 ### Checking
-                if [ "$READER_BRANCH_NAME" = "feature/platforms-config" ]; then
-                        if grep "platforms.*android" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
-                                notmainloop
-                        else
-                                echo "Shutdown of this job because platform \"android\" not found in config targetConfig.json"
-                                exit 0
-                        fi
-                else
-                        notmainloop
-                fi
+		if grep "platforms.*android" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
+			notmainloop
+		else
+			echo "Shutdown of this job because platform \"android\" not found in config targetConfig.json"
+			exit 0
+		fi
         done
 }
 
