@@ -51,13 +51,14 @@ cat /dev/null > $CURRENT_EPUBS/$META_SUM_ALL
 cat $META1 >> $CURRENT_EPUBS/$META_SUM_ALL && cat $META2 >> $CURRENT_EPUBS/$META_SUM_ALL
 
 ###
-### RRDtool - generate graph for ocean facet
+### Zabbix - generate graph for ocean facet
 ###
 DATE=$(date +%s)
 files_conv_ocean=$(grep ocean $WORKSPACE/filesconv.txt | awk '{print $6}')
 if [ ! -z "$files_conv_ocean" ]; then
-	sudo rrdtool update /var/db/rrdtool/trendcountbooks.rrd $DATE:$files_conv_ocean
-	sudo rrdtool graph /home/jenkins/irls-reader-artifacts/trendcountbooks.png -a PNG -v "irls-rrm-processor-convert" --start now-14d --end N -w 1200 -h 400 DEF:numbers_of=/var/db/rrdtool/trendcountbooks.rrd:numbers_of:LAST AREA:numbers_of#00FF00:"Numbers of files converted"
+	zabbix_sender -z 127.0.0.1 p 10051 -s "dev01" -k files_conv_ocean -o "$files_conv_ocean"
+	#sudo rrdtool update /var/db/rrdtool/trendcountbooks.rrd $DATE:$files_conv_ocean
+	#sudo rrdtool graph /home/jenkins/irls-reader-artifacts/trendcountbooks.png -a PNG -v "irls-rrm-processor-convert" --start now-14d --end N -w 1200 -h 400 DEF:numbers_of=/var/db/rrdtool/trendcountbooks.rrd:numbers_of:LAST AREA:numbers_of#00FF00:"Numbers of files converted"
 fi
 
 ###
