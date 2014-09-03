@@ -69,12 +69,11 @@ function main_loop {
 
                 echo $i --- ${combineArray[$i]}
                 ### Checking
-		if grep "platforms.*android" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
-			notmainloop
-		else
-			echo "Shutdown of this job because platform \"android\" not found in config targetConfig.json"
-			exit 0
-		fi
+                if grep "platforms.*android" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
+                        notmainloop
+                else
+                        echo "Platform \"android\" not found in config targetConfig.json"
+                fi
         done
 }
 
