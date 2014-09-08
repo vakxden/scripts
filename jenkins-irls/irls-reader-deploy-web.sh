@@ -156,31 +156,18 @@ elif [ "$dest" = "STAGE" ]; then
 elif [ "$dest" = "LIVE" ]; then
 	for i in "${!combineArray[@]}"
 	do
-		# values
 		STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
-		# output value for a pair "key-value"
-		echo $i --- ${combineArray[$i]}
-		TGZ="IRLS.reader-$i\.tar.gz"
-		ssh dvac@devzone.dp.ua "rm -f ~/$TGZ"
-		tar -zc $STAGE_PKG_DIR/* | ssh dvac@devzone.dp.ua "cat > ~/$TGZ"
-		time ssh dvac@devzone.dp.ua "
+		RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i/packages"
+		ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
+		time rsync -rzv --delete -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
+		ssh dvac@devzone.dp.ua "
 			# values
-			INDEX_FILE=index_"$i"_$BRANCH.js
-			# check exist remote artifacts directory
-			if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]
-			then
-				mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}
-			else
-				rm -rf  $REMOTE_ART_PATH/${combineArray[$i]}/packages/client $REMOTE_ART_PATH/${combineArray[$i]}/packages/common $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes $REMOTE_ART_PATH/${combineArray[$i]}/packages/server 
-			fi
-			# upacking
-			tar xfz $TGZ -C $REMOTE_ART_PATH/${combineArray[$i]}/
-			if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/packages ]; then
-				mkdir $REMOTE_ART_PATH/${combineArray[$i]}/packages
-				mv $REMOTE_ART_PATH/${combineArray[$i]}$STAGE_PKG_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/packages/ && rm -rf $REMOTE_ART_PATH/${combineArray[$i]}/home
-			else
-				mv $REMOTE_ART_PATH/${combineArray[$i]}$STAGE_PKG_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/packages/ && rm -rf $REMOTE_ART_PATH/${combineArray[$i]}/home
-			fi
+                        INDEX_FILE=index_"$i"_$BRANCH.js
+			if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
+			cp -Rf $RSYNC_FACETS_DIR $REMOTE_ART_PATH/${combineArray[$i]}/
+			rm -rf /home/dvac/couchdb/var/lib/couchdb/"$i"_*.couch
+			cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes/"$i"_*.couch /home/dvac/couchdb/var/lib/couchdb/
+			/home/dvac/couchdb/etc/init.d/couchdb restart
 			# Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
 			if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/packages/art ]; then
 				mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/packages/art
@@ -188,10 +175,7 @@ elif [ "$dest" = "LIVE" ]; then
 			mv $REMOTE_ART_PATH/${combineArray[$i]}/packages/artifacts/* $REMOTE_ART_PATH/${combineArray[$i]}/packages/art/
 			/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
 			cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/packages/server/config
-			rm -rf /home/dvac/couchdb/var/lib/couchdb/"$i"_*.couch
-			cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes/"$i"_*.couch /home/dvac/couchdb/var/lib/couchdb/
-			/home/dvac/couchdb/etc/init.d/couchdb restart
-			
+			# Start node
 			cd $REMOTE_ART_PATH/${combineArray[$i]}/packages/
 			PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
 			if [ ! -z \$PID ]
@@ -201,7 +185,6 @@ elif [ "$dest" = "LIVE" ]; then
 			else
 				nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 			fi"
-		ssh dvac@devzone.dp.ua "rm -f ~/$TGZ"
 		# update environment.json file
 		/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 		# generate links for description job
