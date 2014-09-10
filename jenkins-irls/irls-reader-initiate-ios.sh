@@ -14,7 +14,7 @@ BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 CURRENT_BUILD=/Users/jenkins/irls-reader-current-build
 CONFIGURATION_BUILD_DIR=$WORKSPACE/build
 CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
-MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution.mobileprovision
+MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution_profile_2015-02-04.mobileprovision
 FACETS=($(echo $FACET))
 ###
 ### Body (working with all facets exclude "ocean")

@@ -11,7 +11,7 @@ echo SHELL_VERSION=$BASH_VERSION
 BRANCH=$(echo $READER_BRANCH_NAME| sed 's/\//-/g' | sed 's/_/-/g')
 CONFIGURATION_BUILD_DIR=$WORKSPACE/build
 CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
-MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution.mobileprovision
+MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution_profile_2015-02-04.mobileprovision
 FACETS=($(echo $FACET))
 ###
 ### Body (working with all facets exclude "ocean")
