@@ -196,3 +196,5 @@ else
 	exit 1
 fi
 # End of body
+#check node status
+#ps aux | grep node.*server/$INDEX_FILE

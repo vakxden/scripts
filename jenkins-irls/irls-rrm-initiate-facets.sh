@@ -1,5 +1,5 @@
 if [ "$BRANCHNAME" = "master" ] || [ "$BRANCHNAME" = "" ]; then
-        #FACET=(puddle refbahai farsi farsi3 bahaiebooks audio audiobywords mediaoverlay lake ocean)
+        #FACET=(puddle gutenberg refbahai farsi farsi3 bahaiebooks audio audiobywords mediaoverlay lake ocean)
 	FACET=(audiobywords)
         for i in ${FACET[@]}
         do
