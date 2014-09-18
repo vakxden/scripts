@@ -11,7 +11,7 @@ if [ -z $mark ]; then
 	exit 1
 elif [ "$mark" = "all" ] || [ "$mark" = "initiate-ios" ]; then
 	if [ "$dest" = "STAGE" ]; then
-		echo \[WARN_MARK\] dest=STAGE, so just running on empty
+		echo \[WARN_MARK\] branch name is \<b\>$BRANCHNAME\</b\>\<br\>dest is \<b\>$dest\</b\>\<br\>ID is \<b\>$ID\</b\>
 	fi
 	if [ "$dest" = "LIVE" ]; then
 		echo \[WARN_MARK\] dest=LIVE, so just running on empty
@@ -60,16 +60,66 @@ function search_and_copy {
 	# if path to artifacts directory contain word "stage" -> search ipa-files in artifacts directory for CURRENT-environment
 	if [ -n "$(echo "$1" | grep stage)" ]; then
 		echo contain stage;
+		if [ ! -d $1 ]; then mkdir -p $1; fi
 		find_stag=$(find $1 -name $BRANCH*FFA_Reader*$i.ipa) > /dev/null 2>&1
 		if [ ! -z "$find_stag" ]; then
 			echo "ipa file in $PWD exist" && echo "it is $find_stag"
+			if unzip -c $find_stag | grep -q "currentURL"; then
+				echo "Found URL inside ipa-file"
+			else
+				echo "NOT found URL inside ipa-file"
+				scp $find_stag dev02.design.isd.dp.ua:~
+				ssh dev02.design.isd.dp.ua "
+					rm -rf ~/tmp_repacking_ipa
+					mkdir ~/tmp_repacking_ipa
+					mv ~/$BRANCH-FFA_Reader-$i.ipa ~/tmp_repacking_ipa/
+					cd ~/tmp_repacking_ipa
+					unzip $BRANCH-FFA_Reader-$i.ipa
+					rm -f $BRANCH-FFA_Reader-$i.ipa
+					sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/stage/reader/$FACET/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+					java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
+					scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
+				"
+				
+			fi
 		else
 			echo "ipa file in $PWD not exists"
 			find=$(find $2 -name $BRANCH*FFA_Reader*$i.ipa) > /dev/null 2>&1
 			if [ ! -z "$find" ]; then
 				echo PWD=$PWD
-				cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
+				#cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
+				scp $find dev02.design.isd.dp.ua:~
+				ssh dev02.design.isd.dp.ua "
+					rm -rf ~/tmp_repacking_ipa
+					mkdir ~/tmp_repacking_ipa
+					mv ~/$BRANCH-FFA_Reader-$i.ipa ~/tmp_repacking_ipa/
+					cd ~/tmp_repacking_ipa
+					unzip $BRANCH-FFA_Reader-$i.ipa
+					rm -f $BRANCH-FFA_Reader-$i.ipa
+					sed -i '2s@\(.*\)@    \"currentURL\": \"https://wpps.isd.dp.ua/irls/stage/reader/$FACET/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+					java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
+					scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
+				"
 			fi
+		fi
+	else
+		
+		find=$(find $1 -name $BRANCH*FFA_Reader*$i.ipa) > /dev/null 2>&1
+		if [ ! -z "$find" ]; then
+			echo PWD=$PWD
+			#cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
+			scp $find dev02.design.isd.dp.ua:~
+			ssh dev02.design.isd.dp.ua "
+				rm -rf ~/tmp_repacking_ipa
+				mkdir ~/tmp_repacking_ipa
+				mv ~/$BRANCH-FFA_Reader-$i.ipa ~/tmp_repacking_ipa/
+				cd ~/tmp_repacking_ipa
+				unzip $BRANCH-FFA_Reader-$i.ipa
+				rm -f $BRANCH-FFA_Reader-$i.ipa
+				sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/current/reader/$FACET/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+				java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
+				scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
+			"
 		fi
 	fi
 }
@@ -143,7 +193,28 @@ if [ "$dest" = "DEVELOPMENT" ]; then
 		/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
 	done
 elif [ "$dest" = "STAGE" ]; then
-	exit 0
+	for i in "${!combineArray[@]}"
+	do
+		# variables
+		CURRENT_ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
+		STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
+		PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
+		INDEX_FILE='index_'$i'_'$BRANCH'.js'
+		# output value for a pair "key-value"
+		echo $i --- ${combineArray[$i]}
+		# checking the existence of a directory with the artifacts
+		if [ ! -d $ARTIFACTS_DIR ]; then
+			mkdir -p $ARTIFACTS_DIR
+		fi
+		# search ipa-files, if not exists - copy to artifacts dir
+		search_and_copy $STAGE_ARTIFACTS_DIR/ $CURRENT_ARTIFACTS_DIR/
+		# generate index.html and local.json
+		generate_files $PKG_DIR
+		# run (re-run) node
+		start_node $PKG_DIR $INDEX_FILE
+		# update environment.json file
+		/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+	done
 elif [ "$dest" = "LIVE" ]; then
 	exit 0
 else
