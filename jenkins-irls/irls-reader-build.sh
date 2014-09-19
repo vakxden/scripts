@@ -5,10 +5,10 @@ BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ -z $FACET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
                 #FACET=(puddle epubtest gutenberg refbahai farsi farsi2 farsi3 farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean) #list_of_all_facets
-                FACET=(farsi3 audiobywords)
+                FACET=(epubtest)
         else
                 #FACET=(puddle farsi3)
-                FACET=(puddle)
+                FACET=(epubtest)
         fi
 fi
 
@@ -135,7 +135,8 @@ done
 for i in "${FACET[@]}"
 do
 	### Temporary variables
-	if [ "$i" = "ocean" ];then TARG=$(echo "$i"_Ocean); else TARG=$(echo "$i"_FFA); fi
+	#if [ "$i" = "ocean" ];then TARG=$(echo "$i"_Ocean); else TARG=$(echo "$i"_FFA); fi
+	if [ "$i" = "epubtest" ];then TARG=$(echo "$i"_irls); fi
 	GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$TARG")
 	CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
 	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
