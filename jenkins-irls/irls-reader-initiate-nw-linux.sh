@@ -160,7 +160,21 @@ function main_loop {
 	do
 		rm -rf $WORKSPACE/*
 		#if [ "$i" = "ocean" ]; then BRAND="$i"_"Ocean"; else BRAND="$i"_"FFA"; fi
-		if [ "$i" = "epubtest" ]; then BRAND="$i"_"irls"; fi
+		if [ "$i" = "epubtest" ];then
+                        TARG=$(echo "$i"_irls)
+                elif [ "$i" = "ocean" ];then
+                        TARG=$(echo "$i"_irls)
+                elif [ "$i" = "audio" ];then
+                        TARG=$(echo "$i"_irls)
+                elif [ "$i" = "audiobywords" ];then
+                        TARG=$(echo "$i"_irls)
+                elif [ "$i" = "gutenberg" ];then
+                        TARG=$(echo "$i"_FFA)
+                elif [ "$i" = "refbahai" ];then
+                        TARG=$(echo "$i"_Ocean)
+                else
+                        TARG=$(echo "$i"_FFA)
+                fi
                 GIT_COMMIT_TARGET="$GIT_COMMIT"-"$BRAND"
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
