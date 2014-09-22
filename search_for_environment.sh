@@ -43,7 +43,7 @@ printf "start processing file $PFILE \n"
 for ID in ${deploymentPackageId[@]}
 do
         # count of strings in block, named $CURRENT
-        a=$((($(cat $PFILE | wc -l)-8)/3))
+        a=$((($(cat $PFILE | wc -l)-8)/4))
         # find $ID in block named $CURRENT
         grep $CURRENT -A $a $PFILE | grep "\"$ID\"" #/dev/null 2>&1
         # if $ID not found check exist name $FACET in current $ID in block named $CURRENT
