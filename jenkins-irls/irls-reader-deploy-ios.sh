@@ -76,7 +76,7 @@ function search_and_copy {
 					cd ~/tmp_repacking_ipa
 					unzip $BRANCH-FFA_Reader-$i.ipa
 					rm -f $BRANCH-FFA_Reader-$i.ipa
-					sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/stage/reader/$FACET/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+					sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
 					java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
 					scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
 				"
@@ -96,7 +96,7 @@ function search_and_copy {
 					cd ~/tmp_repacking_ipa
 					unzip $BRANCH-FFA_Reader-$i.ipa
 					rm -f $BRANCH-FFA_Reader-$i.ipa
-					sed -i '2s@\(.*\)@    \"currentURL\": \"https://wpps.isd.dp.ua/irls/stage/reader/$FACET/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+					sed -i '2s@\(.*\)@    \"currentURL\": \"https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
 					java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
 					scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
 				"
@@ -116,7 +116,7 @@ function search_and_copy {
 				cd ~/tmp_repacking_ipa
 				unzip $BRANCH-FFA_Reader-$i.ipa
 				rm -f $BRANCH-FFA_Reader-$i.ipa
-				sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/current/reader/$FACET/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+				sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
 				java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
 				scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
 			"
