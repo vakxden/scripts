@@ -57,6 +57,29 @@ function search_and_copy {
 		echo "path to artifacts directory must be passed"
 		exit 1
 	fi
+	function ssh_and_repack {
+		TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
+		KEYSTORE="~/keystore_repacking_ipa/ipack.ks"
+		STOREPASS="jenk123ins"
+		KEYPASS="jenk123ins"
+		ALIAS="jenkins-key"
+		ssh dev02.design.isd.dp.ua "
+		rm -rf $TEMPORARY_IPA_REPACKING_DIR
+		mkdir $TEMPORARY_IPA_REPACKING_DIR
+		mv ~/$BRANCH-FFA_Reader-$i.ipa $TEMPORARY_IPA_REPACKING_DIR/
+		cd $TEMPORARY_IPA_REPACKING_DIR
+		unzip $BRANCH-FFA_Reader-$i.ipa
+		rm -f $BRANCH-FFA_Reader-$i.ipa
+		if [ $ENVIRONMENT == current ]; then
+			sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+		elif [ $ENVIRONMENT == stage ]; then
+			sed -i '2s@\(.*\)@    \"currentURL\": \"https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+		else
+			exit 1
+		fi
+		java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore $KEYSTORE -storepass $STOREPASS -alias $ALIAS -keypass $KEYPASS -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
+		"
+	}
 	# if path to artifacts directory contain word "stage" -> search ipa-files in artifacts directory for CURRENT-environment
 	if [ -n "$(echo "$1" | grep stage)" ]; then
 		echo contain stage;
@@ -69,18 +92,10 @@ function search_and_copy {
 			else
 				echo "NOT found URL inside ipa-file"
 				scp $find_stag dev02.design.isd.dp.ua:~
-				ssh dev02.design.isd.dp.ua "
-					rm -rf ~/tmp_repacking_ipa
-					mkdir ~/tmp_repacking_ipa
-					mv ~/$BRANCH-FFA_Reader-$i.ipa ~/tmp_repacking_ipa/
-					cd ~/tmp_repacking_ipa
-					unzip $BRANCH-FFA_Reader-$i.ipa
-					rm -f $BRANCH-FFA_Reader-$i.ipa
-					sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
-					java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
-					scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
-				"
-				
+				ENVIRONMENT="stage"
+				ssh_and_repack
+				scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$BRANCH-FFA_Reader-$i.ipa $1
+				unzip -t -q $1$BRANCH-FFA_Reader-$i.ipa
 			fi
 		else
 			echo "ipa file in $PWD not exists"
@@ -89,17 +104,10 @@ function search_and_copy {
 				echo PWD=$PWD
 				#cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
 				scp $find dev02.design.isd.dp.ua:~
-				ssh dev02.design.isd.dp.ua "
-					rm -rf ~/tmp_repacking_ipa
-					mkdir ~/tmp_repacking_ipa
-					mv ~/$BRANCH-FFA_Reader-$i.ipa ~/tmp_repacking_ipa/
-					cd ~/tmp_repacking_ipa
-					unzip $BRANCH-FFA_Reader-$i.ipa
-					rm -f $BRANCH-FFA_Reader-$i.ipa
-					sed -i '2s@\(.*\)@    \"currentURL\": \"https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
-					java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
-					scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
-				"
+				ENVIRONMENT="stage"
+				ssh_and_repack
+				scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$BRANCH-FFA_Reader-$i.ipa $1
+				unzip -t -q $1$BRANCH-FFA_Reader-$i.ipa
 			fi
 		fi
 	else
@@ -109,17 +117,10 @@ function search_and_copy {
 			echo PWD=$PWD
 			#cp $find $PWD/ && echo "copying file $find to PWD=$PWD"
 			scp $find dev02.design.isd.dp.ua:~
-			ssh dev02.design.isd.dp.ua "
-				rm -rf ~/tmp_repacking_ipa
-				mkdir ~/tmp_repacking_ipa
-				mv ~/$BRANCH-FFA_Reader-$i.ipa ~/tmp_repacking_ipa/
-				cd ~/tmp_repacking_ipa
-				unzip $BRANCH-FFA_Reader-$i.ipa
-				rm -f $BRANCH-FFA_Reader-$i.ipa
-				sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
-				java -jar /opt/ipack.jar $BRANCH-FFA_Reader-$i.ipa -keystore ~/ipack.ks -storepass jenk123ins -alias jenkins-key -keypass jenk123ins -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
-				scp $BRANCH-FFA_Reader-$i.ipa dev01.isd.dp.ua:$1
-			"
+			ENVIRONMENT="current"
+			ssh_and_repack
+			scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$BRANCH-FFA_Reader-$i.ipa $1
+			unzip -t -q $1$BRANCH-FFA_Reader-$i.ipa
 		fi
 	fi
 }
