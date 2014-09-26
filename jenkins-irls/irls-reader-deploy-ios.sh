@@ -55,6 +55,11 @@ function ssh_and_repack {
 	STOREPASS="jenk123ins"
 	KEYPASS="jenk123ins"
 	ALIAS="jenkins-key"
+	if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
+		CURRENT_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH/client/dist/app/index.html"
+	elif [ $ENVIRONMENT == live ]; then
+		CURRENT_URL="https://irls.isd.dp.ua/$i/$BRANCH/client/dist/app/index.html"
+	fi
 	ssh dev02.design.isd.dp.ua "
 	rm -rf $TEMPORARY_IPA_REPACKING_DIR
 	mkdir $TEMPORARY_IPA_REPACKING_DIR
@@ -63,11 +68,11 @@ function ssh_and_repack {
 	unzip $IPA_FILE_NAME
 	rm -f $IPA_FILE_NAME
 	if [ $ENVIRONMENT == current ]; then
-		sed -i '1s@\(.*\)@{\n    \"currentURL\": \"https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+		sed -i '1s@\(.*\)@{\n    \"currentURL\": \"$CURRENT_URL\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
 	elif [ $ENVIRONMENT == stage ]; then
-		sed -i '2s@\(.*\)@    \"currentURL\": \"https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+		sed -i '2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
 	elif [ $ENVIRONMENT == live ]; then
-		sed -i '2s@\(.*\)@    \"currentURL\": \"https://irls.isd.dp.ua/$i/$BRANCH/client/dist/app/index.html\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+		sed -i '2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
 	else
 		exit 1
 	fi
@@ -124,6 +129,13 @@ function start_node {
 if [ "$dest" = "DEVELOPMENT" ]; then
 	for i in "${!combineArray[@]}"
 	do
+		# output value for a pair "key-value"
+		echo $i --- ${combineArray[$i]}
+		# check ocean facet
+		if [ "$i"  = "ocean" ]; then
+			echo \[WARN_MARK\] just running on empty for $i
+			continue
+		fi
 		# variables
 		CURRENT_ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
 		CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
@@ -131,8 +143,6 @@ if [ "$dest" = "DEVELOPMENT" ]; then
 		ENVIRONMENT="current"
 		IPA_FILE_NAME="$BRANCH-FFA_Reader-$i.ipa"
 		TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
-		# output value for a pair "key-value"
-		echo $i --- ${combineArray[$i]}
 		# checking the existence of a directory with the artifacts
 		if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
 		# search ipa-file and repacking it
@@ -151,6 +161,13 @@ if [ "$dest" = "DEVELOPMENT" ]; then
 elif [ "$dest" = "STAGE" ]; then
 	for i in "${!combineArray[@]}"
 	do
+		# output value for a pair "key-value"
+		echo $i --- ${combineArray[$i]}
+		# check ocean facet
+		if [ "$i"  = "ocean" ]; then
+			echo \[WARN_MARK\] just running on empty for $i
+			continue
+		fi
 		# variables
 		CURRENT_ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
 		STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
@@ -159,8 +176,6 @@ elif [ "$dest" = "STAGE" ]; then
 		ENVIRONMENT="stage"
 		IPA_FILE_NAME="$BRANCH-FFA_Reader-$i.ipa"
 		TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
-		# output value for a pair "key-value"
-		echo $i --- ${combineArray[$i]}
 		# checking the existence of a directory with the artifacts
 		if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
 		if [ ! -d $STAGE_ARTIFACTS_DIR ]; then mkdir -p $STAGE_ARTIFACTS_DIR; fi
@@ -181,6 +196,13 @@ elif [ "$dest" = "STAGE" ]; then
 elif [ "$dest" = "LIVE" ]; then
 	for i in "${!combineArray[@]}"
 	do
+		# output value for a pair "key-value"
+		echo $i --- ${combineArray[$i]}
+		# check ocean facet
+		if [ "$i"  = "ocean" ]; then
+			echo \[WARN_MARK\] just running on empty for $i
+			continue
+		fi
 		# variables
 		STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
 		REMOTE_ART_PATH="/home/dvac/irls-reader-artifacts"
@@ -189,14 +211,15 @@ elif [ "$dest" = "LIVE" ]; then
 		INDEX_FILE='index_'$i'_'$BRANCH'.js'
 		TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
 		ENVIRONMENT="live"
-		# output value for a pair "key-value"
-		echo $i --- ${combineArray[$i]}
 		# copying ipa-file from STAGE_ARTIFACTS_DIR to devzone and repacking it
 		find $STAGE_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
 		ssh_and_repack
-		scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $WORKSPACE
+		rm -f $WORKSPACE/$IPA_FILE_NAME
+		scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $WORKSPACE/
 		# test archive (ipa) file
 		unzip -t -q $WORKSPACE/$IPA_FILE_NAME
+		# checking the existence of a directory with the artifacts
+		ssh dvac@devzone.dp.ua "if [ ! -d $LIVE_ARTIFACTS_DIR ]; then mkdir -p $LIVE_ARTIFACTS_DIR; fi"
 		scp $WORKSPACE/$IPA_FILE_NAME dvac@devzone.dp.ua:$LIVE_ARTIFACTS_DIR/
 		ssh dvac@devzone.dp.ua "
                         # values
@@ -217,6 +240,7 @@ elif [ "$dest" = "LIVE" ]; then
                         fi"
                 # update environment.json file
                 /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+		rm -f $WORKSPACE/$IPA_FILE_NAME
 	done
 else
 	printf "[ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest! \n"
