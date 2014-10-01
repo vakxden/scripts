@@ -58,6 +58,8 @@ do
 	else
 		ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$i; fi"
 		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" ~/irls-reader-current-epubs/$i/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$i/
+		ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$i; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" ~/irls-reader-current-epubs/$i/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$i/
 	fi
 
 	### Sync current epubs to dev02.design.isd.dp.ua

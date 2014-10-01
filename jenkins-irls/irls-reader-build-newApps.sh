@@ -2,7 +2,7 @@
 ### Conditions for the base and non-base branches and facets for next initiate- and deploy-jobs
 ###
 BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
-TARGET=("puddle_admin_FFA")
+TARGET=("puddle_admin_ffa")
 #if [ -z $TARGET ]; then
 #        if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
 #                #TARGET=(puddle epubtest gutenberg refbahai farsi farsi2 farsi3 farsiref bahaiebooks audio audiobywords mediaoverlay lake ocean) #list_of_all_facets
@@ -148,6 +148,7 @@ do
 	CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
 	CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
 	cd $WORKSPACE/client
+	node compileHandlebars.js
 	### Build client and server parts
 	node index.js --target=$i --targetPath=$WORKSPACE/targets --readerPath=$WORKSPACE
 	grunt --no-color
