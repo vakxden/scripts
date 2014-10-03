@@ -12,7 +12,7 @@ else
         cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
 fi
 LIST_OF_ALL_TARGETS=($(cd $WORKSPACE/$TARGETS_REPO_DIR_NAME; ls -d ./* | sed s@\./@@g ));
-if [ -z $TARGET ]; then TARGET=$LIST_OF_ALL_TARGETS; fi
+if [ -z $TARGET ]; then TARGET=${LIST_OF_ALL_TARGETS[@]}; fi
 deploymentPackageId=($(echo $ID))
 
 for i in "${deploymentPackageId[@]}"
@@ -25,3 +25,5 @@ if [ -z $BRANCHNAME ]; then
 	printf "[ERROR_BRANCH] unable to determine the branch name \n"
 	exit 1
 fi
+echo TARGET=${TARGET[@]}
+echo "TARGET=${LIST_OF_ALL_TARGETS[@]}" >> $WORKSPACE/myenv
