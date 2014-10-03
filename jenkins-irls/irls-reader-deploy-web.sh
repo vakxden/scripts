@@ -26,7 +26,7 @@ STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 REMOTE_ART_PATH=/home/dvac/irls-reader-artifacts
 LIVE_DIR=/home/jenkins/irls-reader-live
 LIVE_LINKS_DIR=/home/jenkins/irls-reader-live-links
-FACETS=($(echo $FACET))
+TARGET=($(echo $TARGET))
 
 # clean file myenv
 cat /dev/null > $WORKSPACE/myenv
@@ -39,10 +39,10 @@ declare -A combineArray
 
 for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
-        for ((y=0; y<${#FACETS[@]}; y++))
+        for ((y=0; y<${#TARGET[@]}; y++))
         do
-                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}$")" ]; then
-                        combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
+                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
+                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
                 fi
         done
 done
@@ -111,8 +111,10 @@ if [ "$dest" = "DEVELOPMENT" ]; then
                 # update environment.json file
                 /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
                 # generate links for description job
-                echo link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
-                sed -i "s/link-$i-$dest/link$i/g" $WORKSPACE/myenv
+                echo admin-link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
+                echo editor-link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
+                echo reader-link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
+                echo portal-link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
         done
 elif [ "$dest" = "STAGE" ]; then
         for i in "${!combineArray[@]}"
@@ -152,33 +154,35 @@ elif [ "$dest" = "STAGE" ]; then
                 # update environment.json file
                 /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
                 # generate links for description job
-                echo link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
-                sed -i "s/link-$i-$dest/link$i/g" $WORKSPACE/myenv
+                echo admin-link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
+                echo editor-link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
+                echo reader-link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
+                echo portal-link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
         done
 elif [ "$dest" = "LIVE" ]; then
         for i in "${!combineArray[@]}"
         do
                 STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
-                RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i/packages"
+                RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
                 ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
                 time rsync -rzv --delete --exclude "*.ipa" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
                 ssh dvac@devzone.dp.ua "
                         # values
                         INDEX_FILE=index_"$i"_$BRANCH.js
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
-                        cp -Rf $RSYNC_FACETS_DIR $REMOTE_ART_PATH/${combineArray[$i]}/
+                        cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
                         rm -rf /home/dvac/couchdb/var/lib/couchdb/"$i"_*.couch
-                        cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/packages/couchdb_indexes/"$i"_*.couch /home/dvac/couchdb/var/lib/couchdb/
+                        cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/couchdb_indexes/"$i"_*.couch /home/dvac/couchdb/var/lib/couchdb/
                         /home/dvac/couchdb/etc/init.d/couchdb restart
                         # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
-                        if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/packages/art ]; then
-                                mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/packages/art
+                        if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then
+                                mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art
                         fi
-                        mv $REMOTE_ART_PATH/${combineArray[$i]}/packages/artifacts/* $REMOTE_ART_PATH/${combineArray[$i]}/packages/art/
+                        mv $REMOTE_ART_PATH/${combineArray[$i]}/artifacts $REMOTE_ART_PATH/${combineArray[$i]}/art
                         /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
-                        cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/packages/server/config
+                        cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
                         # Start node
-                        cd $REMOTE_ART_PATH/${combineArray[$i]}/packages/
+                        cd $REMOTE_ART_PATH/${combineArray[$i]}
                         PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
                         if [ ! -z \$PID ]
                         then
@@ -190,7 +194,10 @@ elif [ "$dest" = "LIVE" ]; then
                 # update environment.json file
                 /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
                 # generate links for description job
-                echo link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/client/dist/app/index.html" >> $WORKSPACE/myenv
+                echo admin-link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
+                echo editor-link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
+                echo reader-link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
+                echo portal-link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
                 sed -i "s/link-$i-$dest/link$i/g" $WORKSPACE/myenv
         done
 else

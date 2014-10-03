@@ -4,11 +4,13 @@ CURRENT_TEXTS=$HOME/irls-reader-current-texts
 PROJECTNAME=$(basename $CURRENT_RRM)
 RESULTS=$WORKSPACE/results
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
-FACETS=($(echo $FACET))
-META1=$HOME/irls-rrm-processor-deploy/meta-processor-deploy
-META2=$HOME/irls-reader-current-texts/meta-ocean-deploy
+TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
+TARGET=($(echo $TARGET))
+META1=$CURRENT_RRM/meta-processor-deploy
+META2=$CURRENT_TEXTS/meta-ocean-deploy
 META_SUM_ALL=meta-all
-# from phantom
+# Export variable for phantom
 export NODE_PATH=/opt/node/lib/node_modules/
 
 cp -Rf $CURRENT_RRM $WORKSPACE
@@ -20,19 +22,31 @@ cat /dev/null > $WORKSPACE/filesconv.txt
 ###
 ### Running convert for all facets
 ###
-for i in "${FACETS[@]}"
+for TARGET_NAME in "${TARGET[@]}"
 do
-	rm -rf $RESULTS/$i
-	mkdir -p $RESULTS/$i
+	### Clone or "git pull" (if exist) targets-repo
+	if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+		cd $WORKSPACE && git clone $TARGETS_REPO
+	else cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+	fi
+	### Determine facet name from target
+	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
+	### Clean old "facet named"-directory
+	rm -rf $RESULTS/$FACET_NAME
+	mkdir -p $RESULTS/$FACET_NAME
 	cd $WORKSPACE/$PROJECTNAME/src
-	time node main.js $CURRENT_TEXTS $RESULTS/$i $i
-	time node --max-old-space-size=7000 $WORKSPACE/$PROJECTNAME/src/createJSON.js $RESULTS/$i/
-	if [ ! -d $CURRENT_EPUBS/$i ]; then mkdir -p $CURRENT_EPUBS/$i; fi
-	time rsync -rv --delete $RESULTS/$i/ $CURRENT_EPUBS/$i/
-	META_SUM=meta-current-epubs-$i
-	cat $META1 >> $CURRENT_EPUBS/$i/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$i/$META_SUM
+	### Processing raw texts
+	time node main.js $CURRENT_TEXTS $RESULTS/$FACET_NAME $FACET_NAME
+	time node --max-old-space-size=7000 $WORKSPACE/$PROJECTNAME/src/createJSON.js $RESULTS/$FACET_NAME/
+	### Create (if not exist) current "target named"-, "current epub"-directory
+	if [ ! -d $CURRENT_EPUBS/$TARGET_NAME ]; then mkdir -p $CURRENT_EPUBS/$TARGET_NAME; fi
+	### Copy epubs after their processing to the "current epubs"-directory
+	time rsync -rv --delete $RESULTS/$FACET_NAME/ $CURRENT_EPUBS/$TARGET_NAME/
+	### Create file with summary meta-information
+	META_SUM=meta-current-epubs-$TARGET_NAME
+	cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM
 	# echo numbers of converted files to temporary file
-	files_conv=$(grep "Files converted.*$i" /var/lib/jenkins/jobs/irls-rrm-processor-convert/builds/$N/log | grep -v grep >> $WORKSPACE/filesconv.txt)
+	files_conv=$(grep "Files converted.*$FACET_NAME" /var/lib/jenkins/jobs/irls-rrm-processor-convert/builds/$N/log | grep -v grep >> $WORKSPACE/filesconv.txt)
 done
 
 cat /dev/null > $CURRENT_EPUBS/$META_SUM_ALL
@@ -50,24 +64,31 @@ fi
 ###
 ### Copy current epubs to jenkins nodes
 ###
-for i in "${FACETS[@]}"
+for TARGET_NAME in "${TARGET[@]}"
 do
-	### Sync current epubs to mac-mini
-	if [ "$i" = "ocean" ]; then
-		printf "epubs for facet named 'ocean' will not be copying to mac-mini \n"
+	### Clone or "git pull" (if exist) targets-repo
+	if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+		cd $WORKSPACE && git clone $TARGETS_REPO
+	else cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+	fi
+	### Determine facet name from target
+	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
+	### Sync current "target named"-epubs to mac-mini ("yuriys-mac-mini" and "users-mac-mini")
+	if [ "$FACET_NAME" = "ocean" ]; then
+		printf "epubs for facet named 'ocean', target is $TARGET_NAME, will not be copying to mac-mini \n"
 	else
-		ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$i; fi"
-		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" ~/irls-reader-current-epubs/$i/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$i/
-		ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$i; fi"
-		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" ~/irls-reader-current-epubs/$i/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$i/
+		ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$TARGET_NAME/
+		ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$TARGET_NAME/
 	fi
 
-	### Sync current epubs to dev02.design.isd.dp.ua
-	if [ "$i" = "ocean" ]; then
-		printf "epubs for facet named 'ocean' will not be copying to dev02.design.isd.dp.ua \n"
+	### Sync current "target named"-epubs to dev02.design.isd.dp.ua
+	if [ "$FACET_NAME" = "ocean" ]; then
+		printf "epubs for facet named 'ocean', target is $TARGET_NAME, will not be copying to dev02.design.isd.dp.ua \n"
 	else
-		ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir -p ~/irls-reader-current-epubs/$i; fi"
-		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" ~/irls-reader-current-epubs/$i/ jenkins@dev02.design.isd.dp.ua:~/irls-reader-current-epubs/$i/
+		ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p ~/irls-reader-current-epubs/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@dev02.design.isd.dp.ua:~/irls-reader-current-epubs/$TARGET_NAME/
 	fi
 done
 ###

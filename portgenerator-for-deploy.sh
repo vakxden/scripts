@@ -163,5 +163,10 @@ done
                         dest_eq_stage
                 elif [ "$dest" = "LIVE" ]; then
                         CURRENT="live"
+                elif [ "$dest" = "NIGHT" ]; then
+                        CURRENT="night"
+                        ARTDIR="irls-reader-artifacts-nightly"
+                        dest_eq_stage
                 fi
                 rm -f $lockfile
+
