@@ -36,9 +36,6 @@ done
 function main_loop {
         notmainloop ()
         {
-        if [ $(echo "$i" | grep "ocean$") ]; then
-                printf "we can only work with the all facets exclude 'ocean' \n not $facet ! \n"
-        else
                 cd $WORKSPACE/packager
                 time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
                 #unlock keychain
@@ -50,28 +47,23 @@ function main_loop {
                 rm -f $WORKSPACE/*$i*debug.ipa
                 until time scp -v $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa; do :; done
                 rm -rf $CONFIGURATION_BUILD_DIR/*
-        fi
         }
 
-        for i in "${!combineArray[@]}"
-        do
+	for i in "${!combineArray[@]}"
+	do
                 rm -rf $WORKSPACE/*
                 GIT_COMMIT_TARGET="$GIT_COMMIT"-"$TARGET"
                 cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
                 echo $i --- ${combineArray[$i]}
                 ### Checking contain platform
-                #if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
-                        if grep "platforms.*ios" $WORKSPACE/targets/$TARGET/targetConfig.json; then
-                                notmainloop
-                        else
-                                echo "Shutdown of this job because platform \"ios\" not found in config targetConfig.json"
-                                exit 0
-                        fi
-                #else
-                #       notmainloop
-                #fi
-        done
+		if grep "platforms.*ios" $WORKSPACE/targets/$TARGET/targetConfig.json; then
+			notmainloop
+		else
+			echo "Shutdown of this job because platform \"ios\" not found in config targetConfig.json"
+			exit 0
+		fi
+	done
 }
 
 main_loop
