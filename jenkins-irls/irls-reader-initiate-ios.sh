@@ -36,7 +36,7 @@ function main_loop {
         {
 		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
 		IPA_NAME="'$BRANCH'-'$BRAND'_Reader-'$i'"
-                ld $WORKSPACE/packager
+                cd $WORKSPACE/packager
                 time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
                 #unlock keychain
                 security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
