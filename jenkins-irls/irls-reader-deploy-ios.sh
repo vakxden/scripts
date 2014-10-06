@@ -143,7 +143,7 @@ if [ "$dest" = "DEVELOPMENT" ]; then
                 CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
                 INDEX_FILE='index_'$i'_'$BRANCH'.js'
                 ENVIRONMENT="current"
-                IPA_FILE_NAME="$BRANCH-FFA_Reader-$i.ipa"
+                IPA_FILE_NAME="$BRANCH-*_Reader-$i.ipa"
                 TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
                 # checking the existence of a directory with the artifacts
                 if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
