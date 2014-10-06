@@ -43,7 +43,7 @@ function main_loop {
                 #build with xcodebuild
                 time /usr/bin/xcodebuild -target $IPA_NAME -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$IPA_NAME.xcodeproj/  -arch armv7 > /dev/null
                 #create ipa-file
-                time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$IPA_NAME.app" -o $WORKSPACE/$BRANCH-FFA_Reader-$i.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
+                time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$IPA_NAME.app" -o $WORKSPACE/$IPA_NAME.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
                 rm -f $WORKSPACE/$IPA_NAME*debug.ipa
                 until time scp -v $WORKSPACE/$IPA_NAME.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$IPA_NAME.ipa; do :; done
                 rm -rf $CONFIGURATION_BUILD_DIR/*
