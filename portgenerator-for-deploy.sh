@@ -66,7 +66,12 @@ done
                         ### Create file local.json
                         cat /dev/null > local.json
                         echo '{' >> local.json
-                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-current-epubs/'$FACETS'/",' >> local.json
+                        #echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-current-epubs/'$FACETS'/",' >> local.json
+			if [ "$1" = "DEVELOPMENT" ]; then
+                        	echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> local.json
+			elif [ "$1" = "STAGE" ]; then
+				echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> local.json
+			fi
                         echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
                         echo -e '\t"database_name": "'$FACETS'"' >> local.json
                         echo '}'  >> local.json
@@ -105,7 +110,7 @@ done
                 }
 
                 function dest_eq_development {
-                        generate_localjson
+                        generate_localjson $dest
                         ### Touch apache config file
                         ACF="/etc/apache2/sites-enabled/irls-$CURRENT-reader-$FACETS-$BRANCHNAME"
                         rm -f $ACF
@@ -127,7 +132,7 @@ done
                 }
 
                 function dest_eq_stage {
-                        generate_localjson
+                        generate_localjson $dest
                         ### if apache config file exist then create temporary file
                         ACF="/etc/apache2/sites-enabled/irls-$CURRENT-reader-$FACETS-$BRANCHNAME"
                         #if [ -f $ACF ]; then

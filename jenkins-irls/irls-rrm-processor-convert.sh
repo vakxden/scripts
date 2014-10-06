@@ -73,16 +73,13 @@ do
 	fi
 	### Determine facet name from target
 	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
-	### Sync current "target named"-epubs to mac-mini ("yuriys-mac-mini" and "users-mac-mini")
-	if [ "$FACET_NAME" = "ocean" ]; then
-		printf "epubs for facet named 'ocean', target is $TARGET_NAME, will not be copying to mac-mini \n"
-	else
+	### Sync current "target named"-epubs to mac-mini ("yuriys-mac-mini" and "users-mac-mini"), if target config contain platform "ios"
+	if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json; then
 		ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME; fi"
 		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$TARGET_NAME/
 		ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME; fi"
 		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$TARGET_NAME/
 	fi
-
 	### Sync current "target named"-epubs to dev02.design.isd.dp.ua
 	if [ "$FACET_NAME" = "ocean" ]; then
 		printf "epubs for facet named 'ocean', target is $TARGET_NAME, will not be copying to dev02.design.isd.dp.ua \n"

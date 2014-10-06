@@ -50,7 +50,8 @@ do
         if [ $(echo $?) -eq 1 ]; then
                 printf "\n"
                 printf "environment named $CURRENT in file $PFILE not contains ID=$ID \n"
-                FACET=$(echo $ID | sed 's/^.*_//g')
+                #FACET=$(echo $ID | sed 's/^.*_//g')
+		FACET=$(echo $ID | cut -d"_" -f 2-)
                 printf "check whether a facet named $FACET in current ID=$ID, in environment named $CURRENT ... \n"
                 grep $CURRENT -A $a $PFILE | egrep "$FACET\"\,$|$FACET\"$" #/dev/null 2>&1
                 if [ $(echo $?) -eq 1 ]; then
