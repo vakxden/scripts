@@ -35,7 +35,7 @@ function main_loop {
         notmainloop ()
         {
 		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
-		IPA_NAME="'$BRANCH'-'$BRAND'_Reader-'$i'"
+		IPA_NAME=$BRANCH-$BRAND\_Reader-$i
                 cd $WORKSPACE/packager
                 time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
                 #unlock keychain
