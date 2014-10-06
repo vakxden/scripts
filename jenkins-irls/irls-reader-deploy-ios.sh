@@ -56,10 +56,8 @@ function ssh_and_repack {
         KEYPASS="jenk123ins"
         ALIAS="jenkins-key"
         if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
-                #CURRENT_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH/client/dist/app/index.html"
                 CURRENT_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH/"
         elif [ $ENVIRONMENT == live ]; then
-                #CURRENT_URL="https://irls.isd.dp.ua/$i/$BRANCH/client/dist/app/index.html"
                 CURRENT_URL="https://irls.isd.dp.ua/$i/$BRANCH/"
         fi
         ssh dev02.design.isd.dp.ua "
@@ -70,15 +68,15 @@ function ssh_and_repack {
         unzip $IPA_FILE_NAME
         rm -f $IPA_FILE_NAME
         if [ $ENVIRONMENT == current ]; then
-                sed -i '1s@\(.*\)@{\n    \"currentURL\": \"$CURRENT_URL\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+                sed -i '1s@\(.*\)@{\n    \"currentURL\": \"$CURRENT_URL\",@' Payload/$IPA_NAME.app/www/dist/app/build.info.json
         elif [ $ENVIRONMENT == stage ]; then
-                sed -i '2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+                sed -i '2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@' Payload/$IPA_NAME.app/www/dist/app/build.info.json
         elif [ $ENVIRONMENT == live ]; then
-                sed -i '2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@' Payload/$BRANCH-FFA_Reader-$i.app/www/dist/app/build.info.json
+                sed -i '2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@' Payload/$IPA_NAME.app/www/dist/app/build.info.json
         else
                 exit 1
         fi
-        java -jar /opt/ipack.jar $IPA_FILE_NAME -keystore $KEYSTORE -storepass $STOREPASS -alias $ALIAS -keypass $KEYPASS -appdir Payload/$BRANCH-FFA_Reader-$i.app -appname $BRANCH-FFA_Reader-$i -appid \"UC7ZS26U3J.*\"
+        java -jar /opt/ipack.jar $IPA_FILE_NAME -keystore $KEYSTORE -storepass $STOREPASS -alias $ALIAS -keypass $KEYPASS -appdir Payload/$IPA_NAME.app -appname $IPA_NAME -appid \"UC7ZS26U3J.*\"
         "
 }
 
@@ -143,7 +141,17 @@ if [ "$dest" = "DEVELOPMENT" ]; then
                 CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
                 INDEX_FILE='index_'$i'_'$BRANCH'.js'
                 ENVIRONMENT="current"
-                IPA_FILE_NAME="$BRANCH-*_Reader-$i.ipa"
+		TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+		TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
+		### Clone or "git pull" (if exist) targets-repo
+		if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+			cd $WORKSPACE && git clone $TARGETS_REPO
+		else
+			cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+		fi
+		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+		IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
+		IPA_FILE_NAME="$IPA_NAME.ipa"
                 TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
                 # checking the existence of a directory with the artifacts
                 if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
@@ -176,7 +184,17 @@ elif [ "$dest" = "STAGE" ]; then
                 STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
                 INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
                 ENVIRONMENT="stage"
-                IPA_FILE_NAME="$BRANCH-FFA_Reader-$i.ipa"
+		TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+		TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
+		### Clone or "git pull" (if exist) targets-repo
+		if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+			cd $WORKSPACE && git clone $TARGETS_REPO
+		else
+			cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+		fi
+		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+		IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
+		IPA_FILE_NAME="$IPA_NAME.ipa"
                 TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
                 # checking the existence of a directory with the artifacts
                 if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
@@ -209,10 +227,20 @@ elif [ "$dest" = "LIVE" ]; then
                 STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
                 REMOTE_ART_PATH="/home/dvac/irls-reader-artifacts"
                 LIVE_ARTIFACTS_DIR="$REMOTE_ART_PATH/${combineArray[$i]}/art"
-                IPA_FILE_NAME="$BRANCH-FFA_Reader-$i.ipa"
                 INDEX_FILE='index_'$i'_'$BRANCH'.js'
                 TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
                 ENVIRONMENT="live"
+		TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+		TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
+		### Clone or "git pull" (if exist) targets-repo
+		if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+			cd $WORKSPACE && git clone $TARGETS_REPO
+		else
+			cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+		fi
+		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+		IPA_NAME="$BRANCH-'$BRAND'_Reader-$i"
+		IPA_FILE_NAME="$IPA_NAME.ipa"
                 # copying ipa-file from STAGE_ARTIFACTS_DIR to devzone and repacking it
                 find $STAGE_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
                 ssh_and_repack
