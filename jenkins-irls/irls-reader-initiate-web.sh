@@ -86,7 +86,7 @@ function main_loop {
         do
 
                 rm -rf $WORKSPACE/*
-                GIT_COMMIT_TARGET="$GIT_COMMIT"-"$TARGET"
+                GIT_COMMIT_TARGET="$GIT_COMMIT"-"$i"
                 cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
                 echo $i --- ${combineArray[$i]}
