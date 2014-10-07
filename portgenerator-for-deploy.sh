@@ -67,11 +67,11 @@ done
                         cat /dev/null > local.json
                         echo '{' >> local.json
                         #echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-current-epubs/'$FACETS'/",' >> local.json
-			if [ "$1" = "DEVELOPMENT" ]; then
-                        	echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> local.json
-			elif [ "$1" = "STAGE" ]; then
-				echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> local.json
-			fi
+                        if [ "$1" = "DEVELOPMENT" ]; then
+                                echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> local.json
+                        elif [ "$1" = "STAGE" ]; then
+                                echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> local.json
+                        fi
                         echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
                         echo -e '\t"database_name": "'$FACETS'"' >> local.json
                         echo '}'  >> local.json
@@ -87,7 +87,7 @@ done
                         echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
                         echo -e '<body><h1>List of artifacts</h1>' >> index.html
                         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-                        IPAFILE=$BRANCHNAME*FFA_Reader*$FACETS*.ipa
+                        IPAFILE=$BRANCHNAME*$FACETS*.ipa
                         ZIPWINFILE=$BRANCHNAME*FFA_Reader*$FACETS-win*.zip
                         DEB32=$BRANCHNAME-reader-$FACETS*i386.deb
                         DEB64=$BRANCHNAME-reader-$FACETS*amd64.deb
