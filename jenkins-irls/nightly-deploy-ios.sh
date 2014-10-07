@@ -45,7 +45,7 @@ function ssh_and_repack {
 }
 function generate_files {
         cd $1
-        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
+        sudo /home/jenkins/scripts/portgenerator-for-night-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
         #rm -f $1/server/config/local.json
         ls -lah
         echo PWD=$PWD
