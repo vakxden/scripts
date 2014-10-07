@@ -1,16 +1,17 @@
-env
 ### Variables
+RESULTS=$WORKSPACE/results
 RRM_PROCESSOR_REPO_NAME="rrm-processor"
 RRM_PROCESSOR_BRANCH_NAME="master"
 RRM_OCEAN_REPO_NAME="rrm-ocean"
 RRM_OCEAN_BRANCH_NAME="master"
 READER_REPO_NAME="reader"
 READER_BRANCH_NAME="develop"
-TARGETS_REPO_NAME="targets"
+TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
 TARGETS_BRANCH_NAME="master"
-FACET=(puddle gutenberg farsi farsi3 bahaiebooks audio audiobywords mediaoverlay lake ocean)
+TARGET=(puddle_ffa)
 NIGHTLY_EPUBS="$HOME/irls-reader-nightly-epubs"
-NIGHTLY_MACMINI_EPUBS="/Users/jenkins/irls-reader-nigtly-epubs/"
+NIGHTLY_MACMINI_EPUBS="/Users/jenkins/irls-reader-nightly-epubs/"
 NIGHTLY_ARTIFACTS_DIR="/home/jenkins/irls-reader-artifacts-nightly"
 NIGHTLY_BUILD="/home/jenkins/irls-reader-nightly-build"
 NIGHTLY_REMOTE_BUILD="/Users/jenkins/irls-reader-nightly-build"
@@ -39,63 +40,62 @@ else
         cd $WORKSPACE/$READER_REPO_NAME && git pull && git checkout $READER_BRANCH_NAME
 fi
 
-if [ ! -d "$WORKSPACE/$TARGETS_REPO_NAME" ]; then
-        cd $WORKSPACE && git clone git@wpp.isd.dp.ua:irls/"$TARGETS_REPO_NAME".git && cd $WORKSPACE/$TARGETS_REPO_NAME && git checkout $TARGETS_BRANCH_NAME
+if [ ! -d "$WORKSPACE/$TARGETS_REPO_DIR_NAME" ]; then
+        cd $WORKSPACE && git clone $TARGETS_REPO && cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git checkout $TARGETS_BRANCH_NAME
 else
-        cd $WORKSPACE/$TARGETS_REPO_NAME && git pull && git checkout $TARGETS_BRANCH_NAME
+        cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull && git checkout $TARGETS_BRANCH_NAME
 fi
 
 ### Convert
 # from phantom
 export NODE_PATH=/opt/node/lib/node_modules/
 if ps aux | grep node.*main.js | grep -v grep; then echo "node main.js is executing"; fi
-for i in ${FACET[@]}
+for TARGET_NAME in ${TARGET[@]}
 do
-        rm -rf $NIGHTLY_EPUBS/$i
-        mkdir -p $NIGHTLY_EPUBS/$i
-        cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src
-        time node main.js $WORKSPACE/$RRM_OCEAN_REPO_NAME $NIGHTLY_EPUBS/$i $i
-        time node --max-old-space-size=7000 $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src/createJSON.js $NIGHTLY_EPUBS/$i/
+	### Clone or "git pull" (if exist) targets-repo
+	if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+		cd $WORKSPACE && git clone $TARGETS_REPO
+	else cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+	fi
+	### Determine facet name from target
+	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
+	### Clean old "facet named"-directory
+	rm -rf $RESULTS/$FACET_NAME
+	mkdir -p $RESULTS/$FACET_NAME
+	cd $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src
+	### Processing raw texts
+	time node main.js $WORKSPACE/$RRM_OCEAN_REPO_NAME $RESULTS/$FACET_NAME $FACET_NAME
+	time node --max-old-space-size=7000 $WORKSPACE/$RRM_PROCESSOR_REPO_NAME/src/createJSON.js $RESULTS/$FACET_NAME/
+	### Create (if not exist) current "target named"-, "current epub"-directory
+	if [ ! -d $NIGHTLY_EPUBS/$TARGET_NAME ]; then mkdir -p $NIGHTLY_EPUBS/$TARGET_NAME; fi
+	### Copy epubs after their processing to the "current epubs"-directory
+	time rsync -rv --delete $RESULTS/$FACET_NAME/ $NIGHTLY_EPUBS/$TARGET_NAME/
 done
 
 ### Copy current epubs to jenkins nodes
-for i in "${FACET[@]}"
+for TARGET_NAME in "${TARGET[@]}"
 do
-        # create tar.xz archive
-        NIGHTLY_ARCH_NAME="nightly-$i.tar.xz"
-        time tar cfJ $NIGHTLY_ARCH_NAME $NIGHTLY_EPUBS/$i --exclude="_oldjson"
-        ### Copy current epubs to mac-mini
-        if [ "$i" = "ocean" ]; then
-                printf "epubs for facet named 'ocean' will not be copying to mac-mini \n"
-        else
-                ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-                        if [ ! -d $NIGHTLY_MACMINI_EPUBS/$i ]; then mkdir -p $NIGHTLY_MACMINI_EPUBS/$i; fi
-                        rm -rf $NIGHTLY_MACMINI_EPUBS/$i/*
-                "
-                time scp $NIGHTLY_ARCH_NAME jenkins@yuriys-mac-mini.isd.dp.ua:~
-                ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-                        tar xfJ $NIGHTLY_ARCH_NAME -C $NIGHTLY_MACMINI_EPUBS/$i/
-                        mv $NIGHTLY_MACMINI_EPUBS/$i$NIGHTLY_EPUBS/$i/* $NIGHTLY_MACMINI_EPUBS/$i/ && rm -rf $NIGHTLY_MACMINI_EPUBS/$i/home
-                        rm -f $NIGHTLY_ARCH_NAME
-                "
-        fi
-        ### Copy current epubs to dev02.design.isd.dp.ua
-        if [ "$i" = "ocean" ]; then
-                printf "epubs for facet named 'ocean' will not be copying to dev02 \n"
-        else
-                ssh jenkins@dev02.design.isd.dp.ua "
-                        if [ ! -d $NIGHTLY_EPUBS/$i ]; then mkdir -p $NIGHTLY_EPUBS/$i; fi
-                        rm -rf $NIGHTLY_EPUBS/$i/*
-                "
-                time scp $NIGHTLY_ARCH_NAME jenkins@dev02.design.isd.dp.ua:~
-                ssh jenkins@dev02.design.isd.dp.ua "
-                        tar xfJ $NIGHTLY_ARCH_NAME -C $NIGHTLY_EPUBS/$i/
-                        mv $NIGHTLY_EPUBS/$i$NIGHTLY_EPUBS/$i/* $NIGHTLY_EPUBS/$i/ && rm -rf $NIGHTLY_EPUBS/$i/home
-                        rm -f $NIGHTLY_ARCH_NAME
-                "
-        fi
-        # remove tar.xz archive
-        rm -f $NIGHTLY_ARCH_NAME
+	### Clone or "git pull" (if exist) targets-repo
+	if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+		cd $WORKSPACE && git clone $TARGETS_REPO
+	else cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+	fi
+	### Determine facet name from target
+	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
+	### Sync current "target named"-epubs to mac-mini ("yuriys-mac-mini" and "users-mac-mini"), if target config contain platform "ios"
+	if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json; then
+		ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d $NIGHTLY_MACMINI_EPUBS/$TARGET_NAME ]; then mkdir -p $NIGHTLY_MACMINI_EPUBS/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $NIGHTLY_EPUBS/$TARGET_NAME/ jenkins@yuriys-mac-mini.isd.dp.ua:$NIGHTLY_MACMINI_EPUBS/$TARGET_NAME/
+		ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d $NIGHTLY_MACMINI_EPUBS/$TARGET_NAME ]; then mkdir -p $NIGHTLY_MACMINI_EPUBS/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $NIGHTLY_EPUBS/$TARGET_NAME/ jenkins@users-mac-mini.design.isd.dp.ua:$NIGHTLY_MACMINI_EPUBS/$TARGET_NAME/
+	fi
+	### Sync current "target named"-epubs to dev02.design.isd.dp.ua
+	if [ "$FACET_NAME" = "ocean" ]; then
+		printf "epubs for facet named 'ocean', target is $TARGET_NAME, will not be copying to dev02.design.isd.dp.ua \n"
+	else
+		ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d $NIGHTLY_EPUBS/$TARGET_NAME ]; then mkdir -p $NIGHTLY_EPUBS/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $NIGHTLY_EPUBS/$TARGET_NAME/ jenkins@dev02.design.isd.dp.ua:$NIGHTLY_EPUBS/$TARGET_NAME/
+	fi
 done
 
 ### Create variables for meta.json
@@ -129,7 +129,7 @@ READER_COMMIT_URL="http://wpp.isd.dp.ua/gitlab/irls/$READER_REPO_NAME/commit/$RE
 
 ### Generate deploymentPackageId array
 deploymentPackageId=()
-for i in "${FACET[@]}"
+for i in "${TARGET[@]}"
 do
         deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$READER_SHORT_COMMIT_HASH$RRM_PROCESSOR_SHORT_COMMIT_HASH$RRM_OCEAN_SHORT_COMMIT_HASH"_"$i")")
 done
@@ -140,20 +140,18 @@ do
         echo "numbers of element in array deploymentPackageId=${#deploymentPackageId[@]}"
         ### check exists directory $NIGHTLY_ARTIFACTS_DIR/$i
         if [ ! -d $NIGHTLY_ARTIFACTS_DIR/$i ]; then mkdir -p $NIGHTLY_ARTIFACTS_DIR/$i; fi
-        ### Determine facet name
-        FACET_NAME=""
-        FACET_NAME=$(echo $i | awk -F "_" '{print $2}')
-        echo FACET_NAME=$FACET_NAME
+	### Determine facet name
+        TARGET_NAME=$(echo $i | sed 's@^.[0-9a-z]*_@@g')
         function create_meta {
                 echo "Starting of function create_meta with variables $1 and $2"
                 ### $1 - it is deploymentPackageId
-                ### $2 - it is FACET_NAME
+                ### $2 - it is TARGET_NAME
                 CURRENT_META_JSON=""
                 CURRENT_META_JSON=$NIGHTLY_ARTIFACTS_DIR/$1/meta.json
                 echo CURRENT_META_JSON=$CURRENT_META_JSON
                 echo -e "{" >> $CURRENT_META_JSON
                 echo -e "\t\"buildID\":\""$1"\"," >> $CURRENT_META_JSON
-                echo -e "\t\"facetName\":\""$2"\"," >> $CURRENT_META_JSON
+                echo -e "\t\"targetName\":\""$2"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"commitDate\":\""$READER_COMMIT_DATE"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"rrm-processor\" : {" >> $CURRENT_META_JSON
@@ -193,35 +191,34 @@ do
                 sudo /bin/chown -Rf jenkins:www-data $NIGHTLY_ARTIFACTS_DIR/$i
                 /bin/chmod -Rf g+w $NIGHTLY_ARTIFACTS_DIR/$i
                 cat /dev/null > $NIGHTLY_ARTIFACTS_DIR/$i/meta.json
-                create_meta $i $FACET_NAME
+                create_meta $i $TARGET_NAME
         else
-                create_meta $i $FACET_NAME
+                create_meta $i $TARGET_NAME
         fi
 done
 
 ### Main loop
-for i in "${FACET[@]}"
+for i in "${TARGET[@]}"
 do
         ### Temporary variables
-        TARG=$(echo "$i"_FFA)
-        GIT_COMMIT_TARGET=$(echo "$READER_COMMIT_HASH"-"$TARG")
+        GIT_COMMIT_TARGET=$(echo "$READER_COMMIT_HASH"-"$i")
         CB_DIR="$NIGHTLY_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$NIGHTLY_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
         cd $WORKSPACE/$READER_REPO_NAME/client
+	node compileHandlebars.js
         ### Build client and server parts
-        node index.js --target=$TARG --targetPath=$WORKSPACE/$TARGETS_REPO_NAME --readerPath=$WORKSPACE/$READER_REPO_NAME
-        grunt --no-color
+        node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPO_DIR_NAME --readerPath=$WORKSPACE/$READER_REPO_NAME
+        grunt verify
+        grunt productionCompile
         ### Copy code of project to the directory $NIGHTLY_BUILD and removing outdated directories from the directory $NIGHTLY_BUILD (on the host dev01)
-        if [ -d $CB_DIR/client ]; then rm -rf $CB_DIR/client/* ; else mkdir -p $CB_DIR/client ; fi
-        cp -Rf $WORKSPACE/$READER_REPO_NAME/client/out/dist/* $CB_DIR/client
-        ### Copy meta.json to application directory
+	rm -rf $CB_DIR
+        mkdir -p $CB_DIR/client
+        mkdir -p $CB_DIR/$TARGETS_REPO_DIR_NAME
+        time rsync -rzv --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPO_NAME/ $CB_DIR/
+        time rsync -rzv --delete $WORKSPACE/$READER_REPO_NAME/client/out/dist/ $CB_DIR/client/
+        time rsync -rzv --delete --exclude ".git" $WORKSPACE/$TARGETS_REPO_DIR_NAME/ $CB_DIR/$TARGETS_REPO_DIR_NAME/
+	### Copy meta.json to application directory
         for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $NIGHTLY_ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
-        if [ -d "$WORKSPACE/$TARGETS_REPO_NAME" ]; then cp -Rf $WORKSPACE/$TARGETS_REPO_NAME $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/$READER_REPO_NAME/packager" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/packager $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/$READER_REPO_NAME/server" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/server $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/$READER_REPO_NAME/common" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/common $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/$READER_REPO_NAME/portal" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/portal $CB_DIR/ ; fi
-        if [ -d "$WORKSPACE/$READER_REPO_NAME/books" ]; then cp -Rf $WORKSPACE/$READER_REPO_NAME/books $CB_DIR/ ; fi
         ### Create function for cleaning outdated directories from the directory of current code build
         function build_dir_clean (){
                 # Numbers of directories in the $NIGHTLY_BUILD/
@@ -237,38 +234,23 @@ do
                         done
                 fi
         }
+
         ### removing outdated directories from the directory $NIGHTLY_BUILD (on the host dev01)
         build_dir_clean $NIGHTLY_BUILD
-        ### create archive
-        time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/packager $CB_DIR/client $CB_DIR/targets $CB_DIR/portal $CB_DIR/books
-        ### copy project to mac-mini
-        ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-               if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
-        "
-        time scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
-        ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-               tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_REMOTE_DIR/
-               mv $CB_REMOTE_DIR/$CB_DIR/* $CB_REMOTE_DIR/
-               rm -rf $CB_REMOTE_DIR/home
-               rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
-        "
-        ### copy project to dev02
-        ssh jenkins@dev02.design.isd.dp.ua "
-                if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
-        "
-        scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz  jenkins@dev02.design.isd.dp.ua:~
-        ssh jenkins@dev02.design.isd.dp.ua "
-                tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_DIR/
-                mv $CB_DIR/$CB_DIR/* $CB_DIR/
-                rm -rf $CB_DIR/home
-                rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
-        "
+
+	### copy project to mac-mini
+        ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR; fi"
+	time rsync -rzv --delete $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
+
+	### copy project to dev02
+        ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR; fi"
+	time rsync -rzv --delete $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
+
         ### removing outdated directories from the directory $NIGHTLY_REMOTE_BUILD (on the host yuriys-mac-mini)
         typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $NIGHTLY_REMOTE_BUILD"
+
         ### removing outdated directories from the directory $NIGHTLY_BUILD (on the host dev02)
         typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $NIGHTLY_BUILD"
-        ### removing archive
-        rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
 done
 
 rm -rf $WORKSPACE/reader/client/out
@@ -281,7 +263,7 @@ echo "NIGHTLY_BUILD=$NIGHTLY_BUILD" >> $WORKSPACE/myenv
 echo "READER_BRANCH_NAME=$READER_BRANCH_NAME" >> $WORKSPACE/myenv
 echo "READER_COMMIT_HASH=$READER_COMMIT_HASH" >> $WORKSPACE/myenv
 echo deploymentPackageId=${deploymentPackageId[@]} >> $WORKSPACE/myenv
-echo "FACET=$(for i in ${FACET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
+echo "TARGET=$(for i in ${TARGET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
 echo "NIGHTLY_MACMINI_EPUBS=$NIGHTLY_MACMINI_EPUBS" >> $WORKSPACE/myenv
 echo "NIGHTLY_ARTIFACTS_DIR=$NIGHTLY_ARTIFACTS_DIR" >> $WORKSPACE/myenv
 echo "NIGHTLY_REMOTE_BUILD=$NIGHTLY_REMOTE_BUILD" >> $WORKSPACE/myenv

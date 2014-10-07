@@ -1,7 +1,7 @@
-### This job should take such variables as READER_BRANCH_NAME, READER_COMMIT_HASH, NIGHTLY_BUILD, ID, FACET, NIGHTLY_ARTIFACTS_DIR, ENVIRONMENT, NIGHTLY_EPUBS
+### This job should take such variables as READER_BRANCH_NAME, READER_COMMIT_HASH, NIGHTLY_BUILD, ID, TARGET, NIGHTLY_ARTIFACTS_DIR, ENVIRONMENT, NIGHTLY_EPUBS
 
 ### Variables
-FACETS=($(echo $FACET))
+TARGET=($(echo $TARGET))
 PREFIX=$(echo $READER_BRANCH_NAME | sed 's/\//-/g')
 SCRIPTS_DIR="$HOME/scripts"
 deploymentPackageId=($(echo $ID))
@@ -10,10 +10,10 @@ declare -A combineArray
 ### Create associative array
 for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
-        for ((y=0; y<${#FACETS[@]}; y++))
+        for ((y=0; y<${#TARGET[@]}; y++))
         do
-                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}$")" ]; then
-                        combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
+                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
+                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
                 fi
         done
 done
@@ -42,8 +42,8 @@ function main_loop {
                 cp -Rf $WORKSPACE/server $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 cp -Rf $WORKSPACE/portal $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 cp -Rf $WORKSPACE/books $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                cp -Rf $WORKSPACE/packager/out/dest/*/* $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/client
-                cp -Rf /home/couchdb/$i* $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
+                cp -Rf $WORKSPACE/packager/out/dest/*/* $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
+                cp -Rf /home/couchdb/"$i"_night $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/
                 ### Check text clustering
 #               cd $WORKSPACE
 #               git clone git@wpp.isd.dp.ua:irls/rrm-processor.git
@@ -56,12 +56,12 @@ function main_loop {
         do
 
                 rm -rf $WORKSPACE/*
-                GIT_COMMIT_TARGET=$(echo "$READER_COMMIT_HASH"-"$i"_"FFA")
+                GIT_COMMIT_TARGET=$(echo "$READER_COMMIT_HASH"-"$i")
                 cp -Rf $NIGHTLY_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
                 echo $i --- ${combineArray[$i]}
                 ### Checking
-		if grep "platforms.*web" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
+		if grep "platforms.*web" $WORKSPACE/targets/$i/targetConfig.json; then
 			notmainloop
 		else
 			echo "Shutdown of this job because platform \"web\" not found in config targetConfig.json"

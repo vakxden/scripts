@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 FACETS="$1"
 
 if [ -z $FACETS ]; then
