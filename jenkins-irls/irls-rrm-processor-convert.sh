@@ -4,12 +4,13 @@ CURRENT_TEXTS=$HOME/irls-reader-current-texts
 PROJECTNAME=$(basename $CURRENT_RRM)
 RESULTS=$WORKSPACE/results
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
-#FACETS=(puddle lake bahaiebooks ocean audio mediaoverlay)
-FACETS=($(echo $FACET))
-META1=$HOME/irls-rrm-processor-deploy/meta-processor-deploy
-META2=$HOME/irls-reader-current-texts/meta-ocean-deploy
+TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
+TARGET=($(echo $TARGET))
+META1=$CURRENT_RRM/meta-processor-deploy
+META2=$CURRENT_TEXTS/meta-ocean-deploy
 META_SUM_ALL=meta-all
-# from phantom
+# Export variable for phantom
 export NODE_PATH=/opt/node/lib/node_modules/
 
 cp -Rf $CURRENT_RRM $WORKSPACE
@@ -18,110 +19,74 @@ cd $WORKSPACE/$PROJECTNAME
 N=$(echo $BUILD_DISPLAY_NAME | sed 's/\#//g')
 cat /dev/null > $WORKSPACE/filesconv.txt
 
-### Before starting epubchecker (!)
-#rm -f $WORKSPACE/epubcheck*.log
-
 ###
 ### Running convert for all facets
 ###
-for i in "${FACETS[@]}"
+for TARGET_NAME in "${TARGET[@]}"
 do
-	rm -rf $RESULTS/$i
-	mkdir -p $RESULTS/$i
-	cd $WORKSPACE/$PROJECTNAME/src
-	time node main.js $CURRENT_TEXTS $RESULTS/$i $i
-	time node --max-old-space-size=7000 $WORKSPACE/$PROJECTNAME/src/createJSON.js $RESULTS/$i/
-	rm -rf $CURRENT_EPUBS/$i
-	mkdir -p $CURRENT_EPUBS/$i
-	mv $RESULTS/$i/* $CURRENT_EPUBS/$i/
-	META_SUM=meta-current-epubs-$i
-	cat $META1 >> $CURRENT_EPUBS/$i/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$i/$META_SUM
-	# echo numbers of converted files to temporary file
-	files_conv=$(grep "Files converted.*$i" /var/lib/jenkins/jobs/irls-rrm-processor-convert/builds/$N/log | grep -v grep >> $WORKSPACE/filesconv.txt)
-	### Starting epubchecker
-	#cd $WORKSPACE
-	#/opt/epubcheck.sh $CURRENT_EPUBS/$i/
-	# for set description (link to graph for ocean)
-	if [ "$i" = "ocean" ]; then
-		printf "WARN_OCEAN \n"
+	### Clone or "git pull" (if exist) targets-repo
+	if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+		cd $WORKSPACE && git clone $TARGETS_REPO
+	else cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
 	fi
+	### Determine facet name from target
+	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
+	### Clean old "facet named"-directory
+	rm -rf $RESULTS/$FACET_NAME
+	mkdir -p $RESULTS/$FACET_NAME
+	cd $WORKSPACE/$PROJECTNAME/src
+	### Processing raw texts
+	time node main.js $CURRENT_TEXTS $RESULTS/$FACET_NAME $FACET_NAME
+	time node --max-old-space-size=7000 $WORKSPACE/$PROJECTNAME/src/createJSON.js $RESULTS/$FACET_NAME/
+	### Create (if not exist) current "target named"-, "current epub"-directory
+	if [ ! -d $CURRENT_EPUBS/$TARGET_NAME ]; then mkdir -p $CURRENT_EPUBS/$TARGET_NAME; fi
+	### Copy epubs after their processing to the "current epubs"-directory
+	time rsync -rv --delete $RESULTS/$FACET_NAME/ $CURRENT_EPUBS/$TARGET_NAME/
+	### Create file with summary meta-information
+	META_SUM=meta-current-epubs-$TARGET_NAME
+	cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM
+	# echo numbers of converted files to temporary file
+	files_conv=$(grep "Files converted.*$FACET_NAME" /var/lib/jenkins/jobs/irls-rrm-processor-convert/builds/$N/log | grep -v grep >> $WORKSPACE/filesconv.txt)
 done
 
 cat /dev/null > $CURRENT_EPUBS/$META_SUM_ALL
 cat $META1 >> $CURRENT_EPUBS/$META_SUM_ALL && cat $META2 >> $CURRENT_EPUBS/$META_SUM_ALL
 
 ###
-### RRDtool - generate graph for ocean facet
+### Zabbix - generate graph for ocean facet
 ###
 DATE=$(date +%s)
 files_conv_ocean=$(grep ocean $WORKSPACE/filesconv.txt | awk '{print $6}')
 if [ ! -z "$files_conv_ocean" ]; then
-	sudo rrdtool update /var/db/rrdtool/trendcountbooks.rrd $DATE:$files_conv_ocean
-	sudo rrdtool graph /home/jenkins/irls-reader-artifacts/trendcountbooks.png -a PNG -v "irls-rrm-processor-convert" --start now-14d --end N -w 1200 -h 400 DEF:numbers_of=/var/db/rrdtool/trendcountbooks.rrd:numbers_of:LAST AREA:numbers_of#00FF00:"Numbers of files converted"
+	zabbix_sender -z 127.0.0.1 p 10051 -s "dev01" -k files_conv_ocean -o "$files_conv_ocean"
 fi
 
 ###
 ### Copy current epubs to jenkins nodes
 ###
-for i in "${FACETS[@]}"
+for TARGET_NAME in "${TARGET[@]}"
 do
-	# create tar.xz archive
-	if [ "$i" = "ocean" ]; then
-		printf "archive for facet named 'ocean' will not be creating \n"
-	else
-		time tar cfJ $i.tar.xz ~/irls-reader-current-epubs/$i --exclude="_oldjson"
+	### Clone or "git pull" (if exist) targets-repo
+	if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+		cd $WORKSPACE && git clone $TARGETS_REPO
+	else cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
 	fi
-	###
-	### Copy current epubs to mac-mini
-	###
-	if [ "$i" = "ocean" ]; then
-		printf "epubs for facet named 'ocean' will not be copying to mac-mini \n"
-	else
-		ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-			if [ ! -d /Users/jenkins/irls-reader-current-epubs/$i ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$i; fi
-			rm -rf /Users/jenkins/irls-reader-current-epubs/$i/*
-		"
-		time scp $i.tar.xz jenkins@yuriys-mac-mini.isd.dp.ua:~
-		ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-			tar xfJ $i.tar.xz -C /Users/jenkins/irls-reader-current-epubs/$i/
-			mv /Users/jenkins/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* /Users/jenkins/irls-reader-current-epubs/$i/ && rm -rf /Users/jenkins/irls-reader-current-epubs/$i/home
-			rm -f $i.tar.xz
-		"
+	### Determine facet name from target
+	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
+	### Sync current "target named"-epubs to mac-mini ("yuriys-mac-mini" and "users-mac-mini"), if target config contain platform "ios"
+	if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json; then
+		ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$TARGET_NAME/
+		ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$TARGET_NAME/
 	fi
-
-	###
-	### Copy current epubs to devzone
-	###
-#	ssh dvac@devzone.dp.ua "
-#		if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir  -p ~/irls-reader-current-epubs/$i; fi
-#		rm -rf ~/irls-reader-current-epubs/$i/*
-#	"
-#	time scp $i.tar.xz dvac@devzone.dp.ua:~
-#	ssh dvac@devzone.dp.ua "
-#		tar xfJ $i.tar.xz -C ~/irls-reader-current-epubs/$i/
-#		mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home
-#		rm -f $i.tar.xz
-#	"
-#
-	###
-	### Copy current epubs to dev02.design.isd.dp.ua
-	###
-	if [ "$i" = "ocean" ]; then
-		printf "epubs for facet named 'ocean' will not be copying to dev02.design.isd.dp.ua \n"
+	### Sync current "target named"-epubs to dev02.design.isd.dp.ua
+	if [ "$FACET_NAME" = "ocean" ]; then
+		printf "epubs for facet named 'ocean', target is $TARGET_NAME, will not be copying to dev02.design.isd.dp.ua \n"
 	else
-		ssh jenkins@dev02.design.isd.dp.ua "
-			if [ ! -d ~/irls-reader-current-epubs/$i ]; then mkdir -p ~/irls-reader-current-epubs/$i; fi
-			rm -rf ~/irls-reader-current-epubs/$i/*
-		"
-		time scp $i.tar.xz jenkins@dev02.design.isd.dp.ua:~
-		ssh jenkins@dev02.design.isd.dp.ua "
-			tar xfJ $i.tar.xz -C ~/irls-reader-current-epubs/$i/
-			mv ~/irls-reader-current-epubs/$i$CURRENT_EPUBS/$i/* ~/irls-reader-current-epubs/$i/ && rm -rf ~/irls-reader-current-epubs/$i/home
-			rm -f $i.tar.xz
-		"
+		ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p ~/irls-reader-current-epubs/$TARGET_NAME; fi"
+		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@dev02.design.isd.dp.ua:~/irls-reader-current-epubs/$TARGET_NAME/
 	fi
-	# remove tar.xz archive
-	rm -f $i.tar.xz
 done
 ###
 ### Remove from workspace

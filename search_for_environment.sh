@@ -43,14 +43,15 @@ printf "start processing file $PFILE \n"
 for ID in ${deploymentPackageId[@]}
 do
         # count of strings in block, named $CURRENT
-        a=$((($(cat $PFILE | wc -l)-8)/3))
+        a=$((($(cat $PFILE | wc -l)-8)/4))
         # find $ID in block named $CURRENT
         grep $CURRENT -A $a $PFILE | grep "\"$ID\"" #/dev/null 2>&1
         # if $ID not found check exist name $FACET in current $ID in block named $CURRENT
         if [ $(echo $?) -eq 1 ]; then
                 printf "\n"
                 printf "environment named $CURRENT in file $PFILE not contains ID=$ID \n"
-                FACET=$(echo $ID | sed 's/^.*_//g')
+                #FACET=$(echo $ID | sed 's/^.*_//g')
+		FACET=$(echo $ID | cut -d"_" -f 2-)
                 printf "check whether a facet named $FACET in current ID=$ID, in environment named $CURRENT ... \n"
                 grep $CURRENT -A $a $PFILE | egrep "$FACET\"\,$|$FACET\"$" #/dev/null 2>&1
                 if [ $(echo $?) -eq 1 ]; then

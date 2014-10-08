@@ -46,13 +46,13 @@ array_contains () {
 
 function generate_indexhtml {
         ### generate index.html
-        cd ~/irls-reader-artifacts/$ID/packages/art/
+        cd ~/irls-reader-artifacts/$ID/art/
         cat /dev/null > index.html
         echo -e '<!DOCTYPE HTML>' >> index.html
         echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
         echo -e '<body><h1>List of artifacts</h1>' >> index.html
         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-        IPAFILE=$BRANCHNAME*FFA_Reader*$FACETS*.ipa
+        IPAFILE=$BRANCHNAME*$FACETS*.ipa
         ZIPWINFILE=$BRANCHNAME*FFA_Reader*$FACETS-win*.zip
         DEB32=$BRANCHNAME-reader-$FACETS*i386.deb
         DEB64=$BRANCHNAME-reader-$FACETS*amd64.deb
@@ -96,7 +96,7 @@ rm -f local.json
 touch local.json
 echo '{' >> local.json
 #echo -e '\t"libraryDir" : "/home/dvac/irls-reader-current-epubs/'$FACETS'/",' >> local.json
-echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> local.json
+echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/client/dist/app/epubs/",' >> local.json
 echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
 echo -e '\t"database_name": "'$FACETS'"' >> local.json
 echo '}'  >> local.json
@@ -108,8 +108,8 @@ touch $ACF
 if [ -z $ID ]; then
          echo "ID was not passed"
 else
-        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
-        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
+        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/art/ >> $ACF
+        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/art/ >> $ACF
                 generate_indexhtml
 fi
 

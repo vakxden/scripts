@@ -1,4 +1,4 @@
-### This job should take such variables as NIGHTLY_BUILD, READER_BRANCH_NAME, READER_BRANCH_NAME, ID, FACET, ENVIRONMENT
+### This job should take such variables as NIGHTLY_BUILD, READER_BRANCH_NAME, READER_BRANCH_NAME, ID, TARGET, ENVIRONMENT
 
 ###
 ### Variables
@@ -15,17 +15,17 @@ export PATH=$PATH:$NODE_HOME/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tool
 BRANCH=$(echo $READER_BRANCH_NAME | sed 's/\//-/g' | sed 's/_/-/g')
 NIGHTLY_ARTIFACTS_DIR="/home/jenkins/irls-reader-artifacts-nightly"
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
-FACETS=($(echo $FACET))
+TARGET=($(echo $TARGET))
 
 ### Create associative array
 deploymentPackageId=($(echo $ID))
 declare -A combineArray
 for ((x=0; x<${#deploymentPackageId[@]}; x++))
 do
-        for ((y=0; y<${#FACETS[@]}; y++))
+        for ((y=0; y<${#TARGET[@]}; y++))
         do
-                if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${FACETS[y]}$")" ]; then
-                        combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[x]}")
+                if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${TARGET[y]}$")" ]; then
+                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[x]}")
                 fi
         done
 done
@@ -63,21 +63,16 @@ function main_loop {
         for i in "${!combineArray[@]}"
         do
                 rm -rf $WORKSPACE/*
-                GIT_COMMIT_TARGET=$(echo "$READER_COMMIT_HASH"-"$i"_"FFA")
+                GIT_COMMIT_TARGET=$(echo "$READER_COMMIT_HASH"-"$i")
                 cp -Rf $NIGHTLY_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
 
                 echo $i --- ${combineArray[$i]}
                 ### Checking
-                if [ "$READER_BRANCH_NAME" = "feature/platforms-config" ]; then
-                        if grep "platforms.*android" $WORKSPACE/targets/"$i"_"FFA"/targetConfig.json; then
-                                notmainloop
-                        else
-                                echo "Shutdown of this job because platform \"android\" not found in config targetConfig.json"
-                                exit 0
-                        fi
-                else
+                if grep "platforms.*android" $WORKSPACE/targets/"$i"/targetConfig.json; then
                         notmainloop
+                else
+                        echo "Platform \"android\" not found in config targetConfig.json"
                 fi
         done
 }

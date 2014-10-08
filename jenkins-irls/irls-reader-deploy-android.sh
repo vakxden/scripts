@@ -2,24 +2,24 @@
 ### Checking variables that were passed to the current bash-script
 ###
 if [ -z $BRANCHNAME ]; then
-	printf "[ERROR_BRANCHNAME] Branchname must be passed \n"
-	exit 1
+        printf "[ERROR_BRANCHNAME] Branchname must be passed \n"
+        exit 1
 fi
 
 if [ -z $mark ]; then
-	printf "[ERROR_MARK] mark must be passed \n"
-	exit 1
+        printf "[ERROR_MARK] mark must be passed \n"
+        exit 1
 elif [ "$mark" = "all" ] || [ "$mark" = "initiate-android" ]; then
-	if [ "$dest" = "STAGE" ]; then
-		echo \[WARN_MARK\] dest=STAGE, so just running on empty
-	fi
-	if [ "$dest" = "LIVE" ]; then
-		echo \[WARN_MARK\] dest=LIVE, so just running on empty
-	fi
-	echo \[WARN_MARK\] branch name is \<b\>$BRANCHNAME\</b\>\<br\>dest is \<b\>$dest\</b\>\<br\>ID is \<b\>$ID\</b\>
+        if [ "$dest" = "STAGE" ]; then
+                echo \[WARN_MARK\] dest=STAGE, so just running on empty
+        fi
+        if [ "$dest" = "LIVE" ]; then
+                echo \[WARN_MARK\] dest=LIVE, so just running on empty
+        fi
+        echo \[WARN_MARK\] branch name is \<b\>$BRANCHNAME\</b\>\<br\>dest is \<b\>$dest\</b\>\<br\>ID is \<b\>$ID\</b\>
 elif ! [ "$mark"  = "all" ] || ! [ "$mark"  = "initiate-android" ]; then
-	echo \[WARN_MARK\] just running on empty
-	exit 0
+        echo \[WARN_MARK\] just running on empty
+        exit 0
 fi
 
 ###
@@ -29,7 +29,7 @@ BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
-FACETS=($(echo $FACET))
+TARGET=($(echo $TARGET))
 
 ###
 ### Create associative array
@@ -39,10 +39,10 @@ declare -A combineArray
 
 for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
-        for ((y=0; y<${#FACETS[@]}; y++))
+        for ((y=0; y<${#TARGET[@]}; y++))
         do
-                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}$")" ]; then
-                        combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
+                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
+                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
                 fi
         done
 done
@@ -150,3 +150,4 @@ else
         printf "[ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest! \n"
         exit 1
 fi
+

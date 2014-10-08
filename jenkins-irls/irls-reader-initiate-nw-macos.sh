@@ -66,7 +66,22 @@ function main_loop {
 	for i in "${!combineArray[@]}"
 	do
 		rm -rf $WORKSPACE/*
-		if [ "$i" = "ocean" ]; then BRAND="$i"_"Ocean"; else BRAND="$i"_"FFA"; fi
+		#if [ "$i" = "ocean" ]; then BRAND="$i"_"Ocean"; else BRAND="$i"_"FFA"; fi
+		if [ "$i" = "epubtest" ];then
+                        BRAND=$(echo "$i"_irls)
+                elif [ "$i" = "ocean" ];then
+                        BRAND=$(echo "$i"_irls)
+                elif [ "$i" = "audio" ];then
+                        BRAND=$(echo "$i"_irls)
+                elif [ "$i" = "audiobywords" ];then
+                        BRAND=$(echo "$i"_irls)
+                elif [ "$i" = "gutenberg" ];then
+                        BRAND=$(echo "$i"_FFA)
+                elif [ "$i" = "refbahai" ];then
+                        BRAND=$(echo "$i"_Ocean)
+                else
+                        BRAND=$(echo "$i"_FFA)
+                fi
                 GIT_COMMIT_TARGET="$GIT_COMMIT"-"$BRAND"
 		cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 

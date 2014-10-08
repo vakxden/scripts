@@ -1,11 +1,11 @@
-### This job should take such variables as ID, READER_BRANCH_NAME, ENVIRONMENT, FACET, NIGHTLY_ARTIFACTS_DIR, 
+### This job should take such variables as ID, READER_BRANCH_NAME, ENVIRONMENT, TARGET, NIGHTLY_ARTIFACTS_DIR 
 
 ###
 ### Constant local variables
 ###
 BRANCH=$(echo $READER_BRANCH_NAME | sed 's/\//-/g' | sed 's/_/-/g')
 BUILD_ID=donotkillme
-FACETS=($(echo $FACET))
+TARGET=($(echo $TARGET))
 # clean file myenv
 cat /dev/null > $WORKSPACE/myenv
 ###
@@ -16,10 +16,10 @@ declare -A combineArray
 
 for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
-        for ((y=0; y<${#FACETS[@]}; y++))
+        for ((y=0; y<${#TARGET[@]}; y++))
         do
-                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}$")" ]; then
-                        combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
+                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
+                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
                 fi
         done
 done
@@ -29,7 +29,7 @@ done
 function generate_files {
         # $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
         cd $1
-        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
+        sudo /home/jenkins/scripts/portgenerator-for-night-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
         #rm -f $1/server/config/local.json
         ls -lah
         echo PWD=$PWD
@@ -86,7 +86,7 @@ if [ "$ENVIRONMENT" = "NIGHT" ]; then
                 # update environment.json file
                 /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
                 # generate links for description job
-                echo link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/night/reader/$i/$BRANCH/client/dist/app/index.html"
+                echo link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/night/reader/$i/$BRANCH/reader/dist/app/index_reader.html"
         done
 else
         printf "[ERROR_DEST] ENVIRONMENT must be NIGHT! Not $ENVIRONMENT! \n"

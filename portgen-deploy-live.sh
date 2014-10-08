@@ -46,7 +46,7 @@ array_contains () {
 
 function generate_indexhtml {
         ### generate index.html
-        cd ~/irls-reader-artifacts/$ID/packages/art/
+        cd ~/irls-reader-artifacts/$ID/art/
         cat /dev/null > index.html
         echo -e '<!DOCTYPE HTML>' >> index.html
         echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
@@ -96,7 +96,7 @@ rm -f local.json
 touch local.json
 echo '{' >> local.json
 #echo -e '\t"libraryDir" : "/home/dvac/irls-reader-current-epubs/'$FACETS'/",' >> local.json
-echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> local.json
+echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/client/dist/app/epubs/",' >> local.json
 echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
 echo -e '\t"database_name": "'$FACETS'"' >> local.json
 echo '}'  >> local.json
@@ -108,8 +108,8 @@ touch $ACF
 if [ -z $ID ]; then
          echo "ID was not passed"
 else
-        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
-        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/packages/art/ >> $ACF
+        echo -e '\t'ProxyPass /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/art/ >> $ACF
+        echo -e '\t'ProxyPassReverse /$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1:8890/irls-reader-artifacts/$ID/art/ >> $ACF
                 generate_indexhtml
 fi
 

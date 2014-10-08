@@ -1,11 +1,11 @@
-### This job should take such variables as NIGHTLY_ARTIFACTS_DIR, ENVIRONMENT, READER_BRANCH_NAME, ID, FACET
+### This job should take such variables as NIGHTLY_ARTIFACTS_DIR, ENVIRONMENT, READER_BRANCH_NAME, ID, TARGET 
 
 ###
 ### Constant local variables
 ###
 BRANCH=$(echo $READER_BRANCH_NAME | sed 's/\//-/g' | sed 's/_/-/g')
 BUILD_ID=donotkillme
-FACETS=($(echo $FACET))
+TARGET=($(echo $TARGET))
 ###
 ### Create associative array
 ###
@@ -14,10 +14,10 @@ declare -A combineArray
 
 for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
-        for ((y=0; y<${#FACETS[@]}; y++))
+        for ((y=0; y<${#TARGET[@]}; y++))
         do
-                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}$")" ]; then
-                        combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
+                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
+                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
                 fi
         done
 done
@@ -26,7 +26,7 @@ done
 ###
 function generate_files {
         cd $1
-        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
+        sudo /home/jenkins/scripts/portgenerator-for-night-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
         #rm -f $1/server/config/local.json
         ls -lah
         echo PWD=$PWD
