@@ -131,11 +131,6 @@ if [ "$dest" = "DEVELOPMENT" ]; then
         do
                 # output value for a pair "key-value"
                 echo $i --- ${combineArray[$i]}
-                # check ocean facet
-                if [ "$i"  = "ocean" ]; then
-                        echo \[WARN_MARK\] just running on empty for $i
-                        continue
-                fi
                 # variables
                 CURRENT_ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
                 CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
@@ -173,11 +168,6 @@ elif [ "$dest" = "STAGE" ]; then
         do
                 # output value for a pair "key-value"
                 echo $i --- ${combineArray[$i]}
-                # check ocean facet
-                if [ "$i"  = "ocean" ]; then
-                        echo \[WARN_MARK\] just running on empty for $i
-                        continue
-                fi
                 # variables
                 CURRENT_ARTIFACTS_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages/artifacts
                 STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
@@ -218,11 +208,6 @@ elif [ "$dest" = "LIVE" ]; then
         do
                 # output value for a pair "key-value"
                 echo $i --- ${combineArray[$i]}
-                # check ocean facet
-                if [ "$i"  = "ocean" ]; then
-                        echo \[WARN_MARK\] just running on empty for $i
-                        continue
-                fi
                 # variables
                 STAGE_ARTIFACTS_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages/artifacts
                 REMOTE_ART_PATH="/home/dvac/irls-reader-artifacts"
