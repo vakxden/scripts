@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# example list of id's:
-# 11111111111111111111_puddle 111111111111111111111_e87c5e722febc61e5c5be_lake 111111111111111111111_ocean
-# if list of id's contained in array A=(11111111111111111111_puddle 111111111111111111111_e87c5e722febc61e5c5be_lake 111111111111111111111_ocean)
-# right running script is: ./search_for_environment.sh "$(echo ${A[@]})" "DEVELOPMENT"
-# else: ./search_for_environment.sh "11111111111111111111_puddle 111111111111111111111_e87c5e722febc61e5c5be_lake 111111111111111111111_ocean" "DEVELOPMENT"
-
 # $1 = array with id's
 # $2 = $dest
 
@@ -45,28 +39,25 @@ do
         # count of strings in block, named $CURRENT
         a=$((($(cat $PFILE | wc -l)-8)/4))
         # find $ID in block named $CURRENT
-        #grep $CURRENT -A $a $PFILE | grep "\"$ID\"" #/dev/null 2>&1
-        grep $CURRENT -A $a $PFILE | grep $ID$ #/dev/null 2>&1
-        # if $ID not found check exist name $FACET in current $ID in block named $CURRENT
+        grep $CURRENT -A $a $PFILE | grep "\"$ID\"" #/dev/null 2>&1
+        # if $ID not found check exist target name in current $ID in block named $CURRENT
         if [ $(echo $?) -eq 1 ]; then
                 printf "\n"
                 printf "environment named $CURRENT in file $PFILE not contains ID=$ID \n"
-                #FACET=$(echo $ID | sed 's/^.*_//g')
-                FACET=$(echo $ID | cut -d"_" -f 2-)
-                printf "check whether a facet named $FACET in current ID=$ID, in environment named $CURRENT ... \n"
-                #grep $CURRENT -A $a $PFILE | egrep "$FACET\"\,$|$FACET\"$" #/dev/null 2>&1
-                grep $CURRENT -A $a $PFILE | egrep "$FACET$\"\,$|$FACET$\"$" #/dev/null 2>&1
+                TARGET_NAME=$(echo $ID | cut -d"_" -f 2-)
+                printf "check contain name $TARGET_NAME in current ID=$ID, in environment named $CURRENT ... \n"
+                grep $CURRENT -A $a $PFILE | grep -e "[0-9a-z]\{21\}_$TARGET_NAME\",$" -e "[0-9a-z]\{21\}_$TARGET_NAME\"$"
                 if [ $(echo $?) -eq 1 ]; then
-                        printf "environment $CURRENT in file $PFILE not contains facet named $FACET \n"
-                        printf "add $FACET to $PFILE \n"
+                        printf "environment $CURRENT in file $PFILE not contains target name = $TARGET_NAME \n"
+                        printf "add $TARGET_NAME to $PFILE \n"
                         sed -i "/$CURRENT/a \\\t\\t\"$ID\"\," $PFILE
                 else
-                        printf "environment $CURRENT in file $PFILE contains facet named $FACET \n"
+                        printf "environment $CURRENT in file $PFILE contains target name = $TARGET_NAME \n"
                         printf "replacing old ID to new ID named $ID ... \n"
-                        # number of line contain $FACET
-                        num=$(grep $CURRENT -n -A $a $PFILE | egrep  "$FACET\"\,$|$FACET\"$" | cut -d- -f1)
+                        # number of line contain target name
+                        num=$(grep $CURRENT -n -A $a $PFILE | grep -e "[0-9a-z]\{21\}_$TARGET_NAME\",$" -e "[0-9a-z]\{21\}_$TARGET_NAME\"$" | cut -d- -f1)
                         # replace line with old $ID in file $PFILE
-                        sed -i "$num s/\(.*\)$FACET/\t\t\"$ID/" $PFILE
+                        sed -i "$num s/\(.*\)$TARGET_NAME/\t\t\"$ID/" $PFILE
                         printf "Done... \n"
                 fi
         else
