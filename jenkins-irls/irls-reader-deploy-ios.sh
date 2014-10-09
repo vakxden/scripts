@@ -224,7 +224,7 @@ elif [ "$dest" = "LIVE" ]; then
 			cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
 		fi
 		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
-		IPA_NAME="$BRANCH-'$BRAND'_Reader-$i"
+		IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
 		IPA_FILE_NAME="$IPA_NAME.ipa"
                 # copying ipa-file from STAGE_ARTIFACTS_DIR to devzone and repacking it
                 find $STAGE_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
