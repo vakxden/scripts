@@ -136,14 +136,14 @@ elif [ "$dest" = "STAGE" ]; then
                 cd $CURRENT_PKG_DIR
                 if [ ! -d $STAGE_PKG_DIR ]; then
                         mkdir -p $STAGE_PKG_DIR
-                        time rsync -rzv --delete --exclude "*.ipa" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
+                        time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
 			rm -f $STAGE_PKG_DIR/couchdb_indexes/*_users.couch
                 else
                         cd $STAGE_PKG_DIR
                         rm -rf common client server couchdb_indexes artifacts portal books
                         rm -rf $STAGE_PKG_DIR/*
                         cd $CURRENT_PKG_DIR
-                        time rsync -rzv --delete --exclude "*.ipa" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
+                        time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
 			rm -f $STAGE_PKG_DIR/couchdb_indexes/*_users.couch
                 fi
                 # generate index.html and local.json
