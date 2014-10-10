@@ -170,7 +170,7 @@ elif [ "$dest" = "LIVE" ]; then
                 RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
                 ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
                 ssh dvac@devzone.dp.ua "rm -f $RSYNC_FACETS_DIR/client/dist/app/epubs/dirstructure.json"
-                time rsync -rzv --delete --exclude "*.ipa" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
+                time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
                 ssh dvac@devzone.dp.ua "
                         # values
                         INDEX_FILE=index_"$i"_$BRANCH.js
