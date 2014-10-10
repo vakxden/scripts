@@ -98,7 +98,8 @@ echo '{' >> local.json
 #echo -e '\t"libraryDir" : "/home/dvac/irls-reader-current-epubs/'$FACETS'/",' >> local.json
 echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/client/dist/app/epubs/",' >> local.json
 echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
-echo -e '\t"database_name": "'$FACETS'"' >> local.json
+echo -e '\t"database_name": "'$FACETS'",' >> local.json
+echo -e '\t"environment_name": "'$CURRENT'"' >> local.json
 echo '}'  >> local.json
 
 ### Touch apache config file

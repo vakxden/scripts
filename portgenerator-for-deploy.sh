@@ -73,7 +73,8 @@ done
                                 echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> local.json
                         fi
                         echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
-                        echo -e '\t"database_name": "'$FACETS'"' >> local.json
+                        echo -e '\t"database_name": "'$FACETS'",' >> local.json
+                        echo -e '\t"environment_name": "'$CURRENT'"' >> local.json
                         echo '}'  >> local.json
                         chown jenkins:jenkins local.json
                 }
@@ -87,12 +88,12 @@ done
                         echo -e '<html><head><title>List of artifacts</title></head>' >> index.html
                         echo -e '<body><h1>List of artifacts</h1>' >> index.html
                         echo -e '<table><tr><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr><tr><th colspan="5"><hr></th></tr>' >> index.html
-                        IPAFILE=$BRANCHNAME*$FACETS*.ipa
-                        ZIPWINFILE=$BRANCHNAME*FFA_Reader*$FACETS-win*.zip
+                        IPAFILE=$BRANCHNAME*_Reader*$FACETS*.ipa
+                        ZIPWINFILE=$BRANCHNAME*_Reader*$FACETS-win*.zip
                         DEB32=$BRANCHNAME-reader-$FACETS*i386.deb
                         DEB64=$BRANCHNAME-reader-$FACETS*amd64.deb
-                        ZIPMACOSFILE=$BRANCHNAME*FFA_Reader*$FACETS-macos*.zip
-                        APKFILE=$BRANCHNAME*FFA_Reader*$FACETS*.apk
+                        ZIPMACOSFILE=$BRANCHNAME*_Reader*$FACETS-macos*.zip
+                        APKFILE=$BRANCHNAME*_Reader*$FACETS*.apk
                         for file in $IPAFILE $ZIPWINFILE $APKFILE $ZIPMACOSFILE $DEB32 $DEB64
                         do
                                 if [ -f "$(find . -name $file)" ]; then
@@ -174,4 +175,3 @@ done
                         dest_eq_stage
                 fi
                 rm -f $lockfile
-
