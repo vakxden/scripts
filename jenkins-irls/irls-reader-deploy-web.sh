@@ -190,7 +190,7 @@ elif [ "$dest" = "LIVE" ]; then
 			# init users database
 			cd $REMOTE_ART_PATH/${combineArray[$i]}
 			if [ -f server/init.js ]; then
-				node server/init.js
+				~/node/bin/node server/init.js
 			fi
                         # Start node
                         cd $REMOTE_ART_PATH/${combineArray[$i]}
