@@ -20,12 +20,14 @@ deploymentPackageId=($(echo $ID))
 declare -A combineArray
 for ((x=0; x<${#deploymentPackageId[@]}; x++))
 do
-        for ((y=0; y<${#TARGET[@]}; y++))
-        do
-                if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${TARGET[y]}$")" ]; then
-                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[x]}")
-                fi
-        done
+	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
+	combineArray+=(["$a"]="${deploymentPackageId[i]}")
+        #for ((y=0; y<${#TARGET[@]}; y++))
+        #do
+        #        if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${TARGET[y]}$")" ]; then
+        #                combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[x]}")
+        #        fi
+        #done
 done
 
 ###
@@ -61,14 +63,14 @@ function main_loop {
         for i in "${!combineArray[@]}"
         do
                 rm -rf $WORKSPACE/*
-                GIT_COMMIT_TARGET="$GIT_COMMIT"-"$TARGET"
+                GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
                 cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
 
 
                 echo $i --- ${combineArray[$i]}
                 ### Checking contain platform
                 #if [ "$BRANCHNAME" = "feature/platforms-config" ]; then
-                        if grep "platforms.*android" $WORKSPACE/targets/$TARGET/targetConfig.json; then
+                        if grep "platforms.*android" $WORKSPACE/targets/$i/targetConfig.json; then
                                 notmainloop
                         else
                                 echo "Shutdown of this job because platform \"android\" not found in config targetConfig.json"

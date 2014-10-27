@@ -39,12 +39,14 @@ declare -A combineArray
 
 for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
-        for ((y=0; y<${#TARGET[@]}; y++))
-        do
-                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
-                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
-                fi
-        done
+	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
+	combineArray+=(["$a"]="${deploymentPackageId[i]}")
+        #for ((y=0; y<${#TARGET[@]}; y++))
+        #do
+        #        if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
+        #                combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
+        #        fi
+        #done
 done
 
 ###
@@ -106,6 +108,11 @@ if [ "$dest" = "DEVELOPMENT" ]; then
                 echo $i --- ${combineArray[$i]}
                 # generate index.html and local.json
                 generate_files $PKG_DIR
+		# init users database
+		cd $PKG_DIR
+		if [ -f server/init.js ]; then
+			node server/init.js
+		fi
                 # run (re-run) node
                 start_node $PKG_DIR $INDEX_FILE
                 # update environment.json file
@@ -129,26 +136,23 @@ elif [ "$dest" = "STAGE" ]; then
                 cd $CURRENT_PKG_DIR
                 if [ ! -d $STAGE_PKG_DIR ]; then
                         mkdir -p $STAGE_PKG_DIR
-                        if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ] || [ -d portal ] || [ -d books ]; then
-                                #cp -Rf common client server couchdb_indexes artifacts portal books $STAGE_PKG_DIR/
-                                time rsync -rzv --delete --exclude "*.ipa" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
-                        fi
+                        time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
+			rm -f $STAGE_PKG_DIR/couchdb_indexes/*_users.couch
                 else
                         cd $STAGE_PKG_DIR
                         rm -rf common client server couchdb_indexes artifacts portal books
                         rm -rf $STAGE_PKG_DIR/*
                         cd $CURRENT_PKG_DIR
-                        # this check is needed because in the job named "irls-reader-initiate-web" was disabled facet named "ocean"
-                        # ( to save time and because was next error:
-                        # "Unable to write "/var/lib/jenkins/jobs/irls-reader-initiate-web/workspace/packager/out/dest/develop-FFA_Reader-ocean-web-0.0.1/dist/app/epubs/thumbs/b6621f20d60938e3633132270bcfb263.png" file (Error code: ENOSPC).")
-                        # the reason is numbers of opened files ("ulimit -a" command) for user
-                        if [ -d common ] || [ -d client ] || [ -d server ] || [ -d couchdb_indexes ] || [ -d portal ] || [ -d books ]; then
-                                #cp -Rf common client server couchdb_indexes artifacts portal books $STAGE_PKG_DIR/
-                                time rsync -rzv --delete --exclude "*.ipa" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
-                        fi
+                        time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
+			rm -f $STAGE_PKG_DIR/couchdb_indexes/*_users.couch
                 fi
                 # generate index.html and local.json
                 generate_files $STAGE_PKG_DIR
+		# init users database
+		cd $STAGE_PKG_DIR
+		if [ -f server/init.js ]; then
+			node server/init.js
+		fi
                 # run (re-run) node
                 start_node $STAGE_PKG_DIR $INDEX_FILE
                 # update environment.json file
@@ -166,13 +170,14 @@ elif [ "$dest" = "LIVE" ]; then
                 RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
                 ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
                 ssh dvac@devzone.dp.ua "rm -f $RSYNC_FACETS_DIR/client/dist/app/epubs/dirstructure.json"
-                time rsync -rzv --delete --exclude "*.ipa" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
+                time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
                 ssh dvac@devzone.dp.ua "
                         # values
                         INDEX_FILE=index_"$i"_$BRANCH.js
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
                         cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
                         rm -rf /home/dvac/couchdb/var/lib/couchdb/"$i"_*.couch
+			rm -f $REMOTE_ART_PATH/${combineArray[$i]}/couchdb_indexes/*_users.couch
                         cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/couchdb_indexes/"$i"_*.couch /home/dvac/couchdb/var/lib/couchdb/
                         /home/dvac/couchdb/etc/init.d/couchdb restart
                         # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
@@ -182,6 +187,11 @@ elif [ "$dest" = "LIVE" ]; then
                         mv $REMOTE_ART_PATH/${combineArray[$i]}/artifacts $REMOTE_ART_PATH/${combineArray[$i]}/art
                         /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
                         cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
+			# init users database
+			cd $REMOTE_ART_PATH/${combineArray[$i]}
+			if [ -f server/init.js ]; then
+				~/node/bin/node server/init.js
+			fi
                         # Start node
                         cd $REMOTE_ART_PATH/${combineArray[$i]}
                         PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')

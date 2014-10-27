@@ -113,7 +113,7 @@ do
                 echo -e "\t}," >> $CURRENT_META_JSON
                 echo -e "\t\"reader\" : {" >> $CURRENT_META_JSON
                 echo -e "\t\t\"commitID\":\""$GIT_COMMIT"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE"\"," >> $CURRENT_META_JSON
+                echo -e "\t\t\"commitMessage\":\""$( echo $GIT_COMMIT_MESSAGE | sed 's@"@@g')"\"," >> $CURRENT_META_JSON
                 echo -e "\t\t\"branchName\":\""$BRANCHNAME"\"," >> $CURRENT_META_JSON
                 echo -e "\t\t\"commitAuthor\":\""$GIT_COMMIT_AUTHOR"\"," >> $CURRENT_META_JSON
                 echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON

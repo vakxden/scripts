@@ -1,11 +1,13 @@
-### This job should take such variables as NIGHTLY_ARTIFACTS_DIR, ENVIRONMENT, READER_BRANCH_NAME, ID, FACET
+### This job should take such variables as NIGHTLY_ARTIFACTS_DIR, ENVIRONMENT, READER_BRANCH_NAME, ID, TARGET 
 
 ###
 ### Constant local variables
 ###
+TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
 BRANCH=$(echo $READER_BRANCH_NAME | sed 's/\//-/g' | sed 's/_/-/g')
 BUILD_ID=donotkillme
-FACETS=($(echo $FACET))
+TARGET=($(echo $TARGET))
 ###
 ### Create associative array
 ###
@@ -14,19 +16,36 @@ declare -A combineArray
 
 for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
-        for ((y=0; y<${#FACETS[@]}; y++))
+        for ((y=0; y<${#TARGET[@]}; y++))
         do
-                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${FACETS[y]}$")" ]; then
-                        combineArray+=(["${FACETS[y]}"]="${deploymentPackageId[i]}")
+                if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
+                        combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
                 fi
         done
 done
 ###
 ### Functions
 ###
+function ssh_and_repack {
+        KEYSTORE="~/keystore_repacking_ipa/ipack.ks"
+        STOREPASS="jenk123ins"
+        KEYPASS="jenk123ins"
+        ALIAS="jenkins-key"
+        CURRENT_URL="https://wpps.isd.dp.ua/irls/$dest/reader/$i/$BRANCH/"
+        ssh dev02.design.isd.dp.ua "
+        rm -rf $TEMPORARY_IPA_REPACKING_DIR
+        mkdir $TEMPORARY_IPA_REPACKING_DIR
+        mv ~/$IPA_FILE_NAME $TEMPORARY_IPA_REPACKING_DIR/
+        cd $TEMPORARY_IPA_REPACKING_DIR
+        unzip $IPA_FILE_NAME
+        rm -f $IPA_FILE_NAME
+        sed -i '1s@\(.*\)@{\n    \"currentURL\": \"$CURRENT_URL\",@' Payload/$IPA_NAME.app/www/dist/app/build.info.json
+        java -jar /opt/ipack.jar $IPA_FILE_NAME -keystore $KEYSTORE -storepass $STOREPASS -alias $ALIAS -keypass $KEYPASS -appdir Payload/$IPA_NAME.app -appname $IPA_NAME -appid \"UC7ZS26U3J.*\"
+        "
+}
 function generate_files {
         cd $1
-        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
+        sudo /home/jenkins/scripts/portgenerator-for-night-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
         #rm -f $1/server/config/local.json
         ls -lah
         echo PWD=$PWD
@@ -70,11 +89,28 @@ function start_node {
 if [ "$ENVIRONMENT" = "NIGHT" ]; then
         for i in "${!combineArray[@]}"
         do
-                # variables
-                PKG_DIR=$NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages
-                INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
                 # output value for a pair "key-value"
                 echo $i --- ${combineArray[$i]}
+                # variables
+		dest="night"
+                PKG_DIR=$NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages
+                INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
+		### Clone or "git pull" (if exist) targets-repo
+		if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+			cd $WORKSPACE && git clone $TARGETS_REPO
+		else
+			cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+		fi
+		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+		IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
+		IPA_FILE_NAME="$IPA_NAME.ipa"
+                TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
+                # search ipa-file and repacking it
+                find $PKG_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
+                ssh_and_repack
+                scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $PKG_DIR/artifacts
+                # test archive (ipa) file
+                unzip -t -q $PKG_DIR/artifacts/$IPA_FILE_NAME
                 # generate index.html and local.json
                 generate_files $PKG_DIR
                 # run (re-run) node
