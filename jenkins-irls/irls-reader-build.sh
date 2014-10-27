@@ -174,6 +174,8 @@ do
         }
         ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         build_dir_clean $CURRENT_BUILD
+	# remove archive from failed builds
+	rm -f $WORKSPACE/current_build-*.tar.gz
         ### create archive
         time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/*
         ### copy project to mac-mini
