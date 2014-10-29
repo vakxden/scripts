@@ -4,11 +4,15 @@
 BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 if [ -z $TARGET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
-                TARGET=(puddle_admin_ffa)
+                TARGET=(ffa)
         else
-                TARGET=(gutenberg_ffa puddle_admin_ffa)
+                TARGET=(ffa)
         fi
 fi
+
+# if commit was to tests directory then this job is exit
+if git show --pretty="format:" --name-only $GIT_COMMIT| grep "tests/"; then echo "It's commit was to 'tests' directory. It's job exit." && exit 0; fi
+#A=$(git show --pretty="format:" --name-only $GIT_COMMIT | sort | uniq); if [ "$(dirname $A)" == "tests" ]; then echo "It's commit was to 'tests' directory. It's job exit." && exit 0; fi
 
 ###
 ### Variables
@@ -174,8 +178,8 @@ do
         }
         ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         build_dir_clean $CURRENT_BUILD
-	# remove archive from failed builds
-	rm -f $WORKSPACE/current_build-*.tar.gz
+        # remove archive from failed builds
+        rm -f $WORKSPACE/current_build-*.tar.gz
         ### create archive
         time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/*
         ### copy project to mac-mini
