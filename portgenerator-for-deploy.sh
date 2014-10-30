@@ -72,6 +72,9 @@ done
                         elif [ "$1" = "STAGE" ]; then
                                 echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> local.json
                         fi
+                        if [ "$1" = "LIVE" ]; then
+                                echo -e '\t"smtpConfig": {\n\t\t"host": "localhost",\n\t\t"port": 25,\n\t\t"ignoreTLS": false,\n\t\t"tls": {"rejectUnauthorized": false},\n\t\t"requiresAuth": false},' >> local.json
+                        fi
                         echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
                         echo -e '\t"database_name": "'$FACETS'",' >> local.json
                         echo -e '\t"environment_name": "'$CURRENT'"' >> local.json
