@@ -30,17 +30,20 @@ function main_loop {
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
-                if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
-                        mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
-                fi
                 #if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes ]; then
                 #        mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
                 #fi
-                cp -Rf $WORKSPACE/common $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                cp -Rf $WORKSPACE/server $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                cp -Rf $WORKSPACE/books $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
+                #cp -Rf $WORKSPACE/common $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                #cp -Rf $WORKSPACE/server $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                #cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                #cp -Rf $WORKSPACE/books $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+		time rsync -rzv --delete $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
+                        mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
+		else
+			rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/*
+                fi
+                cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
                 #ls -l /home/couchdb/"$i"_*.couch
                 #sudo service couchdb restart
                 #ls -l /home/couchdb/"$i"_*.couch
