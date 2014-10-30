@@ -22,8 +22,8 @@ function main_loop {
                 time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
                 #create index
                 cd $WORKSPACE
-                sudo $SCRIPTS_DIR/portgenerator-for-convert.sh $i
-                cp local.json $WORKSPACE/server/config && rm -f local.json
+                #sudo $SCRIPTS_DIR/portgenerator-for-convert.sh $i
+                #cp local.json $WORKSPACE/server/config && rm -f local.json
 		### old feature below commented
                 #cd $WORKSPACE/server
                 #time node initDB.js
@@ -37,7 +37,7 @@ function main_loop {
                 #cp -Rf $WORKSPACE/server $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 #cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 #cp -Rf $WORKSPACE/books $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-		time rsync -rzv --delete --exclude "tests" --exclude "node_modules" --exclude "packager" --exclude "targets" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+		time rsync -rzv --delete --exclude "tests" --exclude "packager" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" --exclude "package.json" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
 		else
