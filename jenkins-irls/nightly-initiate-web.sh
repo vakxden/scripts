@@ -25,25 +25,26 @@ function main_loop {
                 time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$NIGHTLY_EPUBS
                 #create index
                 cd $WORKSPACE
-                sudo $SCRIPTS_DIR/portgenerator-for-night-convert.sh $i
-                cp local.json $WORKSPACE/server/config && rm -f local.json
-                cd $WORKSPACE/server
-                time node initDB.js
+                #sudo $SCRIPTS_DIR/portgenerator-for-night-convert.sh $i
+                #cp local.json $WORKSPACE/server/config && rm -f local.json
+                #cd $WORKSPACE/server
+                #time node initDB.js
                 if [ ! -d $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
                         mkdir -p $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
+                #if [ ! -d $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes ]; then
+                #        mkdir -p $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
+                #fi
+                #cp -Rf $WORKSPACE/common $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                #cp -Rf $WORKSPACE/server $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                #cp -Rf $WORKSPACE/portal $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                #cp -Rf $WORKSPACE/books $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
+		time rsync -rzv --delete --exclude "tests" --exclude "packager" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 if [ ! -d $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
                         mkdir -p $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/client
                 fi
-                if [ ! -d $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes ]; then
-                        mkdir -p $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes
-                fi
-                cp -Rf $WORKSPACE/common $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                cp -Rf $WORKSPACE/server $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                cp -Rf $WORKSPACE/portal $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                cp -Rf $WORKSPACE/books $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 cp -Rf $WORKSPACE/packager/out/dest/*/* $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
-                cp -Rf /home/couchdb/"$i"_night $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/
+                #cp -Rf /home/couchdb/"$i"_night $NIGHTLY_ARTIFACTS_DIR/${combineArray[$i]}/packages/couchdb_indexes/
                 ### Check text clustering
 #               cd $WORKSPACE
 #               git clone git@wpp.isd.dp.ua:irls/rrm-processor.git

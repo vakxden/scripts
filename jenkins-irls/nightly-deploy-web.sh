@@ -81,6 +81,11 @@ if [ "$ENVIRONMENT" = "NIGHT" ]; then
                 echo $i --- ${combineArray[$i]}
                 # generate index.html and local.json
                 generate_files $PKG_DIR
+		 # init users database
+                cd $PKG_DIR
+                if [ -f server/init.js ]; then
+                        node server/init.js
+                fi
                 # run (re-run) node
                 start_node $PKG_DIR $INDEX_FILE
                 # update environment.json file

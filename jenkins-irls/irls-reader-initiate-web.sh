@@ -37,7 +37,8 @@ function main_loop {
                 #cp -Rf $WORKSPACE/server $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 #cp -Rf $WORKSPACE/portal $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 #cp -Rf $WORKSPACE/books $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-		time rsync -rzv --delete --exclude "tests" --exclude "packager" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" --exclude "package.json" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+		#time rsync -rzv --delete --exclude "tests" --exclude "packager" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" --exclude "package.json" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+		time rsync -rzv --delete --exclude "tests" --exclude "packager" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
 		else
