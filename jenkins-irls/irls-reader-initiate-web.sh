@@ -13,12 +13,6 @@ for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
 	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
 	combineArray+=(["$a"]="${deploymentPackageId[i]}")
-        #for ((y=0; y<${#TARGET[@]}; y++))
-        #do
-        #        if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
-        #                combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
-        #        fi
-        #done
 done
 ### Create web-version of application
 function main_loop {
