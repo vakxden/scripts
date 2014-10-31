@@ -11,7 +11,7 @@ TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed
 TARGETS_BRANCH_NAME="master"
 TARGET=(ffa ocean irls-audio irls-audiobywords irls-ocean puddle_ffa puddle_admin_ffa)
 NIGHTLY_EPUBS="$HOME/irls-reader-nightly-epubs"
-NIGHTLY_MACMINI_EPUBS="/Users/jenkins/irls-reader-nightly-epubs/"
+NIGHTLY_MACMINI_EPUBS="/Users/jenkins/irls-reader-nightly-epubs"
 NIGHTLY_ARTIFACTS_DIR="/home/jenkins/irls-reader-artifacts-nightly"
 NIGHTLY_BUILD="/home/jenkins/irls-reader-nightly-build"
 NIGHTLY_REMOTE_BUILD="/Users/jenkins/irls-reader-nightly-build"
@@ -59,6 +59,7 @@ do
 	fi
 	### Determine facet name from target
 	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
+	if [ -z $FACET_NAME ]; then echo "FACET_NAME is not determined!" && exit 1; fi
 	### Clean old "facet named"-directory
 	rm -rf $RESULTS/$FACET_NAME
 	mkdir -p $RESULTS/$FACET_NAME
@@ -82,6 +83,7 @@ do
 	fi
 	### Determine facet name from target
 	FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
+	if [ -z $FACET_NAME ]; then echo "FACET_NAME is not determined!" && exit 1; fi
 	### Sync current "target named"-epubs to mac-mini ("yuriys-mac-mini" and "users-mac-mini"), if target config contain platform "ios"
 	if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json; then
 		ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d $NIGHTLY_MACMINI_EPUBS/$TARGET_NAME ]; then mkdir -p $NIGHTLY_MACMINI_EPUBS/$TARGET_NAME; fi"
@@ -90,9 +92,7 @@ do
 		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $NIGHTLY_EPUBS/$TARGET_NAME/ jenkins@users-mac-mini.design.isd.dp.ua:$NIGHTLY_MACMINI_EPUBS/$TARGET_NAME/
 	fi
 	### Sync current "target named"-epubs to dev02.design.isd.dp.ua
-	if [ "$FACET_NAME" = "ocean" ]; then
-		printf "epubs for facet named 'ocean', target is $TARGET_NAME, will not be copying to dev02.design.isd.dp.ua \n"
-	else
+	if grep "platforms.*android" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json; then
 		ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d $NIGHTLY_EPUBS/$TARGET_NAME ]; then mkdir -p $NIGHTLY_EPUBS/$TARGET_NAME; fi"
 		time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $NIGHTLY_EPUBS/$TARGET_NAME/ jenkins@dev02.design.isd.dp.ua:$NIGHTLY_EPUBS/$TARGET_NAME/
 	fi

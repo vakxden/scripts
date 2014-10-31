@@ -68,7 +68,9 @@ done
                         echo '{' >> local.json
                         echo -e '\t"libraryDir" : "/home/jenkins/'$ARTDIR'/'$ID'/packages/client/dist/app/epubs/",' >> local.json
                         echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
-                        echo -e '\t"database_name": "'$FACETS'_night"' >> local.json
+                        #echo -e '\t"database_name": "'$FACETS'_night",' >> local.json
+                        echo -e '\t"database_name": "'$FACETS'",' >> local.json
+                        echo -e '\t"environment_name": "'$CURRENT'"' >> local.json
                         echo '}'  >> local.json
                         chown jenkins:jenkins local.json
                 }
