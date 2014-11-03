@@ -66,9 +66,13 @@ function pid_node {
                 PID=$(ps aux | grep "node $1" | grep -v grep | /usr/bin/awk '{print $2}')
                 if [ ! -z "$PID" ];then
                         kill -9 $PID
-                        nohup node $1 > /dev/null 2>&1 &
+                        #nohup node $1 > /dev/null 2>&1 &
+			if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
+                        nohup node $1 >> nohup.out 2>&1 &
                 else
-                        nohup node $1 > /dev/null 2>&1 &
+                        #nohup node $1 > /dev/null 2>&1 &
+			if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
+                        nohup node $1 >> nohup.out 2>&1 &
                 fi
                 rm -f local.json irls-current-reader-* irls-stage-reader-*
 }
@@ -199,9 +203,13 @@ elif [ "$dest" = "LIVE" ]; then
                         if [ ! -z \$PID ]
                         then
                                 kill -9 \$PID
-                                nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
+                                #nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
+				if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
+				nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
                         else
-                                nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
+                                #nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
+				nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
+				if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
                         fi"
                 # update environment.json file
                 /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
