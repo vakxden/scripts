@@ -10,12 +10,12 @@ do
         done
 done
 
-# Stage artifacts directory
-while (($(df -h /home | tail -1 | awk '{print $2}' | sed 's/G//g')>160))
-do
-        echo "/home used more then 160 Gb\n"
-        for i in $(ls -lahtr /home/jenkins/irls-reader-artifacts-stage/ | head -6 | awk '{print $9}')
-        do
-                rm -rf /home/jenkins/irls-reader-artifacts-stage/$i
-        done
-done
+## Stage artifacts directory
+#while (($(df -h /home | tail -1 | awk '{print $2}' | sed 's/G//g')>150))
+#do
+#       echo "/home used more then 150 Gb\n"
+#        for i in $(ls -lahtr /home/jenkins/irls-reader-artifacts-stage/ | head -6 | awk '{print $9}')
+#        do
+#                rm -rf /home/jenkins/irls-reader-artifacts-stage/$i
+#        done
+#done
