@@ -12,7 +12,7 @@
 
 TAG=$(basename $0)
 function l {
-	/usr/bin/logger -t $TAG "$1"
+        /usr/bin/logger -t $TAG "$1"
 }
 
 PROC="ssh -f -N -R 2048:localhost:22 vakxden@vakxden.crabdance.com"
@@ -22,11 +22,11 @@ ps aux | grep "$PROC" | grep -v grep
 # if connection not found then previous command return value "1", start it
 if [ $? -eq 1 ]
 then
-	l "Process with ssh-tunnelling not found. Starting process..."
-	$PROC -o "$OPT" && l "Starting successfully!"
+        l "Process with ssh-tunnelling not found. Starting process..."
+        $PROC -o "$OPT" && l "Starting successfully!"
 else
         l "Process '$PROC' is already running"
-	exit 0
+        exit 0
 fi
 
 # for crontab
