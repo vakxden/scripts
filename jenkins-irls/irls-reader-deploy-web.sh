@@ -56,6 +56,8 @@ function generate_files {
         # $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
         cd $1
         sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
+	rm -f $1/server/config/local.json
+	cp -f local.json $1/server/config/
         ls -lah
         echo PWD=$PWD
 }
@@ -82,7 +84,6 @@ function start_node {
         # $1=$PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
         # $2=$INDEX_FILE
         if [ -d $1/server/config ]; then
-                cp -f local.json $1/server/config/
                 if [ ! -f $1/server/$2 ]; then
                         if [ -f $1/server/index.js ]; then
                                 mv server/index.js server/$2
