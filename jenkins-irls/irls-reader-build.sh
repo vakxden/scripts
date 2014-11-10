@@ -1,7 +1,10 @@
 ###
 ### Conditions for the base and non-base branches and facets for next initiate- and deploy-jobs
 ###
-BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
+if [ -z $BRANCHNAME ]; then
+	exit 1
+	#BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
+fi
 if [ -z $TARGET ]; then
         if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
                 TARGET=(ffa)
@@ -10,17 +13,40 @@ if [ -z $TARGET ]; then
         fi
 fi
 
-# if commit was to tests directory then this job is exit
-if git show --pretty="format:" --name-only $GIT_COMMIT| grep "tests/"; then echo "It's commit was to 'tests' directory. It's job exit." && exit 0; fi
-#A=$(git show --pretty="format:" --name-only $GIT_COMMIT | sort | uniq); if [ "$(dirname $A)" == "tests" ]; then echo "It's commit was to 'tests' directory. It's job exit." && exit 0; fi
+### Variables of repositories
+READER_REPONAME="reader"
+TARGETS_REPONAME="targets"
+
+### Functions for git command
+function git_clone {
+	cd $WORKSPACE
+	git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
+	}
+
+function git_pull_and_checkout {
+	cd $WORKSPACE/$REPONAME
+	git pull
+	if [ "$REPONAME" == "reader" ];then git checkout $BRANCHNAME; fi
+	}
+
+### Clone reader-repo and determine of GIT_COMMIT
+REPONAME="$READER_REPONAME"
+if [ ! -d $WORKSPACE/$REPONAME ]; then
+	git_clone
+	git_pull_and_checkout
+	GIT_COMMIT=$(git log -1  --pretty=format:%H)
+	# if commit was to tests directory then this job is exit
+	if git show --pretty="format:" --name-only $GIT_COMMIT| grep "tests/"; then echo "It's commit was to 'tests' directory. It's job exit." && exit 0; fi
+else
+	git_pull_and_checkout
+	GIT_COMMIT=$(git log -1  --pretty=format:%H)
+	# if commit was to tests directory then this job is exit
+	if git show --pretty="format:" --name-only $GIT_COMMIT| grep "tests/"; then echo "It's commit was to 'tests' directory. It's job exit." && exit 0; fi
+fi
 
 ###
 ### Variables
 ###
-GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
-GIT_COMMIT_DATE=$(git show -s --format=%ci)
-GIT_COMMITTER_NAME=$(git show -s --format=%cn)
-GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
 CURRENT_BUILD=/home/jenkins/irls-reader-current-build
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
@@ -28,7 +54,12 @@ ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
 META_SUM_ALL=$CURRENT_EPUBS/meta-all
 GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
-GIT_COMMIT_SHORT=$(echo $GIT_COMMIT | cut -c1-7)
+cd $WORKSPACE/$READER_REPONAME
+GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
+GIT_COMMIT_DATE=$(git show -s --format=%ci)
+GIT_COMMITTER_NAME=$(git show -s --format=%cn)
+GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
+GIT_COMMIT_SHORT=$(git log -1  --pretty=format:%h)
 
 ###
 ### Create variables for meta.json
@@ -50,21 +81,22 @@ GIT_COMMIT_DATE_OC=$(grep "rrm-ocean.git" /home/jenkins/irls-reader-current-epub
 GIT_COMMITTER_EMAIL_OC=$(grep "rrm-ocean.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
 GIT_COMMIT_URL_OC=$(grep "rrm-ocean.git" /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
 # reader
+cd $WORKSPACE/$READER_REPONAME
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
 GIT_COMMIT_DATE=$(git show -s --format=%ci)
 GIT_COMMIT_AUTHOR=$(git show -s --format=%an)
 GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
-GIT_REPO=$(echo $GIT_URL | awk -F ":" '{print $2}' | sed 's/\.git//g')
-GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$GIT_REPO/commit/$GIT_COMMIT"
+GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$READER_REPONAME/commit/$GIT_COMMIT"
 
 ### Clone targets-repo and running node with target option
-if [ ! -d $WORKSPACE/targets ]; then
-        cd $WORKSPACE
-        git clone git@wpp.isd.dp.ua:irls/targets.git
+REPONAME="$TARGETS_REPONAME"
+if [ ! -d $WORKSPACE/$REPONAME ]; then
+	git_clone
+	git_pull_and_checkout
 else
-        cd $WORKSPACE/targets
-        git pull
+	git_pull_and_checkout
 fi
+
 ### Generate deploymentPackageId array
 deploymentPackageId=()
 for i in "${TARGET[@]}"
@@ -93,7 +125,6 @@ do
                 echo CURRENT_META_JSON=$CURRENT_META_JSON
                 echo -e "{" >> $CURRENT_META_JSON
                 echo -e "\t\"buildID\":\""$1"\"," >> $CURRENT_META_JSON
-#                echo -e "\t\"facetName\":\""$2"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"targetName\":\""$2"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
@@ -146,17 +177,17 @@ do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-        cd $WORKSPACE/client
-        node compileHandlebars.js
+        cd $WORKSPACE/$READER_REPONAME/client
+        time node compileHandlebars.js
         ### Build client and server parts
-        node index.js --target=$i --targetPath=$WORKSPACE/targets --readerPath=$WORKSPACE
-        grunt verify
-        grunt productionCompile
+        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+        time grunt verify
+        time grunt productionCompile
         ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client
-        time rsync -rzv --delete --exclude ".git" --exclude "client" $WORKSPACE/ $CB_DIR/
-        time rsync -rzv --delete $WORKSPACE/client/out/dist/ $CB_DIR/client/
+        time rsync -rz --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+        time rsync -rz --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
 
         ### Copy meta.json to application directory
         for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
@@ -180,36 +211,21 @@ do
         build_dir_clean $CURRENT_BUILD
         # remove archive from failed builds
         rm -f $WORKSPACE/current_build-*.tar.gz
-        ### create archive
-        time tar cfz $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz $CB_DIR/*
-        ### copy project to mac-mini
+	# rsync GIT_COMMIT_TARGET directory to other hosts
         ssh jenkins@yuriys-mac-mini.isd.dp.ua "
                if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
         "
-        time scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz jenkins@yuriys-mac-mini.isd.dp.ua:~
-        ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-               tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_REMOTE_DIR/
-               mv $CB_REMOTE_DIR/$CB_DIR/* $CB_REMOTE_DIR/
-               rm -rf $CB_REMOTE_DIR/home
-               rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
-        "
-        ### copy project to dev02
+	time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
         ssh jenkins@dev02.design.isd.dp.ua "
                 if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
         "
-        scp $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz  jenkins@dev02.design.isd.dp.ua:~
-        ssh jenkins@dev02.design.isd.dp.ua "
-                tar xfz current_build-$GIT_COMMIT_TARGET.tar.gz -C $CB_DIR/
-                mv $CB_DIR/$CB_DIR/* $CB_DIR/
-                rm -rf $CB_DIR/home
-                rm -f current_build-$GIT_COMMIT_TARGET.tar.gz
-        "
+	time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
         ### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
         typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
         ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
         typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
-        ### removing archive
-        rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
+#        ### removing archive
+#        rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
 done
 
 
@@ -217,7 +233,6 @@ done
 ### Variables for EnvInject plugin
 ###
 cat /dev/null > $WORKSPACE/myenv
-echo "$GIT_URL=$GIT_URL" >> $WORKSPACE/myenv
 echo "BRANCHNAME=$BRANCHNAME" >> $WORKSPACE/myenv
 echo "TARGET=$(for i in ${TARGET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
 echo "GIT_COMMIT=$GIT_COMMIT" >> $WORKSPACE/myenv
