@@ -185,9 +185,10 @@ do
         time grunt productionCompile
         ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         rm -rf $CB_DIR
-        mkdir -p $CB_DIR/client
+        mkdir -p $CB_DIR/client $CB_DIR/targets
         time rsync -rz --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
         time rsync -rz --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
+        time rsync -rz --delete --exclude ".git" $WORKSPACE/$TARGETS_REPONAME/ $CB_DIR/targets/
 
         ### Copy meta.json to application directory
         for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
