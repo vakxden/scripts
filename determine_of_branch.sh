@@ -24,7 +24,7 @@ if [ "$REPONAME" == "reader" ]; then
 	for i in "${LIST_OF_ALL_TARGETS[@]}"
 	do
 		BRANCHNAME=""
-		BRANCHNAME=$(grep branch $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}' | sed 's@,@ @g')
+		BRANCHNAME=($(grep branch $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}' | sed 's@,@ @g'))
 		for y in "${BRANCHNAME[@]}"
 		do
 			if [ -z $y ]; then
