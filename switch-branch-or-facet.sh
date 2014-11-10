@@ -19,9 +19,9 @@ TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
 TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
 ### Clone or "git pull" (if exist) targets-repo
 if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
-	cd $WORKSPACE && git clone $TARGETS_REPO
+        cd $WORKSPACE && git clone $TARGETS_REPO
 else
-	cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+        cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
 fi
 LIST_OF_ALL_TARGETS=($(cd $WORKSPACE/$TARGETS_REPO_DIR_NAME; ls -d ./* | sed s@\./@@g ));
 NOL1=$(grep -n -A1 "<hudson.plugins.git.BranchSpec>" $COJ | grep name | awk -F "-" '{print $1}') # Number of line (for sed processing)
