@@ -1,0 +1,14 @@
+#!/bin/bash
+
+TMP_FILE=temptemptemp
+cat /dev/null > $TMP_FILE
+cat - > $TMP_FILE
+
+REPONAME=targets
+BRANCH=$(cat $TMP_FILE | awk '{print $3}' | sed 's/refs\/heads\///g')
+
+# run of job
+wget -qO- --auth-no-challenge --http-user=dvac --http-password="0f64d6238d107249f79deda4d6a2f9fc" http://wpp.isd.dp.ua/jenkins/job/determine_of_branch/buildWithParameters\?token=Ahgoo8Ah\&REPONAME=$REPONAME\&BRANCH=$BRANCH &> /dev/null
+
+# email notify
+cat $TMP_FILE | git-commit-notifier /usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.6/config/git-notifier-config
