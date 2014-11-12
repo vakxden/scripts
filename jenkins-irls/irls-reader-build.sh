@@ -2,16 +2,20 @@
 ### Conditions for the base and non-base branches and facets for next initiate- and deploy-jobs
 ###
 if [ -z $BRANCHNAME ]; then
-	exit 1
-	#BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
+        echo "[ERROR_PARAMETER] Parameter BRANCHNAME is empty!!"
+        exit 1
+        #BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 fi
 if [ -z $TARGET ]; then
-        if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
-                TARGET=(ffa)
-        else
-                TARGET=(ffa)
-        fi
+        echo "[ERROR_PARAMETER] Parameter TARGET is empty!!"
+        exit 1
+#        if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
+#                TARGET=(ffa)
+#        else
+#                TARGET=(ffa)
+#        fi
 fi
+TARGET=($(echo $TARGET))
 
 ### Variables of repositories
 READER_REPONAME="reader"
@@ -19,29 +23,29 @@ TARGETS_REPONAME="targets"
 
 ### Functions for git command
 function git_clone {
-	cd $WORKSPACE
-	git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
-	}
+        cd $WORKSPACE
+        git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
+        }
 
 function git_pull_and_checkout {
-	cd $WORKSPACE/$REPONAME
-	git pull
-	if [ "$REPONAME" == "reader" ];then git checkout $BRANCHNAME; fi
-	}
+        cd $WORKSPACE/$REPONAME
+        git pull
+        if [ "$REPONAME" == "reader" ];then git fetch --all && git reset --hard origin/$BRANCHNAME; fi
+        }
 
 ### Clone reader-repo and determine of GIT_COMMIT
 REPONAME="$READER_REPONAME"
 if [ ! -d $WORKSPACE/$REPONAME ]; then
-	git_clone
-	git_pull_and_checkout
-	GIT_COMMIT=$(git log -1  --pretty=format:%H)
-	# if commit was to tests directory then this job is exit
-	if git show --pretty="format:" --name-only $GIT_COMMIT| grep "tests/"; then echo "It's commit was to 'tests' directory. It's job exit." && exit 0; fi
+        git_clone
+        git_pull_and_checkout
+        GIT_COMMIT=$(git log -1  --pretty=format:%H)
+        # if commit was to tests directory then this job is exit
+        if git show --pretty="format:" --name-only $GIT_COMMIT | grep -o "^tests/"; then echo "[ERROR_COMMIT] This commit contains changes relating to the tests directory!" && exit 1; fi
 else
-	git_pull_and_checkout
-	GIT_COMMIT=$(git log -1  --pretty=format:%H)
-	# if commit was to tests directory then this job is exit
-	if git show --pretty="format:" --name-only $GIT_COMMIT| grep "tests/"; then echo "It's commit was to 'tests' directory. It's job exit." && exit 0; fi
+        git_pull_and_checkout
+        GIT_COMMIT=$(git log -1  --pretty=format:%H)
+        # if commit was to tests directory then this job is exit
+        if git show --pretty="format:" --name-only $GIT_COMMIT | grep -o "^tests/"; then echo "[ERROR_COMMIT] This commit contains changes relating to the tests directory!" && exit 1; fi
 fi
 
 ###
@@ -91,10 +95,10 @@ GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$READER_REPONAME/commit/$GIT_
 ### Clone targets-repo and running node with target option
 REPONAME="$TARGETS_REPONAME"
 if [ ! -d $WORKSPACE/$REPONAME ]; then
-	git_clone
-	git_pull_and_checkout
+        git_clone
+        git_pull_and_checkout
 else
-	git_pull_and_checkout
+        git_pull_and_checkout
 fi
 
 ### Generate deploymentPackageId array
@@ -212,15 +216,15 @@ do
         build_dir_clean $CURRENT_BUILD
         # remove archive from failed builds
         rm -f $WORKSPACE/current_build-*.tar.gz
-	# rsync GIT_COMMIT_TARGET directory to other hosts
+        # rsync GIT_COMMIT_TARGET directory to other hosts
         ssh jenkins@yuriys-mac-mini.isd.dp.ua "
                if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
         "
-	time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
+        time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
         ssh jenkins@dev02.design.isd.dp.ua "
                 if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
         "
-	time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
+        time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
         ### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
         typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
         ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
