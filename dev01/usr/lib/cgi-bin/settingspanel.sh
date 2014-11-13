@@ -6,6 +6,7 @@
 
 BRANCHES_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/branches.json | awk -F'"|"' '{print $2}' | grep -v branches))
 TARGETS_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/targets.json | awk -F'"|"' '{print $2}' | grep -v targets))
+CURRENT_TARGETS_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/irls-reader-build.json | grep currentTargetsConverter | awk -F'"|"' '{print $4}'))
 
 ###
 ### Functions
@@ -140,6 +141,8 @@ echo '<h3><b>Settings for jenkins irls-rrm-processor-convert:</b></span></h3>'
 echo '<span>Link to build job: </span>'
 echo '<span id="ConvertJob" class="text-danger"><b><a href="http://wpp.isd.dp.ua/jenkins/job/irls-rrm-processor-convert/">irls-rrm-processor-convert job</a></b></span>'
 echo '<br>'
+echo 'Current targets is <b>'$(echo ${CURRENT_TARGETS_ARRAY[@]})'</b>'
+echo '<br>'
 echo '<br>'
 # form of Convert
 echo '<form action="'${SCRIPT}'" method=POST>'
@@ -157,7 +160,9 @@ if [ ! -z "$QUERY_STRING_POST" ]; then
         declare -a CONVERT_TARGET
         CONVERT_TARGET=($(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])converttarget=[0-9a-z_-]++" |  cut -f 2 -d "="))
         if [ ! -z $CONVERT_TARGET ]; then
-                curl http://wpp.isd.dp.ua/jenkins/job/irls-rrm-processor-convert/buildWithParameters?token=Sheedah8\&TARGET=$(echo ${CONVERT_TARGET[@]} | sed 's@ @%20@g')
+                curl http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet/buildWithParameters?token=neLei5ie\&CHANGE_TARGET=$(echo ${CONVERT_TARGET[@]} | sed 's@ @%20@g')
+                curl http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet/buildWithParameters?token=neLei5ie\&RUN_OF_JOB=run_of_job
+                #curl http://wpp.isd.dp.ua/jenkins/job/irls-rrm-processor-convert/buildWithParameters?token=Sheedah8\&TARGET=$(echo ${CONVERT_TARGET[@]} | sed 's@ @%20@g')
                 echo '<p>'
                 echo 'Processing of convert parameters:'
                 echo '<br>'
