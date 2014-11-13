@@ -1,19 +1,11 @@
-###
-### Conditions for the base and non-base branches and facets for next initiate- and deploy-jobs
-###
+### Checking of parameters
 if [ -z $BRANCHNAME ]; then
         echo "[ERROR_PARAMETER] Parameter BRANCHNAME is empty!!"
         exit 1
-        #BRANCHNAME=$(echo $GIT_BRANCH | sed 's/origin\///g')
 fi
 if [ -z $TARGET ]; then
         echo "[ERROR_PARAMETER] Parameter TARGET is empty!!"
         exit 1
-#        if [ "$BRANCHNAME" = "develop" ] || [ "$BRANCHNAME" = "master" ]; then
-#                TARGET=(ffa)
-#        else
-#                TARGET=(ffa)
-#        fi
 fi
 TARGET=($(echo $TARGET))
 
@@ -30,7 +22,8 @@ function git_clone {
 function git_pull_and_checkout {
         cd $WORKSPACE/$REPONAME
         git pull
-        if [ "$REPONAME" == "reader" ];then git fetch --all && git reset --hard origin/$BRANCHNAME; fi
+        #if [ "$REPONAME" == "reader" ];then git fetch --all && git reset --hard origin/$BRANCHNAME; fi
+        if [ "$REPONAME" == "reader" ];then git checkout $BRANCHNAME; fi
         }
 
 ### Clone reader-repo and determine of GIT_COMMIT
@@ -176,22 +169,29 @@ done
 ###
 ### Main loop
 ###
+READER_REPONAME_CLONE=$WORKSPACE/reader_clone
+if [ ! -d $READER_REPONAME_CLONE ]; then mkdir -p $READER_REPONAME_CLONE; fi
+time rsync -rz --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $READER_REPONAME_CLONE/
 for i in "${TARGET[@]}"
 do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-        cd $WORKSPACE/$READER_REPONAME/client
+        #cd $WORKSPACE/$READER_REPONAME/client
+        cd $READER_REPONAME_CLONE/client
         time node compileHandlebars.js
         ### Build client and server parts
-        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+        #time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$READER_REPONAME_CLONE
         time grunt verify
         time grunt productionCompile
         ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
-        time rsync -rz --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
-        time rsync -rz --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
+        #time rsync -rz --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+        time rsync -rz --delete --exclude ".git" --exclude "client" $READER_REPONAME_CLONE/ $CB_DIR/
+        #time rsync -rz --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
+        time rsync -rz --delete $READER_REPONAME_CLONE/client/out/dist/ $CB_DIR/client/
         time rsync -rz --delete --exclude ".git" $WORKSPACE/$TARGETS_REPONAME/ $CB_DIR/targets/
 
         ### Copy meta.json to application directory
