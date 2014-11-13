@@ -30,8 +30,9 @@ if [ "$REPONAME" == "reader" ]; then
                         if [ -z $y ]; then
                                 continue
                         else
-                                if [ "$BRANCH" == "$y" ]; then
-                                        curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=$y
+                                #if [ "$BRANCH" == "$y" ]; then
+				if [[ $BRANCH == $y ]]; then
+                                        curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=$BRANCH
                                 fi
                         fi
                 done
@@ -53,7 +54,7 @@ elif [ "$REPONAME" == "targets" ]; then
                         if [ -z $y ]; then
                                 continue
                         else
-                                curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=$y
+                		curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=develop
                         fi
                 done
         done
