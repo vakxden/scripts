@@ -171,7 +171,7 @@ done
 ###
 READER_REPONAME_CLONE=$WORKSPACE/reader_clone
 if [ ! -d $READER_REPONAME_CLONE ]; then mkdir -p $READER_REPONAME_CLONE; fi
-time rsync -rz --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $READER_REPONAME_CLONE/
+time rsync -r --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $READER_REPONAME_CLONE/
 for i in "${TARGET[@]}"
 do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
@@ -188,11 +188,9 @@ do
         ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
-        #time rsync -rz --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
-        time rsync -rz --delete --exclude ".git" --exclude "client" $READER_REPONAME_CLONE/ $CB_DIR/
-        #time rsync -rz --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
-        time rsync -rz --delete $READER_REPONAME_CLONE/client/out/dist/ $CB_DIR/client/
-        time rsync -rz --delete --exclude ".git" $WORKSPACE/$TARGETS_REPONAME/ $CB_DIR/targets/
+        time rsync -r --delete --exclude ".git" --exclude "client" $READER_REPONAME_CLONE/ $CB_DIR/
+        time rsync -r --delete $READER_REPONAME_CLONE/client/out/dist/ $CB_DIR/client/
+        time rsync -r --delete --exclude ".git" $WORKSPACE/$TARGETS_REPONAME/ $CB_DIR/targets/
 
         ### Copy meta.json to application directory
         for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
