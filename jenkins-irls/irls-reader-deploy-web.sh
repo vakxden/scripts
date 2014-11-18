@@ -178,6 +178,9 @@ elif [ "$dest" = "LIVE" ]; then
                         # values
                         INDEX_FILE=index_"$i"_$BRANCH.js
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
+			# create of status-deploy file
+			if [ ! -e $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt ]; then touch $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt; fi
+			# copying files from RSYNC_FACETS_DIR to REMOTE_ART_PATH/{combineArray[i]}
                         cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
                         # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then
@@ -204,7 +207,9 @@ elif [ "$dest" = "LIVE" ]; then
                                 #nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
 				if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
-                        fi"
+                        fi
+			sleep 5
+			rm -f $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt"
                 # update environment.json file
                 /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
                 # generate links for description job
