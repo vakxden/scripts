@@ -4,10 +4,10 @@ ART_CURRENT_DIR="/home/jenkins/irls-reader-artifacts/"
 cd $ART_CURRENT_DIR
 
 # list of names processes, not develop (branches)
-LIST=$(ps aux | grep node | egrep -v "STAGE|NIGHT|grep node" | awk '{print $12}' | sed 's@server\/index_@@g' | sed 's@.js@@g'  | sed 's/[a-z_]*_feature-/feature\//g' | grep -v develop | egrep "feature|hotfix|test" | sort | uniq)
+LIST=($(ps aux | grep node | egrep -v "STAGE|NIGHT|grep node" | awk '{print $12}' | sed 's@server\/index_@@g' | sed 's@.js@@g'  | sed 's/[a-z_-]*_feature-/feature\//g' | grep -v develop | egrep "feature|hotfix|test" | sort | uniq))
 
 # kill node with unused branches
-for i in $LIST
+for i in ${LIST[@]}
 do
         if ! egrep -q '"'$i'",$|"'$i'"$' branches.json; then
                 ps aux | grep node.*$(echo $i |  sed 's/feature\//feature-/g') | grep -v grep | awk '{print $2}' | xargs kill -9
@@ -17,7 +17,7 @@ done
 
 
 # kill apache proxy- files and artifacts directories
-for i in $LIST
+for i in ${LIST[@]}
 do
         if ! egrep -q '"'$i'",$|"'$i'"$' branches.json; then
                 SEDFILENAME=$(ps aux | grep node | egrep -v "STAGE|NIGHT|grep node" | awk '{print $12}' | sed 's@server\/index_@@g' | sed 's@.js@@g'  | grep -v develop | egrep "feature|hotfix|test" | sed 's@_feature@-feature@g')
