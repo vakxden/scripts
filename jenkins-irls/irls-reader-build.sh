@@ -22,7 +22,6 @@ function git_clone {
 function git_pull_and_checkout {
         cd $WORKSPACE/$REPONAME
         git pull
-        #if [ "$REPONAME" == "reader" ];then git fetch --all && git reset --hard origin/$BRANCHNAME; fi
         if [ "$REPONAME" == "reader" ];then git checkout $BRANCHNAME; fi
         }
 
@@ -177,11 +176,9 @@ do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-        #cd $WORKSPACE/$READER_REPONAME/client
         cd $READER_REPONAME_CLONE/client
         time node compileHandlebars.js
         ### Build client and server parts
-        #time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
         time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$READER_REPONAME_CLONE
         time grunt verify
         time grunt productionCompile
@@ -200,7 +197,7 @@ do
                 # Numbers of directories in the $CURRENT_BUILD/
                 NUM=$(ls -d $1/* | wc -l)
                 echo NUM=$NUM
-                # If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
+                # If number of directories is more than 20, then we will remove all directories except the 20 most recent catalogs
                 if (( $NUM > 20 )); then
                         HEAD_NUM=$(($NUM-20))
                         echo HEAD_NUM=$HEAD_NUM
@@ -227,8 +224,6 @@ do
         typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
         ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
         typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
-#        ### removing archive
-#        rm -f $WORKSPACE/current_build-$GIT_COMMIT_TARGET.tar.gz
 done
 
 
