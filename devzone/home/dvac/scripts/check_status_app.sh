@@ -1,7 +1,8 @@
 #!/bin/bash
 
 DATE=$(date +%b-%d-%Y_%H-%M-%S)
-MAILLIST="irls@isd.dp.ua"
+MAILLIST="irls@isd.dp.ua,vakxden@gmail.com"
+#MAILLIST="dvac@isd.dp.ua"
 
 # for array of targes
 TARGET=(ocean ffa irls-audio irls-audiobywords irls-ocean irls-epubtest)
@@ -15,9 +16,13 @@ do
                 fi
                 sleep 5
                 if ! ps aux | grep -v "grep node" | grep "node server/index_$i.develop.js"; then
-                        echo -e "Status code for URL https://irls.isd.dp.ua/$i/develop/portal/ is $STATUS\nProcess of node (~/node/bin/node server/index_'$i'_develop.js) is not running" | mail -s "Target $i on the devzone is not available!" $MAILLIST
                         DIRNAME=$(cat ~/apache2/conf/extra/proxypass-$i-develop.conf | grep  8890 | awk '{print $3}' | awk -F '/' '{print $5}' | sort | uniq)
                         cd ~/irls-reader-artifacts/$DIRNAME/
+                        if [ ! -e ~/irls-reader-artifacts/$DIRNAME/status_deploy.txt ]; then
+                                echo -e "Status code for URL https://irls.isd.dp.ua/$i/develop/portal/ is $STATUS\nProcess of node (~/node/bin/node server/index_'$i'_develop.js) is not running" | mail -s "Target $i on the devzone is not available!" $MAILLIST
+                        else
+                                continue
+                        fi
                         if [ -f nohup.out ]; then mv nohup.out nohup.out.old.$DATE; fi
                         nohup ~/node/bin/node server/index_"$i"_develop.js >> nohup.out 2>&1 &
                         sleep 5
