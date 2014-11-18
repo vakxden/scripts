@@ -142,15 +142,12 @@ elif [ "$dest" = "STAGE" ]; then
                 if [ ! -d $STAGE_PKG_DIR ]; then
                         mkdir -p $STAGE_PKG_DIR
                         time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
-			#rm -f $STAGE_PKG_DIR/couchdb_indexes/*_users.couch
                 else
                         cd $STAGE_PKG_DIR
-                        #rm -rf common client server couchdb_indexes artifacts portal books
                         rm -rf common client server artifacts portal books
                         rm -rf $STAGE_PKG_DIR/*
                         cd $CURRENT_PKG_DIR
                         time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
-			#rm -f $STAGE_PKG_DIR/couchdb_indexes/*_users.couch
                 fi
                 # generate index.html and local.json
                 generate_files $STAGE_PKG_DIR
@@ -182,10 +179,6 @@ elif [ "$dest" = "LIVE" ]; then
                         INDEX_FILE=index_"$i"_$BRANCH.js
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
                         cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
-                        #rm -rf /home/dvac/couchdb/var/lib/couchdb/"$i"_*.couch
-			#rm -f $REMOTE_ART_PATH/${combineArray[$i]}/couchdb_indexes/*_users.couch
-                        #cp -Rf $REMOTE_ART_PATH/${combineArray[$i]}/couchdb_indexes/"$i"_*.couch /home/dvac/couchdb/var/lib/couchdb/
-                        #/home/dvac/couchdb/etc/init.d/couchdb restart
                         # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then
                                 mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art
