@@ -1,0 +1,4 @@
+RewriteEngine On
+
+RewriteRule ^$ https://irls.isd.dp.ua/portal/ [R=301,L]
+
