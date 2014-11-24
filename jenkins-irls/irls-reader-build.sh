@@ -19,22 +19,28 @@ function git_clone {
         git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
         }
 
-function git_pull_and_checkout {
+function git_checkout {
         cd $WORKSPACE/$REPONAME
-        git pull
-        if [ "$REPONAME" == "reader" ];then git checkout $BRANCHNAME; fi
+        git reset --hard
+	git clean -fdx
+	git fetch --all
+        if [ "$REPONAME" == "reader" ]; then
+		git checkout origin/$BRANCHNAME
+	elif  [ "$REPONAME" == "targets" ]; then
+		git checkout origin/master
+	fi
         }
 
 ### Clone reader-repo and determine of GIT_COMMIT
 REPONAME="$READER_REPONAME"
 if [ ! -d $WORKSPACE/$REPONAME ]; then
         git_clone
-        git_pull_and_checkout
+        git_checkout
         GIT_COMMIT=$(git log -1  --pretty=format:%H)
         # if commit was to tests directory then this job is exit
         if git show --pretty="format:" --name-only $GIT_COMMIT | grep -o "^tests/"; then echo "[ERROR_COMMIT] This commit contains changes relating to the tests directory!" && exit 1; fi
 else
-        git_pull_and_checkout
+        git_checkout
         GIT_COMMIT=$(git log -1  --pretty=format:%H)
         # if commit was to tests directory then this job is exit
         if git show --pretty="format:" --name-only $GIT_COMMIT | grep -o "^tests/"; then echo "[ERROR_COMMIT] This commit contains changes relating to the tests directory!" && exit 1; fi
@@ -88,9 +94,9 @@ GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$READER_REPONAME/commit/$GIT_
 REPONAME="$TARGETS_REPONAME"
 if [ ! -d $WORKSPACE/$REPONAME ]; then
         git_clone
-        git_pull_and_checkout
+        git_checkout
 else
-        git_pull_and_checkout
+        git_checkout
 fi
 
 ### Generate deploymentPackageId array
@@ -168,25 +174,22 @@ done
 ###
 ### Main loop
 ###
-READER_REPONAME_CLONE=$WORKSPACE/reader_clone
-if [ ! -d $READER_REPONAME_CLONE ]; then mkdir -p $READER_REPONAME_CLONE; fi
-time rsync -r --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $READER_REPONAME_CLONE/
 for i in "${TARGET[@]}"
 do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-        cd $READER_REPONAME_CLONE/client
+        cd $WORKSPACE/$READER_REPONAME/client
         time node compileHandlebars.js
         ### Build client and server parts
-        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$READER_REPONAME_CLONE
+        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
         time grunt verify
         time grunt productionCompile
         ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
-        time rsync -r --delete --exclude ".git" --exclude "client" $READER_REPONAME_CLONE/ $CB_DIR/
-        time rsync -r --delete $READER_REPONAME_CLONE/client/out/dist/ $CB_DIR/client/
+        time rsync -r --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+        time rsync -r --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
         time rsync -r --delete --exclude ".git" $WORKSPACE/$TARGETS_REPONAME/ $CB_DIR/targets/
 
         ### Copy meta.json to application directory
