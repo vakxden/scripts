@@ -1,5 +1,5 @@
 ### This job should take such variables as NIGHTLY_ARTIFACTS_DIR, ENVIRONMENT, READER_BRANCH_NAME, ID, TARGET 
-
+sleep 120
 ###
 ### Constant local variables
 ###
