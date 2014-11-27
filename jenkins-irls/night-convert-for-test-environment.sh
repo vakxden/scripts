@@ -2,10 +2,10 @@
 ### Variables
 ###
 
+TARGET=(ffa ocean test-target)
 CURRENT_EPUBS="$HOME/irls-reader-current-epubs"
 RESULTS=$WORKSPACE/results
 BRANCH="master"
-TARGET=(ffa ocean)
 RRM_PROCESSOR_REPO_NAME="rrm-processor"
 RRM_OCEAN_REPO_NAME="rrm-ocean"
 TARGETS_REPO_NAME="targets"
