@@ -4,21 +4,24 @@
 # P.S. Link for post-receive+run of jenkins job: http://blog.avisi.nl/2012/01/13/push-based-builds-using-jenkins-and-git/
 
 function git_clone {
-        git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
-        }
+	cd $WORKSPACE
+	git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
+	}
 
-function git_pull_and_checkout {
-        cd $WORKSPACE/$REPONAME
-        git pull
-        git checkout $BRANCH
-        }
+function git_checkout {
+	cd $WORKSPACE/$REPONAME
+	git reset --hard
+	git clean -fdx
+	git fetch --all
+	git checkout origin/$BRANCH
+	}
 
 if [ "$REPONAME" == "reader" ]; then
         if [ ! -d $WORKSPACE/$REPONAME ]; then
                 git_clone
-                git_pull_and_checkout
+                git_checkout
         else
-                git_pull_and_checkout
+                git_checkout
         fi
         LIST_OF_ALL_TARGETS=($(cd $WORKSPACE/targets; ls -d ./* | sed s@\./@@g ))
         for i in "${LIST_OF_ALL_TARGETS[@]}"
@@ -30,7 +33,6 @@ if [ "$REPONAME" == "reader" ]; then
                         if [ -z $y ]; then
                                 continue
                         else
-                                #if [ "$BRANCH" == "$y" ]; then
 				if [[ $BRANCH == $y ]]; then
                                         curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=$BRANCH
                                 fi
@@ -40,9 +42,9 @@ if [ "$REPONAME" == "reader" ]; then
 elif [ "$REPONAME" == "targets" ]; then
         if [ ! -d $WORKSPACE/$REPONAME ]; then
                 git_clone
-                git_pull_and_checkout
+                git_checkout
         else
-                git_pull_and_checkout
+                git_checkout
         fi
         LIST_OF_ALL_TARGETS=($(cd $WORKSPACE/$REPONAME; ls -d ./* | sed s@\./@@g ))
         for i in "${LIST_OF_ALL_TARGETS[@]}"
