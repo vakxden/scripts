@@ -122,10 +122,6 @@ cat /dev/null > $WORKSPACE/myenv
 echo "BRANCHNAME=$BRANCHNAME" >> $WORKSPACE/myenv
 echo "TARGET=$(for i in ${TARGET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
 echo "GIT_COMMIT=$GIT_COMMIT" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_MESSAGE=$GIT_COMMIT_MESSAGE" >> $WORKSPACE/myenv
-echo "GIT_COMMIT_DATE=$GIT_COMMIT_DATE" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_NAME=$GIT_COMMITTER_NAME" >> $WORKSPACE/myenv
-echo "GIT_COMMITTER_EMAIL=$GIT_COMMITTER_EMAIL" >> $WORKSPACE/myenv
 echo "CURRENT_BUILD=$CURRENT_BUILD" >> $WORKSPACE/myenv
 echo "ARTIFACTS_DIR=$ARTIFACTS_DIR" >> $WORKSPACE/myenv
 echo deploymentPackageId=${deploymentPackageId[@]} >> $WORKSPACE/myenv
