@@ -215,18 +215,22 @@ do
         # remove archive from failed builds
         rm -f $WORKSPACE/current_build-*.tar.gz
         # rsync GIT_COMMIT_TARGET directory to other hosts
-        ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-               if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
-        "
-        time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
-        ssh jenkins@dev02.design.isd.dp.ua "
-                if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
-        "
-        time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
-        ### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
-        typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
-        ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
-        typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
+	if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
+		ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+			if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
+		"
+		time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
+		### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
+		typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
+	fi
+	if grep "platforms.*android" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
+		ssh jenkins@dev02.design.isd.dp.ua "
+			if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
+		"
+		time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
+		### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
+		typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
+	fi
 done
 
 

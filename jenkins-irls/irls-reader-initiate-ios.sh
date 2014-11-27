@@ -56,15 +56,13 @@ function main_loop {
 	do
                 rm -rf $WORKSPACE/*
                 GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
-                cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
-
-                echo $i --- ${combineArray[$i]}
-                ### Checking contain platform
-		if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
-			notmainloop
+		if [ ! -d $CURRENT_BUILD/$GIT_COMMIT_TARGET ]; then
+			echo "[ERROR_INITIATE] Directory not found! Maybe for this target ($i) disabled option platform:ios."
+			exit 1
 		else
-			echo "Shutdown of this job because platform \"ios\" not found in config targetConfig.json"
-			exit 0
+                	cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
+			echo $i --- ${combineArray[$i]}
+			notmainloop
 		fi
 	done
 }
