@@ -79,7 +79,7 @@ CURRENT="test"
 ARTDIR="irls-reader-artifacts"
 generate_localjson
 ### Touch apache config file
-ACF="/etc/apache2/sites-enabled/irls-$CURRENT-reader-$FACETS-$BRANCHNAME"
+ACF="/etc/apache2/sites-enabled/proxypass-irls-$CURRENT-reader-$FACETS-$BRANCHNAME.conf"
 rm -f $ACF
 touch $ACF
 if [ -z $ID ]; then
