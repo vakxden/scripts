@@ -105,8 +105,8 @@ do
         # run (re-run) node
         start_node $PKG_DIR $INDEX_FILE
         # generate links for description job
-        echo admin-link-$i="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
-        echo editor-link-$i="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
-        echo reader-link-$i="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
-        echo portal-link-$i="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
+        echo admin-link-$i="http://irls-autotests.design.isd.dp.ua/irls/test/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
+        echo editor-link-$i="http://irls-autotests.design.isd.dp.ua/irls/test/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
+        echo reader-link-$i="http://irls-autotests.design.isd.dp.ua/irls/test/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
+        echo portal-link-$i="http://irls-autotests.design.isd.dp.ua/irls/test/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
 done
