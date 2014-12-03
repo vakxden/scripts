@@ -26,8 +26,14 @@ fi
 export DISPLAY=:99
 export NODE_HOME=/opt/node
 export PATH=$PATH:$NODE_HOME/bin
+### Changing URL for tests
+cat $WORKSPACE/$READER_REPONAME/tests/environmentConfig.json
+cat /dev/null > $WORKSPACE/$READER_REPONAME/tests/environmentConfig.json
+echo -e '{\n"url":"http://irls-autotests.design.isd.dp.ua/irls/test/reader/test-target/develop/portal/"\n}' >> $WORKSPACE/$READER_REPONAME/tests/environmentConfig.json
+cat $WORKSPACE/$READER_REPONAME/tests/environmentConfig.json
+### Running tests
 cd $WORKSPACE/$READER_REPONAME/tests/spec
-which chromedriver
+#which chromedriver
 ### It's command already started
 ### Check it from command line: netstat -nlpt | grep 4444
 # java -jar /opt/selenium-server-standalone-2.37.0.jar -Dwebdriver.chrome.driver="/opt/chromedriver"
