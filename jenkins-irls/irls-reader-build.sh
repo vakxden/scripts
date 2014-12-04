@@ -10,7 +10,7 @@ fi
 TARGET=($(echo $TARGET))
 
 ### Variables of repositories
-READER_REPONAME="reader"
+READER_REPONAME="product"
 TARGETS_REPONAME="targets"
 
 ### Functions for git command
@@ -24,14 +24,14 @@ function git_checkout {
         git reset --hard
 	git clean -fdx
 	git fetch --all
-        if [ "$REPONAME" == "reader" ]; then
+        if [ "$REPONAME" == "product" ]; then
 		git checkout origin/$BRANCHNAME
 	elif  [ "$REPONAME" == "targets" ]; then
 		git checkout origin/master
 	fi
         }
 
-### Clone reader-repo and determine of GIT_COMMIT
+### Clone product-repo and determine of GIT_COMMIT
 REPONAME="$READER_REPONAME"
 if [ ! -d $WORKSPACE/$REPONAME ]; then
         git_clone
@@ -84,7 +84,7 @@ GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current
 GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
 GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
 GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
-# reader
+# product (old reader)
 cd $WORKSPACE/$READER_REPONAME
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
 GIT_COMMIT_DATE=$(git show -s --format=%ci)

@@ -4,7 +4,7 @@ RRM_PROCESSOR_REPO_NAME="rrm-processor"
 RRM_PROCESSOR_BRANCH_NAME="master"
 RRM_OCEAN_REPO_NAME="rrm-ocean"
 RRM_OCEAN_BRANCH_NAME="master"
-READER_REPO_NAME="reader"
+READER_REPO_NAME="product"
 READER_BRANCH_NAME="develop"
 TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
 TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
@@ -117,7 +117,7 @@ RRM_OCEAN_COMMITTER_EMAIL=$(git log -1 --pretty=format:"%ce")
 RRM_OCEAN_COMMIT_HASH=$(git log -1 --pretty=format:"%H")
 RRM_OCEAN_SHORT_COMMIT_HASH=$(git log -1 --pretty=format:"%h")
 RRM_OCEAN_COMMIT_URL="http://wpp.isd.dp.ua/gitlab/irls/$RRM_OCEAN_REPO_NAME/commit/$RRM_OCEAN_COMMIT_HASH"
-# reader
+# product (old reader)
 cd $WORKSPACE/$READER_REPO_NAME
 READER_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
 READER_COMMIT_DATE=$(git log -1 --pretty=format:"%ci")
@@ -253,7 +253,7 @@ do
         typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $NIGHTLY_BUILD"
 done
 
-rm -rf $WORKSPACE/reader/client/out
+rm -rf $WORKSPACE/$READER_REPO_NAME/client/out
 
 ###
 ### Variables for EnvInject plugin

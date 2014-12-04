@@ -10,7 +10,7 @@ fi
 TARGET=($(echo $TARGET))
 
 ### Variables of repositories
-READER_REPONAME="reader"
+READER_REPONAME="product"
 TARGETS_REPONAME="targets"
 
 ### Functions for git command
@@ -24,14 +24,14 @@ function git_checkout {
         git reset --hard
         git clean -fdx
         git fetch --all
-        if [ "$REPONAME" == "reader" ]; then
+        if [ "$REPONAME" == "product" ]; then
                 git checkout origin/$BRANCHNAME
         elif  [ "$REPONAME" == "targets" ]; then
                 git checkout origin/master
         fi
         }
 
-### Clone reader-repo and determine of GIT_COMMIT
+### Clone product-repo and determine of GIT_COMMIT
 REPONAME="$READER_REPONAME"
 if [ ! -d $WORKSPACE/$REPONAME ]; then
         git_clone

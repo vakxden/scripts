@@ -1,4 +1,4 @@
-# This job runs from post-receive hook (/home/git/repositories/irls/reader.git/hooks/post-receive or /home/git/repositories/irls/targets.git/hooks/post-receive)
+# This job runs from post-receive hook (/home/git/repositories/irls/product.git/hooks/post-receive or /home/git/repositories/irls/targets.git/hooks/post-receive)
 # with help of next command:
 # wget -qO- --auth-no-challenge --http-user=dvac --http-password="0f64d6238d107249f79deda4d6a2f9fc" http://wpp.isd.dp.ua/jenkins/job/determine_of_branch/buildWithParameters\?token=Ahgoo8Ah\&REPONAME=reader\&BRANCH=develop &> /dev/null
 # P.S. Link for post-receive+run of jenkins job: http://blog.avisi.nl/2012/01/13/push-based-builds-using-jenkins-and-git/
@@ -16,7 +16,7 @@ function git_checkout {
 	git checkout origin/$BRANCH
 	}
 
-if [ "$REPONAME" == "reader" ]; then
+if [ "$REPONAME" == "product" ]; then
         if [ ! -d $WORKSPACE/$REPONAME ]; then
                 git_clone
                 git_checkout

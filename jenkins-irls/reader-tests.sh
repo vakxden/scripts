@@ -1,5 +1,5 @@
 ### Variables of repositories
-READER_REPONAME="reader"
+READER_REPONAME="product"
 
 ### Functions for git command
 function git_clone {
@@ -15,7 +15,7 @@ function git_checkout {
         git checkout origin/$BRANCHNAME
         }
 
-### Cloning of reader-repo
+### Cloning of product-repo
 REPONAME="$READER_REPONAME"
 if [ ! -d $WORKSPACE/$REPONAME ]; then
         git_clone
