@@ -39,6 +39,7 @@ if [ "$REPONAME" == "product" ]; then
                         fi
                 done
         done
+	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-reader-build" title="irls-reader-build"\>irls-reader-build\</a\> job
 elif [ "$REPONAME" == "targets" ]; then
         if [ ! -d $WORKSPACE/$REPONAME ]; then
                 git_clone
@@ -60,5 +61,5 @@ elif [ "$REPONAME" == "targets" ]; then
                         fi
                 done
         done
+	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-reader-build" title="irls-reader-build"\>irls-reader-build\</a\> job
 fi
-echo "Checkout, please, of running/not_running next job: http://wpp.isd.dp.ua/jenkins/job/irls-reader-build"
