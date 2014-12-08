@@ -1,7 +1,21 @@
-# This job runs from post-receive hook (/home/git/repositories/irls/product.git/hooks/post-receive or /home/git/repositories/irls/targets.git/hooks/post-receive)
+# This job runs from post-receive hook:
+# /home/git/repositories/irls/product.git/hooks/post-receive or
+# /home/git/repositories/irls/targets.git/hooks/post-receive or
+# /home/git/repositories/irls/lib-processor.git/hooks/post-receive or
+# /home/git/repositories/irls/lib-sources.git/hooks/post-receive
 # with help of next command:
-# wget -qO- --auth-no-challenge --http-user=dvac --http-password="0f64d6238d107249f79deda4d6a2f9fc" http://wpp.isd.dp.ua/jenkins/job/determine_of_branch/buildWithParameters\?token=Ahgoo8Ah\&REPONAME=reader\&BRANCH=develop &> /dev/null
+# wget -qO- --auth-no-challenge --http-user=dvac --http-password="0f64d6238d107249f79deda4d6a2f9fc" http://wpp.isd.dp.ua/jenkins/job/irls-reader-prebuild/buildWithParameters\?token=Sheedah8\&REPONAME=$REPONAME\&BRANCH=$BRANCH &> /dev/null
 # P.S. Link for post-receive+run of jenkins job: http://blog.avisi.nl/2012/01/13/push-based-builds-using-jenkins-and-git/
+
+if [ -z $REPONAME ]; then
+	echo \[ERROR_REPO\] reponame not passed!
+	exit 1
+fi
+
+if [ -z $BRANCH ]; then
+	echo \[ERROR_BRANCH\] branch not passed!
+	exit 1
+fi
 
 function git_clone {
 	cd $WORKSPACE
@@ -62,4 +76,17 @@ elif [ "$REPONAME" == "targets" ]; then
                 done
         done
 	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-reader-build" title="irls-reader-build"\>irls-reader-build\</a\> job
+elif [ "$REPONAME" == "lib-processor" ]; then
+	if [ "$BRANCH" == "master" ]; then
+		curl curl http://wpp.isd.dp.ua/jenkins/job/irls-lib-processor-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
+	fi
+	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-lib-processor-build" title="irls-lib-processor-build"\>irls-lib-processor-build\</a\> job
+elif [ "$REPONAME" == "lib-sources" ]; then
+	if [ "$BRANCH" == "master" ]; then
+		curl curl http://wpp.isd.dp.ua/jenkins/job/irls-lib-sources/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
+	fi
+	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-lib-sources-build" title="irls-lib-sources-build"\>irls-lib-sources-build\</a\> job
+else
+	echo \[ERROR_REPO\] Wrong reponame!
+	exit 1
 fi

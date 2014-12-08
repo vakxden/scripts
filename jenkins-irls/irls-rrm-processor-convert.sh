@@ -1,21 +1,29 @@
+if [ -z $PROCESSOR_COMMIT ]; then
+	echo processor commit value not received
+	exit 1
+fi
+if [ -z $SOURCES_COMMIT ]; then
+	echo sources commit value not received
+	exit 1
+fi
 ### Variables
-CURRENT_RRM=$HOME/irls-rrm-processor-deploy
-CURRENT_TEXTS=$HOME/irls-reader-current-texts
-PROJECTNAME=$(basename $CURRENT_RRM)
+CURRENT_RRM=$HOME/irls-rrm-processor-deploy/$PROCESSOR_COMMIT
+CURRENT_TEXTS=$HOME/irls-reader-current-texts/$SOURCES_COMMIT
 RESULTS=$WORKSPACE/results
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
 TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
 TARGET=($(echo $TARGET))
-META1=$CURRENT_RRM/meta-processor-deploy
-META2=$CURRENT_TEXTS/meta-ocean-deploy
+META1=$CURRENT_RRM/$PROCESSOR_COMMIT/meta-processor-deploy
+META2=$CURRENT_TEXTS/$SOURCES_COMMIT/meta-ocean-deploy
 META_SUM_ALL=meta-all
+
 # Export variable for phantom
 export NODE_PATH=/opt/node/lib/node_modules/
-
-cp -Rf $CURRENT_RRM $WORKSPACE
-cd $WORKSPACE/$PROJECTNAME
-
+# Copy lib-processor code
+cp -Rf $CURRENT_RRM/$PROCESSOR_COMMIT $WORKSPACE
+cd $WORKSPACE/$PROCESSOR_COMMIT
+# For monitoring
 N=$(echo $BUILD_DISPLAY_NAME | sed 's/\#//g')
 cat /dev/null > $WORKSPACE/filesconv.txt
 
@@ -34,10 +42,10 @@ do
         ### Clean old "facet named"-directory
         rm -rf $RESULTS/$FACET_NAME
         mkdir -p $RESULTS/$FACET_NAME
-        cd $WORKSPACE/$PROJECTNAME/src
+        cd $WORKSPACE/$PROCESSOR_COMMIT/src
         ### Processing raw texts
-        time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -t $WORKSPACE/tmp
-        time node --max-old-space-size=7000 $WORKSPACE/$PROJECTNAME/src/createJSON.js $RESULTS/$FACET_NAME/
+        time node main.js -s $CURRENT_TEXTS/$SOURCES_COMMIT -d $RESULTS/$FACET_NAME -f $FACET_NAME -t $WORKSPACE/tmp
+        time node --max-old-space-size=7000 $WORKSPACE/$PROCESSOR_COMMIT/src/createJSON.js $RESULTS/$FACET_NAME/
         ### Create (if not exist) current "target named"-, "current epub"-directory
         if [ ! -d $CURRENT_EPUBS/$TARGET_NAME ]; then mkdir -p $CURRENT_EPUBS/$TARGET_NAME; fi
         ### Copy epubs after their processing to the "current epubs"-directory
