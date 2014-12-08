@@ -11,28 +11,24 @@ function update_status_file {
 	# $1 = received commit (or branch)
 	# $2 = reponame
 	# $3 = update "commit" or "branch"
-	if [ -z $1 ]; then
-		CURRENT=$(grep $2 $STATUS_FILE -A2 | grep $3 | awk -F '"|"' '{print $4}')
+	CURRENT=$(grep $2 $STATUS_FILE -A2 | grep $3 | awk -F '"|"' '{print $4}')
+	if [ "$1" == "$CURRENT" ]; then
+	        echo received $3 from $2 is equal to current $3 from $STATUS_FILE
 	else
-		CURRENT=$(grep $2 $STATUS_FILE -A2 | grep $3 | awk -F '"|"' '{print $4}')
-        	if [ "$1" == "$CURRENT" ]; then
-        	        echo received $3 from $2 is equal to current $3 from $STATUS_FILE
-        	else
-        	        NOL=$(grep -n $1 $STATUS_FILE -A2 | grep $3 | awk -F "-" '{print $1}')
-        	        sed -i "$NOL""s/$CURRENT/$1/" $STATUS_FILE
-        	fi
+	        NOL=$(grep -n $1 $STATUS_FILE -A2 | grep $3 | awk -F "-" '{print $1}')
+	        sed -i "$NOL""s/$CURRENT/$1/" $STATUS_FILE
 	fi
 }
-
-update_status_file $PROCESSOR_COMMIT $PROCESSOR_REPONAME commit
-update_status_file $PROCESSOR_BRANCH $PROCESSOR_REPONAME branch
-update_status_file $SOURCES_COMMIT $SOURCES_REPONAME commit
-update_status_file $SOURCES_BRANCH $SOURCES_REPONAME branch
+if [ ! -z $PROCESSOR_COMMIT ]; then update_status_file $PROCESSOR_COMMIT $PROCESSOR_REPONAME commit; fi
+if [ ! -z $PROCESSOR_BRANCH ]; then update_status_file $PROCESSOR_BRANCH $PROCESSOR_REPONAME branch; fi
+if [ ! -z $SOURCES_COMMIT ];then update_status_file $SOURCES_COMMIT $SOURCES_REPONAME commit;	fi
+if [ ! -z $SOURCES_BRANCH ]; then update_status_file $SOURCES_BRANCH $SOURCES_REPONAME branch; fi
 
 LAST_PROCESSOR_COMMIT=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A2 | grep commit | awk -F '"|"' '{print $4}')
+LAST_PROCESSOR_BRANCH=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A2 | grep branch | awk -F '"|"' '{print $4}')
 LAST_SOURCES_COMMIT=$(grep $SOURCES_REPONAME $STATUS_FILE -A2 | grep commit | awk -F '"|"' '{print $4}')
 
-if [ "$PROCESSOR_BRANCH" = "master" ] || [ "PROCESSOR_BRANCH" = "" ]; then
+if [ "$LAST_PROCESSOR_BRANCH" == "master" ] || [ "$LAST_PROCESSOR_BRANCH" == "" ]; then
         TARGET=(ffa ocean)
         for i in ${TARGET[@]}
         do
