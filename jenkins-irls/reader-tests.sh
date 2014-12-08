@@ -27,10 +27,11 @@ export DISPLAY=:99
 export NODE_HOME=/opt/node
 export PATH=$PATH:$NODE_HOME/bin
 ### Changing URL for tests
-cat $WORKSPACE/$READER_REPONAME/tests/environmentConfig.json
-cat /dev/null > $WORKSPACE/$READER_REPONAME/tests/environmentConfig.json
-echo -e '{\n"url":"http://irls-autotests.design.isd.dp.ua/irls/test/reader/test-target/develop/portal/"\n}' >> $WORKSPACE/$READER_REPONAME/tests/environmentConfig.json
-cat $WORKSPACE/$READER_REPONAME/tests/environmentConfig.json
+ENV_CONFIG="$WORKSPACE/$READER_REPONAME/tests/data/environmentConfig.json"
+cat $ENV_CONFIG
+cat /dev/null > $ENV_CONFIG
+echo -e '{\n"url":"http://irls-autotests.design.isd.dp.ua/irls/test/reader/test-target/develop/"\n}' >> $ENV_CONFIG
+cat $ENV_CONFIG
 ### Running tests
 cd $WORKSPACE/$READER_REPONAME/tests/spec
 #which chromedriver
