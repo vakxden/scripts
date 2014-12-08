@@ -57,7 +57,7 @@ sources_dir_clean $CURRENT_TEXTS
 META=$CURRENT_TEXTS/$GIT_COMMIT/meta-ocean-deploy
 rm -f $META
 touch $META
-echo "GIT_URL='$GIT_URL'.git" >> $META
+echo "GIT_URL=$GIT_URL.git" >> $META
 echo "BRANCHNAME=$BRANCHNAME" >> $META
 echo "GIT_COMMIT_OC=$GIT_COMMIT" >> $META
 echo "GIT_COMMIT_MESSAGE=$GIT_COMMIT_MESSAGE" >> $META

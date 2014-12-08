@@ -60,7 +60,7 @@ processor_dir_clean $CURRENT_RRM
 META=$CURRENT_RRM/$GIT_COMMIT/meta-processor-deploy
 rm -f $META
 touch $META
-echo "GIT_URL='$GIT_URL'.git" >> $META
+echo "GIT_URL=$GIT_URL.git" >> $META
 echo "BRANCHNAME=$BRANCHNAME" >> $META
 echo "GIT_COMMIT_RRM=$GIT_COMMIT" >> $META
 echo "GIT_COMMIT_MESSAGE=$GIT_COMMIT_MESSAGE" >> $META
