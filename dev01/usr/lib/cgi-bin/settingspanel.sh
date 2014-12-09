@@ -127,7 +127,7 @@ if [ ! -z "$QUERY_STRING_POST" ]; then
         declare -a DEPLOY_TARGET
         DEPLOY_TARGET=($(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])deploytarget=[0-9a-z_-]++" |  cut -f 2 -d "="))
         if [ ! -z $DEPLOY_BRANCH ] && [ ! -z $DEPLOY_TARGET ]; then
-                curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$(echo ${DEPLOY_TARGET[@]} | sed 's@ @%20@g')\&BRANCHNAME=$DEPLOY_BRANCH
+                curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$(echo ${DEPLOY_TARGET[@]} | sed 's@ @%20@g')\&BRANCHNAME=$DEPLOY_BRANCH\&STARTED_BY=Settings%20Panel
                 echo '<p>'
                 echo 'Processing of deploy parameters:'
                 echo '<br>'
