@@ -36,3 +36,4 @@ if [ "$LAST_PROCESSOR_BRANCH" == "master" ] || [ "$LAST_PROCESSOR_BRANCH" == "" 
         done
 fi
 
+echo \[WARN_MARK\] this job runs job: \<a href="http://wpp.isd.dp.ua/jenkins/job/3-irls-lib-processor-convert"\>3-irls-lib-processor-convert\</a\> \<br\> with one of the parameters TARGET == \<b\>$(echo ${TARGET[@]})\</b\>
