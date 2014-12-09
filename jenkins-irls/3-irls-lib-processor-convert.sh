@@ -1,10 +1,10 @@
 if [ -z $PROCESSOR_COMMIT ]; then
-	echo processor commit value not received
-	exit 1
+        echo processor commit value not received
+        exit 1
 fi
 if [ -z $SOURCES_COMMIT ]; then
-	echo sources commit value not received
-	exit 1
+        echo sources commit value not received
+        exit 1
 fi
 ### Variables
 CURRENT_RRM=$HOME/irls-rrm-processor-deploy/$PROCESSOR_COMMIT
