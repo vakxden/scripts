@@ -54,7 +54,7 @@ do
         META_SUM=meta-current-epubs-$TARGET_NAME
         cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM
         # echo numbers of converted files to temporary file
-        files_conv=$(grep "Files converted.*$FACET_NAME" /var/lib/jenkins/jobs/irls-rrm-processor-convert/builds/$N/log | grep -v grep >> $WORKSPACE/filesconv.txt)
+        files_conv=$(grep "Files converted.*$FACET_NAME" /var/lib/jenkins/jobs/$JOB_NAME/builds/$N/log | grep -v grep >> $WORKSPACE/filesconv.txt)
 done
 
 cat /dev/null > $CURRENT_EPUBS/$META_SUM_ALL
