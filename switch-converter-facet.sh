@@ -1,4 +1,4 @@
-#This job modifies the configuration file of the job named "irls-rrm-initiate-facets" ( http://wpp.isd.dp.ua/jenkins/job/irls-rrm-initiate-facets )
+#This job modifies the configuration file of the job named "2-irls-lib-initiate-targets" ( http://wpp.isd.dp.ua/jenkins/job/2-irls-lib-initiate-targets )
 
 #Name of job: switch-converter-facet ( http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet )
 #Authentication Token: neLei5ie
@@ -11,7 +11,7 @@
 ### Variables
 ###
 URL_CONV=""
-COJ_CONV="/var/lib/jenkins/jobs/irls-rrm-initiate-facets/config.xml" # Path to the configuration file of jenkins job
+COJ_CONV="/var/lib/jenkins/jobs/2-irls-lib-initiate-targets/config.xml" # Path to the configuration file of jenkins job
 #NUM_CONV=$(grep -n "FACET=" $COJ_CONV | grep -v "#FACET=" | grep -v curl | awk -F ":" '{print $1}')
 NUM_CONV=$(grep -n "TARGET=" $COJ_CONV | grep -v "#TARGET=" | grep -v curl | awk -F ":" '{print $1}')
 #FACET_CONV=$(grep "FACET=" $COJ_CONV  | grep -v "#FACET=" | grep -v curl | awk -F"[()]" '{print $2}')
@@ -34,12 +34,12 @@ function replace_facet_json () {
 }
 
 function deploy_conf_file_conv {
-        wget --auth-no-challenge --http-user=$JUSER --http-password=$JUSER_TOKEN --post-file="$COJ_CONV" http://wpp.isd.dp.ua/jenkins/job/irls-rrm-initiate-facets/config.xml
+        wget --auth-no-challenge --http-user=$JUSER --http-password=$JUSER_TOKEN --post-file="$COJ_CONV" http://wpp.isd.dp.ua/jenkins/job/2-irls-lib-initiate-targets/config.xml
         rm -f config.xml
 }
 
 function run_of_job_conv {
-        curl http://wpp.isd.dp.ua/jenkins/job/irls-rrm-initiate-facets/buildWithParameters?token=Sheedah8\&BRANCHNAME=
+        curl http://wpp.isd.dp.ua/jenkins/job/2-irls-lib-initiate-targets/buildWithParameters?token=Sheedah8\&BRANCHNAME=
 }
 
 ###

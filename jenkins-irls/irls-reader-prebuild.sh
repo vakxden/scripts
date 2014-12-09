@@ -78,14 +78,14 @@ elif [ "$REPONAME" == "targets" ]; then
 	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-reader-build" title="irls-reader-build"\>irls-reader-build\</a\> job
 elif [ "$REPONAME" == "lib-processor" ]; then
 	if [ "$BRANCH" == "master" ]; then
-		curl curl http://wpp.isd.dp.ua/jenkins/job/irls-lib-processor-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
+		curl curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-processor-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
 	fi
-	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-lib-processor-build" title="irls-lib-processor-build"\>irls-lib-processor-build\</a\> job
+	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-processor-build" title="1-irls-lib-processor-build"\>1-irls-lib-processor-build\</a\> job
 elif [ "$REPONAME" == "lib-sources" ]; then
 	if [ "$BRANCH" == "master" ]; then
-		curl curl http://wpp.isd.dp.ua/jenkins/job/irls-lib-sources/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
+		curl curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-sources-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
 	fi
-	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-lib-sources-build" title="irls-lib-sources-build"\>irls-lib-sources-build\</a\> job
+	echo \[WARN_MARK\] run the \<a href="http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-sources-build" title="1-irls-lib-sources-build"\>1-irls-lib-sources-build\</a\> job
 else
 	echo \[ERROR_REPO\] Wrong reponame!
 	exit 1
