@@ -14,6 +14,7 @@ CONFIGURATION_BUILD_DIR=$WORKSPACE/build
 CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
 MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution_profile_2015-02-04.mobileprovision
 TARGET=($(echo $TARGET))
+SDKROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk"
 ###
 ### Body (working with all facets exclude "ocean")
 ###
@@ -25,12 +26,6 @@ for ((x=0; x<${#deploymentPackageId[@]}; x++))
 do
 	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
 	combineArray+=(["$a"]="${deploymentPackageId[i]}")
-        #for ((y=0; y<${#TARGET[@]}; y++))
-        #do
-        #        if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${TARGET[y]}$")" ]; then
-        #                combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[x]}")
-        #        fi
-        #done
 done
 ### Create ipa-file with application version for iOS
 function main_loop {
@@ -43,9 +38,9 @@ function main_loop {
                 #unlock keychain
                 security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
                 #build with xcodebuild
-                time /usr/bin/xcodebuild -target $IPA_NAME -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$IPA_NAME.xcodeproj/  -arch armv7 > /dev/null
+                time /usr/bin/xcodebuild -sdk iphoneos8.1 -target $IPA_NAME -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$IPA_NAME.xcodeproj/ -arch armv7 CODE_SIGN_RESOURCE_RULES_PATH="$SDKROOT/ResourceRules.plist" > /dev/null
                 #create ipa-file
-                time /usr/bin/xcrun -sdk iphoneos PackageApplication -v "$WORKSPACE/build/$IPA_NAME.app" -o $WORKSPACE/$IPA_NAME.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
+                time /usr/bin/xcrun -sdk iphoneos8.1 PackageApplication -v "$WORKSPACE/build/$IPA_NAME.app" -o $WORKSPACE/$IPA_NAME.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
                 rm -f $WORKSPACE/$IPA_NAME*debug.ipa
                 until time scp $WORKSPACE/$IPA_NAME.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$IPA_NAME.ipa; do :; done
 		rm -f $WORKSPACE/$IPA_NAME.ipa
