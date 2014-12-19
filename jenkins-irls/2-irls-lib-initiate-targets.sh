@@ -28,7 +28,7 @@ LAST_PROCESSOR_COMMIT=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A2 | grep commit 
 LAST_PROCESSOR_BRANCH=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A2 | grep branch | awk -F '"|"' '{print $4}')
 LAST_SOURCES_COMMIT=$(grep $SOURCES_REPONAME $STATUS_FILE -A2 | grep commit | awk -F '"|"' '{print $4}')
 
-if [ "$LAST_PROCESSOR_BRANCH" == "master" ] || [ "$LAST_PROCESSOR_BRANCH" == "" ]; then
+if [ "$LAST_PROCESSOR_BRANCH" == "master" ] || [ "$LAST_PROCESSOR_BRANCH" == "" ] || [ "$LAST_PROCESSOR_BRANCH" == "develop" ]; then
         TARGET=(ffa ocean)
         for i in ${TARGET[@]}
         do
