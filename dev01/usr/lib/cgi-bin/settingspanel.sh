@@ -146,6 +146,15 @@ echo '<br>'
 echo '<br>'
 # form of Convert
 echo '<form action="'${SCRIPT}'" method=POST>'
+echo '<span>Select branch:</span>'
+echo '<select name="convertbranch">'
+echo '<option value="" disabled="disabled" selected="selected">Please select a branch name</option>'
+for j in master develop
+do
+        echo '<option value="'$j'">'$j'</option>'
+done
+echo '</select>'
+echo '<br>'
 echo '<span>Select target:</span>'
 for z in ${TARGETS_ARRAY[@]}
 do
@@ -159,10 +168,10 @@ cgi_getvars BOTH ALL
 if [ ! -z "$QUERY_STRING_POST" ]; then
         declare -a CONVERT_TARGET
         CONVERT_TARGET=($(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])converttarget=[0-9a-z_-]++" |  cut -f 2 -d "="))
+        CONVERT_BRANCH=($(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])convertbranch=[0-9a-z_-]++" |  cut -f 2 -d "="))
         if [ ! -z $CONVERT_TARGET ]; then
-                curl http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet/buildWithParameters?token=neLei5ie\&CHANGE_TARGET=$(echo ${CONVERT_TARGET[@]} | sed 's@ @%20@g')
-                curl http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet/buildWithParameters?token=neLei5ie\&RUN_OF_JOB=run_of_job
-                #curl http://wpp.isd.dp.ua/jenkins/job/irls-rrm-processor-convert/buildWithParameters?token=Sheedah8\&TARGET=$(echo ${CONVERT_TARGET[@]} | sed 's@ @%20@g')
+                curl http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet/buildWithParameters?token=neLei5ie\&CHANGE_TARGET=$(echo ${CONVERT_TARGET[@]} | sed 's@ @%20@g')\&CONVERT_BRANCH=$CONVERT_BRANCH
+                curl http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet/buildWithParameters?token=neLei5ie\&RUN_OF_JOB=run_of_job\&CONVERT_BRANCH=$CONVERT_BRANCH
                 echo '<p>'
                 echo 'Processing of convert parameters:'
                 echo '<br>'

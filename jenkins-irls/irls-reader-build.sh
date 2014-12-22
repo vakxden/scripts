@@ -49,10 +49,10 @@ fi
 ###
 ### Variables
 ###
-CURRENT_BUILD=/home/jenkins/irls-reader-current-build
+CURRENT_BUILD=$HOME/irls-reader-current-build
 CURRENT_EPUBS=$HOME/irls-reader-current-epubs
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
-ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
+ARTIFACTS_DIR=$HOME/irls-reader-artifacts
 META_SUM_ALL=$CURRENT_EPUBS/meta-all
 GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
@@ -70,20 +70,20 @@ GIT_COMMIT_SHORT=$(git log -1  --pretty=format:%h)
 LIB_PROCESSOR_REPO="lib-processor.git"
 GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
 GIT_COMMIT_MESSAGE_RRM=$( grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-GIT_BRANCHNAME_RRM=$(grep $LIB_PROCESSOR_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-GIT_COMMITTER_NAME_RRM=$(grep $LIB_PROCESSOR_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
-GIT_COMMIT_DATE_RRM=$(grep $LIB_PROCESSOR_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-GIT_COMMITTER_EMAIL_RRM=$(grep $LIB_PROCESSOR_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-GIT_COMMIT_URL_RRM=$(grep $LIB_PROCESSOR_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_URL_RRM | awk -F "=" '{print $2}')
+GIT_BRANCHNAME_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
+GIT_COMMITTER_NAME_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
+GIT_COMMIT_DATE_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
+GIT_COMMITTER_EMAIL_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
+GIT_COMMIT_URL_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_URL_RRM | awk -F "=" '{print $2}')
 # lib-sources
 LIB_SOURCES_REPO="lib-sources.git"
 GIT_COMMIT_OC=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}')
 GIT_COMMIT_MESSAGE_OC=$( grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-GIT_BRANCHNAME_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_AUTHOR | awk -F "=" '{print $2}')
-GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO /home/jenkins/irls-reader-current-epubs/meta-all -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
+GIT_BRANCHNAME_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
+GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_AUTHOR | awk -F "=" '{print $2}')
+GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
+GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
+GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
 # product (old reader)
 cd $WORKSPACE/$READER_REPONAME
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
