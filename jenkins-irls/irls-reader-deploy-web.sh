@@ -41,12 +41,6 @@ for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
 	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
 	combineArray+=(["$a"]="${deploymentPackageId[i]}")
-        #for ((y=0; y<${#TARGET[@]}; y++))
-        #do
-        #        if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
-        #                combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
-        #        fi
-        #done
 done
 
 ###
@@ -118,6 +112,9 @@ if [ "$dest" = "DEVELOPMENT" ]; then
 		if [ -f server/init.js ]; then
 			node server/init.js
 		fi
+		# add URL for development environment
+		NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
+		sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/\",#g" server/brandConfig.json
                 # run (re-run) node
                 start_node $PKG_DIR $INDEX_FILE
                 # update environment.json file
@@ -156,6 +153,9 @@ elif [ "$dest" = "STAGE" ]; then
 		if [ -f server/init.js ]; then
 			node server/init.js
 		fi
+		# replace URL for stage environment
+		NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
+		sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/portal/\",#g" server/brandConfig.json
                 # run (re-run) node
                 start_node $STAGE_PKG_DIR $INDEX_FILE
                 # update environment.json file
@@ -194,6 +194,9 @@ elif [ "$dest" = "LIVE" ]; then
 			if [ -f server/init.js ]; then
 				~/node/bin/node server/init.js
 			fi
+			# replace URL for live environment
+			NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
+			sed -i \"\$NUM_OF_LINE\"\"s#\"brandUrl.*#\"brandUrl\": \"https://irls.isd.dp.ua/$i/$BRANCH/portal/\",#g\" server/brandConfig.json
                         # Start node
                         cd $REMOTE_ART_PATH/${combineArray[$i]}
                         PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
