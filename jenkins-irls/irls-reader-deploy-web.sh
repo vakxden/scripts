@@ -172,21 +172,22 @@ elif [ "$dest" = "LIVE" ]; then
                 STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
                 RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
                 ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
-                ssh dvac@devzone.dp.ua "rm -f $RSYNC_FACETS_DIR/client/dist/app/epubs/dirstructure.json"
+                ssh dvac@devzone.dp.ua "
+			rm -f $RSYNC_FACETS_DIR/client/dist/app/epubs/dirstructure.json
+                        if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
+			# create of status-deploy file
+			if [ ! -e $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt ]; then touch $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt; fi"
                 time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
                 ssh dvac@devzone.dp.ua "
                         # values
                         INDEX_FILE=index_"$i"_$BRANCH.js
-                        if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
-			# create of status-deploy file
-			if [ ! -e $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt ]; then touch $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt; fi
 			# copying files from RSYNC_FACETS_DIR to REMOTE_ART_PATH/{combineArray[i]}
                         cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
                         # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then
                                 mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art
                         fi
-                        mv $REMOTE_ART_PATH/${combineArray[$i]}/artifacts $REMOTE_ART_PATH/${combineArray[$i]}/art
+                        #mv $REMOTE_ART_PATH/${combineArray[$i]}/artifacts $REMOTE_ART_PATH/${combineArray[$i]}/art
                         /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
                         cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
 			# init users database
@@ -195,19 +196,16 @@ elif [ "$dest" = "LIVE" ]; then
 				~/node/bin/node server/init.js
 			fi
 			# replace URL for live environment
-			NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
-			sed -i \"\$NUM_OF_LINE\"\"s#\"brandUrl.*#\"brandUrl\": \"https://irls.isd.dp.ua/$i/$BRANCH/portal/\",#g\" server/brandConfig.json
+			sed -i 's#\"brandUrl.*#\"brandUrl\": \"https://irls.isd.dp.ua/$i/$BRANCH/portal/\",#g' server/brandConfig.json
                         # Start node
                         cd $REMOTE_ART_PATH/${combineArray[$i]}
                         PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
                         if [ ! -z \$PID ]
                         then
                                 kill -9 \$PID
-                                #nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
 				nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
                         else
-                                #nohup ~/node/bin/node server/\$INDEX_FILE > /dev/null 2>&1 &
 				nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
 				if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
                         fi
@@ -226,7 +224,3 @@ else
         printf "[ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest! \n"
         exit 1
 fi
-# End of body
-#check node status
-#ps aux | grep node.*server/$INDEX_FILE
-

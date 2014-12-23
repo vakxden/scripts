@@ -57,9 +57,8 @@ else
 fi
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
 ARTIFACTS_DIR=$HOME/irls-reader-artifacts
-META_SUM_ALL=$CURRENT_EPUBS/meta-all
-GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
-GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
+#GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
+#GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 cd $WORKSPACE/$READER_REPONAME
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
 GIT_COMMIT_DATE=$(git show -s --format=%ci)
@@ -67,34 +66,6 @@ GIT_COMMITTER_NAME=$(git show -s --format=%cn)
 GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
 GIT_COMMIT_SHORT=$(git log -1  --pretty=format:%h)
 
-###
-### Create variables for meta.json
-###
-# lib-processor
-LIB_PROCESSOR_REPO="lib-processor.git"
-GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
-GIT_COMMIT_MESSAGE_RRM=$( grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-GIT_BRANCHNAME_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-GIT_COMMITTER_NAME_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
-GIT_COMMIT_DATE_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-GIT_COMMITTER_EMAIL_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-GIT_COMMIT_URL_RRM=$(grep $LIB_PROCESSOR_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_URL_RRM | awk -F "=" '{print $2}')
-# lib-sources
-LIB_SOURCES_REPO="lib-sources.git"
-GIT_COMMIT_OC=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}')
-GIT_COMMIT_MESSAGE_OC=$( grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-GIT_BRANCHNAME_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_AUTHOR | awk -F "=" '{print $2}')
-GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO $CURRENT_EPUBS/meta-all -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
-# product (old reader)
-cd $WORKSPACE/$READER_REPONAME
-GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
-GIT_COMMIT_DATE=$(git show -s --format=%ci)
-GIT_COMMIT_AUTHOR=$(git show -s --format=%an)
-GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
-GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$READER_REPONAME/commit/$GIT_COMMIT"
 
 ### Clone targets-repo and running node with target option
 REPONAME="$TARGETS_REPONAME"
@@ -109,7 +80,8 @@ fi
 deploymentPackageId=()
 for i in "${TARGET[@]}"
 do
-        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
+        #deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
+        deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT"_"$i")")
 done
 
 ###
@@ -124,6 +96,35 @@ do
         fi
         ### Determine facet name
         TARGET_NAME=$(echo $i | sed 's@^.[0-9a-z]*_@@g')
+	META_SUM_ALL=$CURRENT_EPUBS/$TARGET_NAME/meta-all
+	###
+	### Create variables for meta.json
+	###
+	# lib-processor
+	LIB_PROCESSOR_REPO="lib-processor.git"
+	GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
+	GIT_COMMIT_MESSAGE_RRM=$( grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
+	GIT_BRANCHNAME_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
+	GIT_COMMITTER_NAME_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
+	GIT_COMMIT_DATE_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
+	GIT_COMMITTER_EMAIL_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
+	GIT_COMMIT_URL_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_RRM | awk -F "=" '{print $2}')
+	# lib-sources
+	LIB_SOURCES_REPO="lib-sources.git"
+	GIT_COMMIT_OC=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}')
+	GIT_COMMIT_MESSAGE_OC=$( grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
+	GIT_BRANCHNAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
+	GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_AUTHOR | awk -F "=" '{print $2}')
+	GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
+	GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
+	GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
+	# product (old reader)
+	cd $WORKSPACE/$READER_REPONAME
+	GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
+	GIT_COMMIT_DATE=$(git show -s --format=%ci)
+	GIT_COMMIT_AUTHOR=$(git show -s --format=%an)
+	GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
+	GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$READER_REPONAME/commit/$GIT_COMMIT"
         function create_meta {
                 echo "Starting of function create_meta with variables $1 and $2"
                 ### $1 - it is deploymentPackageId

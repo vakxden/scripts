@@ -5,7 +5,12 @@ export PATH=$PATH:/usr/local/bin
 export HTTP_PROXY=http://10.98.192.120:3128
 export HTTPS_PROXY=http://10.98.192.120:3128
 CURRENT_BUILD=/Users/jenkins/irls-reader-current-build
-CURRENT_EPUBS=/Users/jenkins/irls-reader-current-epubs
+if [ "$BRANCHNAME" != "master" ]; then
+        CURRENT_EPUBS=/Users/jenkins/irls-reader-current-epubs/develop
+else
+        CURRENT_EPUBS=/Users/jenkins/irls-reader-current-epubs/$BRANCHNAME
+fi
+
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts # it's directory locates on the host dev01
 echo SHELL=$BASH
 echo SHELL_VERSION=$BASH_VERSION

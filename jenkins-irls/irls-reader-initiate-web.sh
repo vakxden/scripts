@@ -1,6 +1,10 @@
 ### Variables
 ARTIFACTS_DIR=$HOME/irls-reader-artifacts
-CURRENT_EPUBS=$HOME/irls-reader-current-epubs
+if [ "$BRANCHNAME" != "master" ]; then
+        CURRENT_EPUBS=$HOME/irls-reader-current-epubs/develop
+else
+        CURRENT_EPUBS=$HOME/irls-reader-current-epubs/$BRANCHNAME
+fi
 TARGET=($(echo $TARGET))
 PREFIX=$(echo $BRANCHNAME | sed 's/\//-/g')
 BUILD_CONFIG="$HOME/build_config"

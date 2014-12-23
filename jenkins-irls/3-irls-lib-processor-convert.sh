@@ -55,10 +55,10 @@ do
         cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM
         # echo numbers of converted files to temporary file
         files_conv=$(grep "Files converted.*$FACET_NAME" /var/lib/jenkins/jobs/$JOB_NAME/builds/$N/log | grep -v grep >> $WORKSPACE/filesconv.txt)
+	cat /dev/null > $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL
+	cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL
 done
 
-cat /dev/null > $CURRENT_EPUBS/$META_SUM_ALL
-cat $META1 >> $CURRENT_EPUBS/$META_SUM_ALL && cat $META2 >> $CURRENT_EPUBS/$META_SUM_ALL
 
 ###
 ### Zabbix - generate graph for ocean facet
@@ -83,17 +83,17 @@ do
         FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json | awk -F'"|"' '{print $4}')
         ### Sync current "target named"-epubs to mac-mini ("yuriys-mac-mini" and "users-mac-mini"), if target config contain platform "ios"
         if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET_NAME/targetConfig.json; then
-                ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME; fi"
-                time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$TARGET_NAME/
-                ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$TARGET_NAME; fi"
-                time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$TARGET_NAME/
+                ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCH/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCH/$TARGET_NAME; fi"
+                time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCH/$TARGET_NAME/
+                ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCH/$TARGET_NAME ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCH/$TARGET_NAME; fi"
+                time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCH/$TARGET_NAME/
         fi
         ### Sync current "target named"-epubs to dev02.design.isd.dp.ua
         if [ "$FACET_NAME" = "ocean" ]; then
                 printf "epubs for facet named 'ocean', target is $TARGET_NAME, will not be copying to dev02.design.isd.dp.ua \n"
         else
-                ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d ~/irls-reader-current-epubs/$TARGET_NAME ]; then mkdir -p ~/irls-reader-current-epubs/$TARGET_NAME; fi"
-                time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@dev02.design.isd.dp.ua:~/irls-reader-current-epubs/$TARGET_NAME/
+                ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d $CURRENT_EPUBS/$TARGET_NAME ]; then mkdir -p $CURRENT_EPUBS/$TARGET_NAME; fi"
+                time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@dev02.design.isd.dp.ua:$CURRENT_EPUBS/$TARGET_NAME/
         fi
 done
 ###
