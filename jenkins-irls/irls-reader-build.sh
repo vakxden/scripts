@@ -50,7 +50,11 @@ fi
 ### Variables
 ###
 CURRENT_BUILD=$HOME/irls-reader-current-build
-CURRENT_EPUBS=$HOME/irls-reader-current-epubs
+if [ "$BRANCHNAME" != "master" ]; then
+	CURRENT_EPUBS=$HOME/irls-reader-current-epubs/develop
+else
+	CURRENT_EPUBS=$HOME/irls-reader-current-epubs/$BRANCHNAME
+fi
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
 ARTIFACTS_DIR=$HOME/irls-reader-artifacts
 META_SUM_ALL=$CURRENT_EPUBS/meta-all
