@@ -141,13 +141,13 @@ elif [ "$dest" = "STAGE" ]; then
                 cd $CURRENT_PKG_DIR
                 if [ ! -d $STAGE_PKG_DIR ]; then
                         mkdir -p $STAGE_PKG_DIR
-                        time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
+                        time rsync -r --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
                 else
                         cd $STAGE_PKG_DIR
                         rm -rf common client server artifacts portal books
                         rm -rf $STAGE_PKG_DIR/*
                         cd $CURRENT_PKG_DIR
-                        time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
+                        time rsync -r --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
                 fi
                 # generate index.html and local.json
                 generate_files $STAGE_PKG_DIR
