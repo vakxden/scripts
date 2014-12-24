@@ -20,10 +20,11 @@ done
 function main_loop {
         notmainloop ()
         {
+		# createing of web-package
                 cd $WORKSPACE/packager
                 time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
-                #create index
                 cd $WORKSPACE
+		# move of web-package to artifacts directory (for current environment)
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
