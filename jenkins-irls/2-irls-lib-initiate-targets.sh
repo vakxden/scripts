@@ -4,28 +4,39 @@ SOURCES_REPONAME="lib-sources"
 STATUS_FILE="status.json"
 if [ ! -f $STATUS_FILE ]; then
         touch $STATUS_FILE
-        echo -e '{\n\t"lib-processor" : {\n\t\t"commitID":"123",\n\t\t"branchName":"blabla"\n\t},\n\t"lib-sources" : {\n\t\t"commitID":"456",\n\t\t"branchName":"bloblo"\n\t}\n}' >> $STATUS_FILE
+        echo -e '{
+        "lib-processor" : [
+                {"branchName":"master",
+                "commitID":"f9ce33c1c30f35f01d22a4d3f8ae49f0113a1fd6"
+                },
+                {"branchName":"develop",
+                "commitID":"3102ecd92cd5579dbef6704d68e477dcffe6eff6"
+                }
+        ],
+        "lib-sources" : {
+                "branchName":"master",
+                "commitID":"7e654f91941bb72bafa5c208dc51d3126a7b2511"
+        }
+}' >> $STATUS_FILE
 fi
 
 function update_status_file {
-	# $1 = received commit (or branch)
+	# $1 = received commit
 	# $2 = reponame
-	# $3 = update "commit" or "branch"
-	CURRENT=$(grep $2 $STATUS_FILE -A2 | grep $3 | awk -F '"|"' '{print $4}')
+	# $3 = $PROCESSOR_BRANCH or $SOURCES_BRANCH
+	CURRENT=$(grep $2 $STATUS_FILE -A9 | grep "branchName.*$3" -A1 | grep commit | awk -F '"|"' '{print $4}')
 	if [ "$1" == "$CURRENT" ]; then
-	        echo received $3 from $2 is equal to current $3 from $STATUS_FILE
+	        echo received commit from $2 is equal to current commit from $STATUS_FILE
 	else
-	        NOL=$(grep -n $1 $STATUS_FILE -A2 | grep $3 | awk -F "-" '{print $1}')
+	        NOL=$(grep -n $CURRENT $STATUS_FILE | awk -F ":" '{print $1}')
 	        sed -i "$NOL""s/$CURRENT/$1/" $STATUS_FILE
 	fi
 }
-if [ ! -z $PROCESSOR_COMMIT ]; then update_status_file $PROCESSOR_COMMIT $PROCESSOR_REPONAME commit; fi
-if [ ! -z $PROCESSOR_BRANCH ]; then update_status_file $PROCESSOR_BRANCH $PROCESSOR_REPONAME branch; fi
-if [ ! -z $SOURCES_COMMIT ];then update_status_file $SOURCES_COMMIT $SOURCES_REPONAME commit;	fi
-if [ ! -z $SOURCES_BRANCH ]; then update_status_file $SOURCES_BRANCH $SOURCES_REPONAME branch; fi
+if [ ! -z $PROCESSOR_COMMIT ]; then update_status_file $PROCESSOR_COMMIT $PROCESSOR_REPONAME $PROCESSOR_BRANCH; fi
+if [ ! -z $SOURCES_COMMIT ];then update_status_file $SOURCES_COMMIT $SOURCES_REPONAME $SOURCES_BRANCH;	fi
 
-LAST_PROCESSOR_COMMIT=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A2 | grep commit | awk -F '"|"' '{print $4}')
-LAST_PROCESSOR_BRANCH=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A2 | grep branch | awk -F '"|"' '{print $4}')
+LAST_PROCESSOR_COMMIT=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A9| grep "branchName.*$PROCESSOR_BRANCH" -A1 | grep commit | awk -F '"|"' '{print $4}')
+LAST_PROCESSOR_BRANCH=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A9 | grep "branchName.*$PROCESSOR_BRANCH" -A1 |grep branch | awk -F '"|"' '{print $4}')
 LAST_SOURCES_COMMIT=$(grep $SOURCES_REPONAME $STATUS_FILE -A2 | grep commit | awk -F '"|"' '{print $4}')
 
 if [ "$LAST_PROCESSOR_BRANCH" == "master" ] || [ "$LAST_PROCESSOR_BRANCH" == "develop" ]; then
