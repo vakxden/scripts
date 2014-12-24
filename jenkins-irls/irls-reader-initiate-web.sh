@@ -7,8 +7,6 @@ else
 fi
 TARGET=($(echo $TARGET))
 PREFIX=$(echo $BRANCHNAME | sed 's/\//-/g')
-BUILD_CONFIG="$HOME/build_config"
-SCRIPTS_DIR="$HOME/scripts"
 deploymentPackageId=($(echo $ID))
 declare -A combineArray
 
