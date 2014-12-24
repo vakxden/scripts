@@ -71,7 +71,7 @@ elif [ "$REPONAME" == "targets" ]; then
                         if [ -z $y ]; then
                                 continue
                         else
-                		curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=develop\&STARTED_BY=$JOB_NAME%20$BUILD_NUMBER
+                		curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=$y\&STARTED_BY=$JOB_NAME%20$BUILD_NUMBER
                         fi
                 done
         done
