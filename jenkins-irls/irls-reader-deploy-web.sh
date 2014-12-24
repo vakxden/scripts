@@ -113,8 +113,10 @@ if [ "$dest" = "DEVELOPMENT" ]; then
 			node server/init.js
 		fi
 		# add URL for development environment
-		NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
-		sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/\",#g" server/brandConfig.json
+		if [ -f server/brandConfig.json ]; then
+			NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
+			sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/\",#g" server/brandConfig.json
+		fi
                 # run (re-run) node
                 start_node $PKG_DIR $INDEX_FILE
                 # update environment.json file
@@ -154,8 +156,10 @@ elif [ "$dest" = "STAGE" ]; then
 			node server/init.js
 		fi
 		# replace URL for stage environment
-		NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
-		sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/portal/\",#g" server/brandConfig.json
+		if [ -f server/brandConfig.json ]; then
+			NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
+			sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/portal/\",#g" server/brandConfig.json
+		fi
                 # run (re-run) node
                 start_node $STAGE_PKG_DIR $INDEX_FILE
                 # update environment.json file
@@ -196,7 +200,9 @@ elif [ "$dest" = "LIVE" ]; then
 				~/node/bin/node server/init.js
 			fi
 			# replace URL for live environment
-			sed -i 's#\"brandUrl.*#\"brandUrl\": \"https://irls.isd.dp.ua/$i/$BRANCH/portal/\",#g' server/brandConfig.json
+			if [ -f server/brandConfig.json ]; then
+				sed -i 's#\"brandUrl.*#\"brandUrl\": \"https://irls.isd.dp.ua/$i/$BRANCH/portal/\",#g' server/brandConfig.json
+			fi
                         # Start node
                         cd $REMOTE_ART_PATH/${combineArray[$i]}
                         PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
