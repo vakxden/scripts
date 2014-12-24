@@ -20,8 +20,9 @@ CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
 MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution_profile_2015-02-04.mobileprovision
 TARGET=($(echo $TARGET))
 SDKROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk"
+
 ###
-### Body (working with all facets exclude "ocean")
+### Body
 ###
 
 ### Create associative array
@@ -32,6 +33,7 @@ do
 	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
 	combineArray+=(["$a"]="${deploymentPackageId[i]}")
 done
+
 ### Create ipa-file with application version for iOS
 function main_loop {
         notmainloop ()
@@ -47,6 +49,7 @@ function main_loop {
                 #create ipa-file
                 time /usr/bin/xcrun -sdk iphoneos8.1 PackageApplication -v "$WORKSPACE/build/$IPA_NAME.app" -o $WORKSPACE/$IPA_NAME.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
                 rm -f $WORKSPACE/$IPA_NAME*debug.ipa
+		ssh jenkins@dev01.isd.dp.ua "if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts; fi"
                 until time scp $WORKSPACE/$IPA_NAME.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$IPA_NAME.ipa; do :; done
 		rm -f $WORKSPACE/$IPA_NAME.ipa
                 rm -rf $CONFIGURATION_BUILD_DIR/*
