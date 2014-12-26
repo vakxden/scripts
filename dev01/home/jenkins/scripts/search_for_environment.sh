@@ -46,7 +46,7 @@ do
                 printf "environment named $CURRENT in file $PFILE not contains ID=$ID \n"
                 TARGET_NAME=$(echo $ID | cut -d"_" -f 2-)
                 printf "check contain name $TARGET_NAME in current ID=$ID, in environment named $CURRENT ... \n"
-                grep $CURRENT -A $a $PFILE | grep -e "[0-9a-z]\{7\}_$TARGET_NAME\",$" -e "[0-9a-z]\{7\}_$TARGET_NAME\"$"
+                grep $CURRENT -A $a $PFILE | grep -e '"[0-9a-z]\{7\}_'$TARGET_NAME'\",$' -e '"[0-9a-z]\{7\}_'$TARGET_NAME'\"$'
                 if [ $(echo $?) -eq 1 ]; then
                         printf "environment $CURRENT in file $PFILE not contains target name = $TARGET_NAME \n"
                         printf "add $TARGET_NAME to $PFILE \n"
@@ -55,7 +55,7 @@ do
                         printf "environment $CURRENT in file $PFILE contains target name = $TARGET_NAME \n"
                         printf "replacing old ID to new ID named $ID ... \n"
                         # number of line contain target name
-                        num=$(grep $CURRENT -n -A $a $PFILE | grep -e "[0-9a-z]\{7\}_$TARGET_NAME\",$" -e "[0-9a-z]\{7\}_$TARGET_NAME\"$" | cut -d- -f1)
+                        num=$(grep $CURRENT -n -A $a $PFILE | grep -e '"[0-9a-z]\{7\}_'$TARGET_NAME'\",$' -e '"[0-9a-z]\{7\}_'$TARGET_NAME'\"$' | cut -d- -f1)
                         # replace line with old $ID in file $PFILE
                         sed -i "$num s/\(.*\)$TARGET_NAME/\t\t\"$ID/" $PFILE
                         printf "Done... \n"
