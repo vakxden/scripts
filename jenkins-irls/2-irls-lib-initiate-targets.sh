@@ -1,7 +1,7 @@
 PROCESSOR_REPONAME="lib-processor"
 SOURCES_REPONAME="lib-sources"
 
-STATUS_FILE="status.json"
+STATUS_FILE="/home/jenkins/irls-reader-artifacts/status.json"
 if [ ! -f $STATUS_FILE ]; then
         touch $STATUS_FILE
         echo -e '{
