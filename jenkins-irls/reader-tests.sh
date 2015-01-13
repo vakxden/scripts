@@ -1,3 +1,5 @@
+sleep 15
+
 ### Variables of repositories
 READER_REPONAME="product"
 
@@ -36,8 +38,8 @@ cat $ENV_CONFIG
 cd $WORKSPACE/$READER_REPONAME/tests/spec
 #which chromedriver
 ### It's command already started
-### Check it from command line: netstat -nlpt | grep 4444
-# java -jar /opt/selenium-server-standalone-2.37.0.jar -Dwebdriver.chrome.driver="/opt/chromedriver"
+#Check it from command line: /bin/netstat -nlpt | grep 4444
+# java -jar /opt/selenium-server-standalone-2.44.0.jar -Dwebdriver.chrome.driver="/opt/node/bin/chromedriver"
 ### Old command from running of tests
 # jasmine-node reader-spec.js --junitreport --verbose
 grunt
