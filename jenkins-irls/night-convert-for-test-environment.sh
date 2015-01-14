@@ -2,10 +2,9 @@
 ### Variables
 ###
 
-TARGET=(ffa ocean test-target)
+TARGET=(ffa test-target)
 CURRENT_EPUBS="$HOME/irls-reader-current-epubs"
 RESULTS=$WORKSPACE/results
-BRANCH="master"
 RRM_PROCESSOR_REPO_NAME="lib-processor"
 RRM_OCEAN_REPO_NAME="lib-sources"
 TARGETS_REPO_NAME="targets"
@@ -29,25 +28,25 @@ function git_checkout {
 	git reset --hard
 	git clean -fdx
 	git fetch --all
-	git checkout origin/$BRANCH
+	git checkout origin/$1
 	}
 
 function check_repo {
 	if [ ! -d $WORKSPACE/$1 ]; then
 		git_clone
-		git_checkout
+		git_checkout $2
 	else
-		git_checkout
+		git_checkout $2
 	fi
 	}
 
 ### Checkout code from repositories
 REPONAME=$RRM_PROCESSOR_REPO_NAME
-check_repo $REPONAME
+check_repo $REPONAME develop
 REPONAME=$RRM_OCEAN_REPO_NAME
-check_repo $REPONAME
+check_repo $REPONAME master
 REPONAME=$TARGETS_REPO_NAME
-check_repo $REPONAME
+check_repo $REPONAME master
 
 ### Convert
 for TARGET_NAME in ${TARGET[@]}
