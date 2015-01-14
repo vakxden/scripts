@@ -7,7 +7,6 @@ if [ -z $TARGET ]; then
         echo "[ERROR_PARAMETER] Parameter TARGET is empty!!"
         exit 1
 fi
-SPRINT="2.1"
 TARGET=($(echo $TARGET))
 
 ### Variables of repositories
@@ -188,9 +187,6 @@ do
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
         cd $WORKSPACE/$READER_REPONAME/client
-	# add sprint number line to build.info.json
-        NUMBER_OF_SPRINT_LINE=$(grep "sprint" build.info.json -n | awk -F ":" '{print $1}')
-        sed -i "$NUMBER_OF_SPRINT_LINE""s#\"sprint.*#\"sprint\":\"$SPRINT\",#g" build.info.json
         time node compileHandlebars.js
         ### Build client and server parts
         time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
