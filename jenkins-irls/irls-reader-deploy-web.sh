@@ -175,13 +175,18 @@ elif [ "$dest" = "LIVE" ]; then
         do
                 STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
                 RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
+		# variables for product versioning
+		SPRINT=$(grep sprint $STAGE_PKG_DIR/client/dist/app/build.info.json | awk -F '"|"' '{print $4}')
+		BUILD_NUMBER=$(grep buildnumber $STAGE_PKG_DIR/client/dist/app/build.info.json | awk -F '"|"' '{print $4}')
+		BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/client/dist/app/build.info.json | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
+		BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
                 ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
                 ssh dvac@devzone.dp.ua "
 			rm -f $RSYNC_FACETS_DIR/client/dist/app/epubs/dirstructure.json
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
 			# create of status-deploy file
 			if [ ! -e $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt ]; then touch $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt; fi"
-                time rsync -rzv --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
+                time rsync -rz --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
                 ssh dvac@devzone.dp.ua "
                         # values
                         INDEX_FILE=index_"$i"_$BRANCH.js
@@ -205,6 +210,16 @@ elif [ "$dest" = "LIVE" ]; then
 			fi
                         # Start node
                         cd $REMOTE_ART_PATH/${combineArray[$i]}
+			# number of version line
+			NUMBER_OF_VERSION_LINE=\$(grep '$i\"' $BUILD_VERSION_JSON -A3 -n | grep version | awk -F '-' '{print \$1}')
+			echo NUMBER_OF_VERSION_LINE=\$NUMBER_OF_VERSION_LINE
+			# replace version for $i target
+			eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER'\'\\\",#g\\\" $BUILD_VERSION_JSON
+			## number of build date time
+			NUMBER_OF_BUILD_DATE_TIME=\$(grep '$i\"' $BUILD_VERSION_JSON -A3 -n | grep buildDateTime | awk -F '-' '{print \$1}')
+			echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME
+			## replace build date time for $i target
+			eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\",#g\\\" $BUILD_VERSION_JSON
                         PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
                         if [ ! -z \$PID ]
                         then
