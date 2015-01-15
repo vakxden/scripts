@@ -137,6 +137,7 @@ do
                 echo CURRENT_META_JSON=$CURRENT_META_JSON
                 echo -e "{" >> $CURRENT_META_JSON
                 echo -e "\t\"buildID\":\""$1"\"," >> $CURRENT_META_JSON
+		echo -e "\t\"buildNumber\":\""$BUILD_NUMBER"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"targetName\":\""$2"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
