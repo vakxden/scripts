@@ -1,4 +1,5 @@
-BUILD_DATE=$(date "+%Y-%m-%d %H:%M (GMT %z)")
+#BUILD_DATE=$(date "+%Y-%m-%d %H:%M (GMT %z)")
+BUILD_DATE=$(date "+%Y-%m-%d %H:%M")
 SPRINT="2.1"
 ### Checking of parameters
 if [ -z $BRANCHNAME ]; then
