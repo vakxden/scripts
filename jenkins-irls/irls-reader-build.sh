@@ -1,6 +1,5 @@
 #BUILD_DATE=$(date "+%Y-%m-%d %H:%M (GMT %z)")
 BUILD_DATE=$(date "+%Y-%m-%d %H:%M")
-SPRINT="2.1"
 ### Checking of parameters
 if [ -z $BRANCHNAME ]; then
         echo "[ERROR_PARAMETER] Parameter BRANCHNAME is empty!!"
@@ -250,7 +249,6 @@ done
 ###
 cat /dev/null > $WORKSPACE/myenv
 echo "BUILD_DATE=$BUILD_DATE" >> $WORKSPACE/myenv
-echo "SPRINT=$SPRINT" >> $WORKSPACE/myenv
 echo "BUILD_NUMBER=$BUILD_NUMBER" >> $WORKSPACE/myenv
 echo "BRANCHNAME=$BRANCHNAME" >> $WORKSPACE/myenv
 echo "TARGET=$(for i in ${TARGET[@]}; do printf "$i "; done)" >> $WORKSPACE/myenv
