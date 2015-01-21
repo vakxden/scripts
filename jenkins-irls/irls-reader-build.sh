@@ -190,7 +190,12 @@ do
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
         cd $WORKSPACE/$READER_REPONAME/client
-        time node compileHandlebars.js
+        if [ $BRANCHNAME !== "feature/build_procedure_refactoring" ];
+	then
+		time node compileHandlebars.js
+	else
+		npm install grunt-compile-handlebars
+	fi
         ### Build client and server parts
         time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
         time grunt verify
