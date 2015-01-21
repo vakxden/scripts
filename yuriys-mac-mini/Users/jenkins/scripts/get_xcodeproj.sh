@@ -13,14 +13,14 @@ fi
 TARGETNAME=$2
 BRAND=$(grep "brand" /Users/jenkins/git/targets/$TARGETNAME/targetConfig.json | awk -F'"|"' '{print $4}')
 
-cd /Users/jenkins/git/reader
-echo "git reset --hard for reader repo"
+cd /Users/jenkins/git/product
+echo "git reset --hard for product repo"
 git reset --hard
-echo "git clean -fdx for reader repo"
+echo "git clean -fdx for product repo"
 git clean -fdx
-echo "git fetch --all for reader repo"
+echo "git fetch --all for product repo"
 git fetch --all
-echo "git checkout origin/$BRANCHNAME for reader repo"
+echo "git checkout origin/$BRANCHNAME for product repo"
 git checkout origin/$BRANCHNAME
 
 cd /Users/jenkins/git/targets
@@ -29,19 +29,19 @@ git fetch --all
 echo "git checkout origin/master for targets repo"
 git checkout origin/master
 
-cd /Users/jenkins/git/reader/client
+cd /Users/jenkins/git/product/client
 echo "Start build and verify"
 node compileHandlebars.js
-node index.js --target=$TARGETNAME --targetPath=/Users/jenkins/git/targets --readerPath=/Users/jenkins/git/reader
+node index.js --target=$TARGETNAME --targetPath=/Users/jenkins/git/targets --readerPath=/Users/jenkins/git/product
 grunt verify
 grunt productionCompile
-cp -Rf /Users/jenkins/git/reader/client/out/dist/* /Users/jenkins/git/reader/client/
-cd /Users/jenkins/git/reader/packager
-echo "{}" > /Users/jenkins/git/reader/client/meta.json
-node index.js --platform=ios --config=/Users/jenkins/git/targets --from=/Users/jenkins/git/reader/client --prefix=$BRANCH- --epubs=/Users/jenkins/irls-reader-current-epubs
+cp -Rf /Users/jenkins/git/product/client/out/dist/* /Users/jenkins/git/product/client/
+cd /Users/jenkins/git/product/packager
+echo "{}" > /Users/jenkins/git/product/client/meta.json
+node index.js --platform=ios --config=/Users/jenkins/git/targets --from=/Users/jenkins/git/product/client --prefix=$BRANCH- --epubs=/Users/jenkins/irls-reader-current-epubs
 
 echo ""
 echo "Good news, username!"
 echo "The xcode-project will be located at the following path: "
-echo /Users/jenkins/git/reader/packager/out/dest/platforms/ios/$BRANCH-$BRAND\_Reader-$TARGETNAME.xcodeproj
+echo /Users/jenkins/git/product/packager/out/dest/platforms/ios/$BRANCH-$BRAND\_Reader-$TARGETNAME.xcodeproj
 echo ""
