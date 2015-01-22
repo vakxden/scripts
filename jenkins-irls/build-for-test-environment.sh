@@ -83,12 +83,17 @@ for i in "${TARGET[@]}"
 do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
-        cd $WORKSPACE/$READER_REPONAME/client
-        time node compileHandlebars.js
+	cd $WORKSPACE/$READER_REPONAME/client
         ### Build client and server parts
+        npm install grunt-compile-handlebars
         time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
-        time grunt verify
-        time grunt productionCompile
+        time grunt production
+        #cd $WORKSPACE/$READER_REPONAME/client
+        #time node compileHandlebars.js
+        ### Build client and server parts
+        #time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+        #time grunt verify
+        #time grunt productionCompile
         ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
