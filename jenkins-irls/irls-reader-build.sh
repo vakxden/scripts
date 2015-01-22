@@ -24,13 +24,13 @@ function git_clone {
 function git_checkout {
         cd $WORKSPACE/$REPONAME
         git reset --hard
-	git clean -fdx
-	git fetch --all
+        git clean -fdx
+        git fetch --all
         if [ "$REPONAME" == "product" ]; then
-		git checkout origin/$BRANCHNAME
-	elif  [ "$REPONAME" == "targets" ]; then
-		git checkout origin/master
-	fi
+                git checkout origin/$BRANCHNAME
+        elif  [ "$REPONAME" == "targets" ]; then
+                git checkout origin/master
+        fi
         }
 
 ### Clone product-repo and determine of GIT_COMMIT
@@ -53,9 +53,9 @@ fi
 ###
 CURRENT_BUILD=$HOME/irls-reader-current-build
 if [ "$BRANCHNAME" != "master" ]; then
-	CURRENT_EPUBS=$HOME/irls-reader-current-epubs/develop
+        CURRENT_EPUBS=$HOME/irls-reader-current-epubs/develop
 else
-	CURRENT_EPUBS=$HOME/irls-reader-current-epubs/$BRANCHNAME
+        CURRENT_EPUBS=$HOME/irls-reader-current-epubs/$BRANCHNAME
 fi
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
 ARTIFACTS_DIR=$HOME/irls-reader-artifacts
@@ -98,35 +98,35 @@ do
         fi
         ### Determine facet name
         TARGET_NAME=$(echo $i | sed 's@^.[0-9a-z]*_@@g')
-	META_SUM_ALL=$CURRENT_EPUBS/$TARGET_NAME/meta-all
-	###
-	### Create variables for meta.json
-	###
-	# lib-processor
-	LIB_PROCESSOR_REPO="lib-processor.git"
-	GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
-	GIT_COMMIT_MESSAGE_RRM=$( grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-	GIT_BRANCHNAME_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-	GIT_COMMITTER_NAME_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
-	GIT_COMMIT_DATE_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-	GIT_COMMITTER_EMAIL_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-	GIT_COMMIT_URL_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_RRM | awk -F "=" '{print $2}')
-	# lib-sources
-	LIB_SOURCES_REPO="lib-sources.git"
-	GIT_COMMIT_OC=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}')
-	GIT_COMMIT_MESSAGE_OC=$( grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-	GIT_BRANCHNAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-	GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_AUTHOR | awk -F "=" '{print $2}')
-	GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-	GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-	GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
-	# product (old reader)
-	cd $WORKSPACE/$READER_REPONAME
-	GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
-	GIT_COMMIT_DATE=$(git show -s --format=%ci)
-	GIT_COMMIT_AUTHOR=$(git show -s --format=%an)
-	GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
-	GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$READER_REPONAME/commit/$GIT_COMMIT"
+        META_SUM_ALL=$CURRENT_EPUBS/$TARGET_NAME/meta-all
+        ###
+        ### Create variables for meta.json
+        ###
+        # lib-processor
+        LIB_PROCESSOR_REPO="lib-processor.git"
+        GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
+        GIT_COMMIT_MESSAGE_RRM=$( grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
+        GIT_BRANCHNAME_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
+        GIT_COMMITTER_NAME_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
+        GIT_COMMIT_DATE_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
+        GIT_COMMITTER_EMAIL_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
+        GIT_COMMIT_URL_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_RRM | awk -F "=" '{print $2}')
+        # lib-sources
+        LIB_SOURCES_REPO="lib-sources.git"
+        GIT_COMMIT_OC=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}')
+        GIT_COMMIT_MESSAGE_OC=$( grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
+        GIT_BRANCHNAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
+        GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_AUTHOR | awk -F "=" '{print $2}')
+        GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
+        GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
+        GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
+        # product (old reader)
+        cd $WORKSPACE/$READER_REPONAME
+        GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
+        GIT_COMMIT_DATE=$(git show -s --format=%ci)
+        GIT_COMMIT_AUTHOR=$(git show -s --format=%an)
+        GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
+        GIT_COMMIT_URL_READER="http://wpp.isd.dp.ua/gitlab/$READER_REPONAME/commit/$GIT_COMMIT"
         function create_meta {
                 echo "Starting of function create_meta with variables $1 and $2"
                 ### $1 - it is deploymentPackageId
@@ -136,7 +136,7 @@ do
                 echo CURRENT_META_JSON=$CURRENT_META_JSON
                 echo -e "{" >> $CURRENT_META_JSON
                 echo -e "\t\"buildID\":\""$1"\"," >> $CURRENT_META_JSON
-		echo -e "\t\"buildNumber\":\""$BUILD_NUMBER"\"," >> $CURRENT_META_JSON
+                echo -e "\t\"buildNumber\":\""$BUILD_NUMBER"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"targetName\":\""$2"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
@@ -191,15 +191,19 @@ do
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
         cd $WORKSPACE/$READER_REPONAME/client
         if [ $BRANCHNAME !== "feature/build_procedure_refactoring" ];
-	then
-		time node compileHandlebars.js
-	else
-		npm install grunt-compile-handlebars
-	fi
+        then
+                time node compileHandlebars.js
+        else
+                npm install grunt-compile-handlebars
+        fi
         ### Build client and server parts
         time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
-        time grunt verify
-        time grunt productionCompile
+        if [ $BRANCHNAME !== "feature/build_procedure_refactoring" ];
+        then
+                time grunt
+        else
+                time grunt production
+        fi
         ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
@@ -230,22 +234,22 @@ do
         # remove archive from failed builds
         rm -f $WORKSPACE/current_build-*.tar.gz
         # rsync GIT_COMMIT_TARGET directory to other hosts
-	if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
-		ssh jenkins@yuriys-mac-mini.isd.dp.ua "
-			if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
-		"
-		time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
-		### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
-		typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
-	fi
-	if grep "platforms.*android" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
-		ssh jenkins@dev02.design.isd.dp.ua "
-			if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
-		"
-		time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
-		### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
-		typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
-	fi
+        if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
+                ssh jenkins@yuriys-mac-mini.isd.dp.ua "
+                        if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
+                "
+                time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
+                ### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
+                typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
+        fi
+        if grep "platforms.*android" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
+                ssh jenkins@dev02.design.isd.dp.ua "
+                        if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
+                "
+                time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
+                ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
+                typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
+        fi
 done
 
 
@@ -287,7 +291,7 @@ echo "GIT_COMMITTER_EMAIL=$GIT_COMMITTER_EMAIL" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_URL_READER=$GIT_COMMIT_URL_READER" >> $WORKSPACE/myenv
 ### Description
 if [ -z $STARTED_BY ]; then
-	echo \[WARN_MARK\] started by \<b\>3-irls-lib-processor-convert\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$TARGET\</b\>
+        echo \[WARN_MARK\] started by \<b\>3-irls-lib-processor-convert\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$TARGET\</b\>
 else
-	echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$TARGET\</b\>
+        echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$TARGET\</b\>
 fi
