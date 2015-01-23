@@ -1,9 +1,9 @@
 ### Variables
 RESULTS=$WORKSPACE/results
-RRM_PROCESSOR_REPO_NAME="rrm-processor"
-RRM_PROCESSOR_BRANCH_NAME="master"
-RRM_OCEAN_REPO_NAME="rrm-ocean"
-RRM_OCEAN_BRANCH_NAME="master"
+RRM_PROCESSOR_REPO_NAME="lib-processor"
+RRM_PROCESSOR_BRANCH_NAME="develop"
+RRM_OCEAN_REPO_NAME="lib-sources"
+RRM_OCEAN_BRANCH_NAME="develop"
 READER_REPO_NAME="product"
 READER_BRANCH_NAME="develop"
 TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
@@ -207,7 +207,7 @@ do
         cd $WORKSPACE/$READER_REPO_NAME/client
 	### Build client and server parts
         npm install grunt-compile-handlebars
-        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPO_DIR_NAME --readerPath=$WORKSPACE/$READER_REPONAME
         time grunt production
         #cd $WORKSPACE/$READER_REPO_NAME/client
 	#node compileHandlebars.js
@@ -229,9 +229,9 @@ do
                 # Numbers of directories in the $NIGHTLY_BUILD/
                 NUM=$(ls -d $1/* | wc -l)
                 echo NUM=$NUM
-                # If number of directories is more than 20, then we will remove all directories except the five most recent catalogs
-                if (( $NUM > 20 )); then
-                        HEAD_NUM=$(($NUM-20))
+                # If number of directories is more than 10, then we will remove all directories except the five most recent catalogs
+                if (( $NUM > 10 )); then
+                        HEAD_NUM=$(($NUM-10))
                         echo HEAD_NUM=$HEAD_NUM
                         for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
                         do

@@ -35,6 +35,8 @@ function main_loop {
         {
 		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
 		IPA_NAME=$(echo "$BRANCH"-"$BRAND"_Reader-"$i")
+		if [ ! -d $WORKSPACE/packager/build ]; then mkdir -p $WORKSPACE/packager/build; fi
+                cp -Rf ~/git/build_re/phonegap-plugins $WORKSPACE/packager/build
                 cd $WORKSPACE/packager
                 time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$NIGHTLY_MACMINI_EPUBS
                 #unlock keychain
