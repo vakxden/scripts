@@ -22,6 +22,8 @@ done
 function main_loop {
         notmainloop ()
         {
+		if [ ! -d $WORKSPACE/packager/build ]; then mkdir -p $WORKSPACE/packager/build; fi
+		cp -Rf ~/git/build_re/phonegap-plugins $WORKSPACE/packager/build
                 cd $WORKSPACE/packager
 		echo "{}" > $WORKSPACE/client/meta.json
                 time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
