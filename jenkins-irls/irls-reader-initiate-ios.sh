@@ -51,8 +51,14 @@ function main_loop {
                 #create ipa-file
                 time /usr/bin/xcrun -sdk iphoneos8.1 PackageApplication -v "$WORKSPACE/build/$IPA_NAME.app" -o $WORKSPACE/$IPA_NAME.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
                 rm -f $WORKSPACE/$IPA_NAME*debug.ipa
-		ssh jenkins@dev01.isd.dp.ua "if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts; fi"
-                until time scp $WORKSPACE/$IPA_NAME.ipa  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$IPA_NAME.ipa; do :; done
+		if [ -f $WORKSPACE/$IPA_NAME.ipa ]; then
+			ssh jenkins@dev01.isd.dp.ua "if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts; fi"
+                	time scp -v $WORKSPACE/$IPA_NAME.ipa jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+			rm -f $WORKSPACE/$IPA_NAME.ipa
+			printf "File $WORKSPACE/$IPA_NAME.ipa moved to host dev01.isd.dp.ua \n"
+		else
+			printf "[ERROR_FILE_EXIST] File $WORKSPACE/$IPA_NAME.ipa not found!!! \n"
+		fi
 		rm -f $WORKSPACE/$IPA_NAME.ipa
                 rm -rf $CONFIGURATION_BUILD_DIR/*
         }

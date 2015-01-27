@@ -39,14 +39,8 @@ declare -A combineArray
 
 for ((i=0; i<${#deploymentPackageId[@]}; i++))
 do
-	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
-	combineArray+=(["$a"]="${deploymentPackageId[i]}")
-        #for ((y=0; y<${#TARGET[@]}; y++))
-        #do
-                #if [ -n "$(echo "${deploymentPackageId[i]}" | grep "${TARGET[y]}$")" ]; then
-                        #combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[i]}")
-                #fi
-        #done
+        a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
+        combineArray+=(["$a"]="${deploymentPackageId[i]}")
 done
 
 ###
@@ -138,37 +132,38 @@ if [ "$dest" = "DEVELOPMENT" ]; then
                 CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
                 INDEX_FILE='index_'$i'_'$BRANCH'.js'
                 ENVIRONMENT="current"
-		TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
-		TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
-		### Clone or "git pull" (if exist) targets-repo
-		if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
-			cd $WORKSPACE && git clone $TARGETS_REPO
-		else
-			cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
-		fi
-		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
-		### Checking contain platform
+                TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+                TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
+                ### Clone or "git pull" (if exist) targets-repo
+                if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+                        cd $WORKSPACE && git clone $TARGETS_REPO
+                else
+                        cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+                fi
+                BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+                ### Checking contain platform
                 if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
-			IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
-			IPA_FILE_NAME="$IPA_NAME.ipa"
-                	TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
-	                # checking the existence of a directory with the artifacts
-	                if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
-	                # search ipa-file and repacking it
-	                find $CURRENT_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
-	                ssh_and_repack
-	                scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $CURRENT_ARTIFACTS_DIR/
-	                # test archive (ipa) file
-	                unzip -t -q $CURRENT_ARTIFACTS_DIR/$IPA_FILE_NAME
-	                # generate index.html and local.json
-	                generate_files $CURRENT_PKG_DIR
-	                # run (re-run) node
-	                start_node $CURRENT_PKG_DIR $INDEX_FILE
-	                # update environment.json file
-	                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+                        IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
+                        IPA_FILE_NAME="$IPA_NAME.ipa"
+                        TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
+                        # checking the existence of a directory with the artifacts
+                        if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
+                        # search ipa-file and repacking it
+			if [ ! -f $CURRENT_ARTIFACTS_DIR/$IPA_FILE_NAME ]; then printf "[ERROR_FILE_EXIST] .IPA-file NOT FOUND!!! \n" && exit 1; fi
+                        find $CURRENT_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp -v {} dev02.design.isd.dp.ua:~ \;
+                        ssh_and_repack
+                        scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $CURRENT_ARTIFACTS_DIR/
+                        # test archive (ipa) file
+                        unzip -t -q $CURRENT_ARTIFACTS_DIR/$IPA_FILE_NAME
+                        # generate index.html and local.json
+                        generate_files $CURRENT_PKG_DIR
+                        # run (re-run) node
+                        start_node $CURRENT_PKG_DIR $INDEX_FILE
+                        # update environment.json file
+                        /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
                 else
                         echo "Shutdown of this job because platform \"ios\" not found in config targetConfig.json"
-			echo \[WARN_MARK\] just running on empty for $i
+                        echo \[WARN_MARK\] just running on empty for $i
                         exit 0
                 fi
         done
@@ -183,39 +178,39 @@ elif [ "$dest" = "STAGE" ]; then
                 STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
                 INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
                 ENVIRONMENT="stage"
-		TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
-		TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
-		### Clone or "git pull" (if exist) targets-repo
-		if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
-			cd $WORKSPACE && git clone $TARGETS_REPO
-		else
-			cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
-		fi
-		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
-		### Checking contain platform
+                TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+                TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
+                ### Clone or "git pull" (if exist) targets-repo
+                if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+                        cd $WORKSPACE && git clone $TARGETS_REPO
+                else
+                        cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+                fi
+                BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+                ### Checking contain platform
                 if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
-			IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
-			IPA_FILE_NAME="$IPA_NAME.ipa"
-	                TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
-	                # checking the existence of a directory with the artifacts
-	                if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
-	                if [ ! -d $STAGE_ARTIFACTS_DIR ]; then mkdir -p $STAGE_ARTIFACTS_DIR; fi
-	                # copying ipa-file from CURRENT_ARTIFACTS_DIR to STAGE_ARTIFACTS_DIR and repacking it
-	                rm -f $STAGE_ARTIFACTS_DIR/$IPA_FILE_NAME
-	                find $CURRENT_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
-	                ssh_and_repack
-	                scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $STAGE_ARTIFACTS_DIR/
-	                # test archive (ipa) file
-	                unzip -t -q $STAGE_ARTIFACTS_DIR/$IPA_FILE_NAME
-	                # generate index.html and local.json
-	                generate_files $STAGE_PKG_DIR
-	                # run (re-run) node
-	                start_node $STAGE_PKG_DIR $INDEX_FILE
-	                # update environment.json file
-	                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+                        IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
+                        IPA_FILE_NAME="$IPA_NAME.ipa"
+                        TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
+                        # checking the existence of a directory with the artifacts
+                        if [ ! -d $CURRENT_ARTIFACTS_DIR ]; then mkdir -p $CURRENT_ARTIFACTS_DIR; fi
+                        if [ ! -d $STAGE_ARTIFACTS_DIR ]; then mkdir -p $STAGE_ARTIFACTS_DIR; fi
+                        # copying ipa-file from CURRENT_ARTIFACTS_DIR to STAGE_ARTIFACTS_DIR and repacking it
+                        rm -f $STAGE_ARTIFACTS_DIR/$IPA_FILE_NAME
+                        find $CURRENT_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
+                        ssh_and_repack
+                        scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $STAGE_ARTIFACTS_DIR/
+                        # test archive (ipa) file
+                        unzip -t -q $STAGE_ARTIFACTS_DIR/$IPA_FILE_NAME
+                        # generate index.html and local.json
+                        generate_files $STAGE_PKG_DIR
+                        # run (re-run) node
+                        start_node $STAGE_PKG_DIR $INDEX_FILE
+                        # update environment.json file
+                        /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
                 else
                         echo "Shutdown of this job because platform \"ios\" not found in config targetConfig.json"
-			echo \[WARN_MARK\] just running on empty for $i
+                        echo \[WARN_MARK\] just running on empty for $i
                         exit 0
                 fi
         done
@@ -231,52 +226,52 @@ elif [ "$dest" = "LIVE" ]; then
                 INDEX_FILE='index_'$i'_'$BRANCH'.js'
                 TEMPORARY_IPA_REPACKING_DIR="~/tmp_repacking_ipa-$i"
                 ENVIRONMENT="live"
-		TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
-		TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
-		### Clone or "git pull" (if exist) targets-repo
-		if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
-			cd $WORKSPACE && git clone $TARGETS_REPO
-		else
-			cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
-		fi
-		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
-		### Checking contain platform
+                TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
+                TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
+                ### Clone or "git pull" (if exist) targets-repo
+                if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
+                        cd $WORKSPACE && git clone $TARGETS_REPO
+                else
+                        cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
+                fi
+                BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+                ### Checking contain platform
                 if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
-			IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
-			IPA_FILE_NAME="$IPA_NAME.ipa"
-	                # copying ipa-file from STAGE_ARTIFACTS_DIR to devzone and repacking it
-	                find $STAGE_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
-	                ssh_and_repack
-	                rm -f $WORKSPACE/$IPA_FILE_NAME
-	                scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $WORKSPACE/
-	                # test archive (ipa) file
-	                unzip -t -q $WORKSPACE/$IPA_FILE_NAME
-	                # checking the existence of a directory with the artifacts
-	                ssh dvac@devzone.dp.ua "if [ ! -d $LIVE_ARTIFACTS_DIR ]; then mkdir -p $LIVE_ARTIFACTS_DIR; fi"
-	                scp $WORKSPACE/$IPA_FILE_NAME dvac@devzone.dp.ua:$LIVE_ARTIFACTS_DIR/
-	                ssh dvac@devzone.dp.ua "
-	                        # values
-	                        if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
-	                        # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
-	                        if [ ! -d  $LIVE_ARTIFACTS_DIR ]; then mkdir -p $LIVE_ARTIFACTS_DIR; fi
-	                        /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
-	                        cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
-	                        # Start node
-	                        cd $REMOTE_ART_PATH/${combineArray[$i]}
-	                        PID=\$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
-	                        if [ ! -z \$PID ]
-	                        then
-	                                kill -9 \$PID
-	                                nohup ~/node/bin/node server/$INDEX_FILE > /dev/null 2>&1 &
-	                        else
-	                                nohup ~/node/bin/node server/$INDEX_FILE > /dev/null 2>&1 &
-	                        fi"
-	                # update environment.json file
-	                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
-	                rm -f $WORKSPACE/$IPA_FILE_NAME
+                        IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
+                        IPA_FILE_NAME="$IPA_NAME.ipa"
+                        # copying ipa-file from STAGE_ARTIFACTS_DIR to devzone and repacking it
+                        find $STAGE_ARTIFACTS_DIR -name $IPA_FILE_NAME -exec scp {} dev02.design.isd.dp.ua:~ \;
+                        ssh_and_repack
+                        rm -f $WORKSPACE/$IPA_FILE_NAME
+                        scp dev02.design.isd.dp.ua:$TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME $WORKSPACE/
+                        # test archive (ipa) file
+                        unzip -t -q $WORKSPACE/$IPA_FILE_NAME
+                        # checking the existence of a directory with the artifacts
+                        ssh dvac@devzone.dp.ua "if [ ! -d $LIVE_ARTIFACTS_DIR ]; then mkdir -p $LIVE_ARTIFACTS_DIR; fi"
+                        scp $WORKSPACE/$IPA_FILE_NAME dvac@devzone.dp.ua:$LIVE_ARTIFACTS_DIR/
+                        ssh dvac@devzone.dp.ua "
+                                # values
+                                if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
+                                # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
+                                if [ ! -d  $LIVE_ARTIFACTS_DIR ]; then mkdir -p $LIVE_ARTIFACTS_DIR; fi
+                                /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
+                                cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
+                                # Start node
+                                cd $REMOTE_ART_PATH/${combineArray[$i]}
+                                PID=\$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
+                                if [ ! -z \$PID ]
+                                then
+                                        kill -9 \$PID
+                                        nohup ~/node/bin/node server/$INDEX_FILE > /dev/null 2>&1 &
+                                else
+                                        nohup ~/node/bin/node server/$INDEX_FILE > /dev/null 2>&1 &
+                                fi"
+                        # update environment.json file
+                        /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+                        rm -f $WORKSPACE/$IPA_FILE_NAME
                 else
                         echo "Shutdown of this job because platform \"ios\" not found in config targetConfig.json"
-			echo \[WARN_MARK\] just running on empty for $i
+                        echo \[WARN_MARK\] just running on empty for $i
                         exit 0
                 fi
         done
