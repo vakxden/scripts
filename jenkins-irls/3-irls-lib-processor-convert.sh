@@ -1,3 +1,10 @@
+###
+### Remove all from workspace
+###
+rm -rf $WORKSPACE/*
+###
+### Check values
+###
 if [ -z $PROCESSOR_COMMIT ]; then
         echo processor commit value not received
         exit 1
@@ -21,7 +28,9 @@ META_SUM_ALL=meta-all
 # Export variable for phantom
 export NODE_PATH=/opt/node/lib/node_modules/
 # Copy lib-processor code
-cp -Rf $CURRENT_RRM $WORKSPACE
+if [ ! -d $WORKSPACE/$PROCESSOR_COMMIT ]; then mkdir -p $WORKSPACE/$PROCESSOR_COMMIT; fi
+rsync -r $CURRENT_RRM/ $WORKSPACE/$PROCESSOR_COMMIT/
+#cp -Rf $CURRENT_RRM $WORKSPACE
 cd $WORKSPACE/$PROCESSOR_COMMIT
 # For monitoring
 N=$(echo $BUILD_DISPLAY_NAME | sed 's/\#//g')
@@ -51,7 +60,9 @@ do
         ### Copy epubs after their processing to the "current epubs"-directory
         time rsync -r --delete --exclude="Report" $RESULTS/$FACET_NAME/ $CURRENT_EPUBS/$TARGET_NAME/
 	### Move reports
-	time rsync -r --delete $RESULTS/$FACET_NAME/Report $WORKSPACE/
+	if [ ! -d $WORKSPACE/Report ]; then mkdir $WORKSPACE/Report; fi
+	time rsync -r --delete $RESULTS/$FACET_NAME/Report/ $WORKSPACE/Report/
+	ls -la $WORKSPACE/Report/*
         ### Create file with summary meta-information
         META_SUM=meta-current-epubs-$TARGET_NAME
         cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM
@@ -98,7 +109,3 @@ do
                 time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@dev02.design.isd.dp.ua:$CURRENT_EPUBS/$TARGET_NAME/
         fi
 done
-###
-### Remove from workspace
-###
-rm -rf $WORKSPACE/*
