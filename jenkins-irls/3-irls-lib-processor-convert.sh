@@ -49,7 +49,9 @@ do
         ### Create (if not exist) current "target named"-, "current epub"-directory
         if [ ! -d $CURRENT_EPUBS/$TARGET_NAME ]; then mkdir -p $CURRENT_EPUBS/$TARGET_NAME; fi
         ### Copy epubs after their processing to the "current epubs"-directory
-        time rsync -r --delete $RESULTS/$FACET_NAME/ $CURRENT_EPUBS/$TARGET_NAME/
+        time rsync -r --delete --exclude="Report" $RESULTS/$FACET_NAME/ $CURRENT_EPUBS/$TARGET_NAME/
+	### Move reports
+	time rsync -r --delete $RESULTS/$FACET_NAME/Report $WORKSPACE/
         ### Create file with summary meta-information
         META_SUM=meta-current-epubs-$TARGET_NAME
         cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM
