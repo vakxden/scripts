@@ -59,17 +59,17 @@ do
         if [ ! -d $CURRENT_EPUBS/$TARGET_NAME ]; then mkdir -p $CURRENT_EPUBS/$TARGET_NAME; fi
         ### Copy epubs after their processing to the "current epubs"-directory
         time rsync -r --delete --exclude="Report" $RESULTS/$FACET_NAME/ $CURRENT_EPUBS/$TARGET_NAME/
-	### Move reports
-	if [ ! -d $WORKSPACE/Report ]; then mkdir $WORKSPACE/Report; fi
-	time rsync -r --delete $RESULTS/$FACET_NAME/Report/ $WORKSPACE/Report/
-	ls -la $WORKSPACE/Report/*
+        ### Move reports
+        if [ ! -d $WORKSPACE/Report ]; then mkdir $WORKSPACE/Report; fi
+        time rsync -r --delete $RESULTS/$FACET_NAME/Report/ $WORKSPACE/Report/
+        ls -la $WORKSPACE/Report/*
         ### Create file with summary meta-information
         META_SUM=meta-current-epubs-$TARGET_NAME
         cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM
         # echo numbers of converted files to temporary file
         files_conv=$(grep "Files converted.*$FACET_NAME" /var/lib/jenkins/jobs/$JOB_NAME/builds/$N/log | grep -v grep >> $WORKSPACE/filesconv.txt)
-	cat /dev/null > $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL
-	cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL
+        cat /dev/null > $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL
+        cat $META1 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL && cat $META2 >> $CURRENT_EPUBS/$TARGET_NAME/$META_SUM_ALL
 done
 
 
@@ -109,3 +109,6 @@ do
                 time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET_NAME/ jenkins@dev02.design.isd.dp.ua:$CURRENT_EPUBS/$TARGET_NAME/
         fi
 done
+### For Summary+Display+Plugin
+if [ ! -d /var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive ]; then mkdir -p /var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive; fi
+cp $WORKSPACE/Report/Dict/*.xml /var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive/
