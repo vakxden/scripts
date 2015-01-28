@@ -31,17 +31,24 @@ CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 TARGET=($(echo $TARGET))
 
-###
 ### Create associative array
-###
 deploymentPackageId=($(echo $ID))
-declare -A combineArray
+printf "Array deploymentPackageId contain nexts elements:\n"
+printf '%s\n' "${deploymentPackageId[@]}"
 
-for ((i=0; i<${#deploymentPackageId[@]}; i++))
+declare -A combineArray
+for ((x=0; x<${#deploymentPackageId[@]}; x++))
 do
-        a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
-        combineArray+=(["$a"]="${deploymentPackageId[i]}")
+        a=$(echo "${deploymentPackageId[x]}"| cut -d"_" -f 2-)
+        combineArray+=(["$a"]="${deploymentPackageId[x]}")
 done
+
+printf "Associative array combineArray contains next key-value elements:\n"
+for k in "${!combineArray[@]}"
+do
+        printf '%s\n' "key:$k -- value:${combineArray[$k]}"
+done
+
 
 ###
 ### Functions

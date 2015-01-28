@@ -17,18 +17,22 @@ TARGET=($(echo $TARGET))
 
 ### Create associative array
 deploymentPackageId=($(echo $ID))
+printf "Array deploymentPackageId contain nexts elements:\n"
+printf '%s\n' "${deploymentPackageId[@]}"
+
 declare -A combineArray
 for ((x=0; x<${#deploymentPackageId[@]}; x++))
 do
-	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
-	combineArray+=(["$a"]="${deploymentPackageId[i]}")
-        #for ((y=0; y<${#TARGET[@]}; y++))
-        #do
-        #        if [ -n "$(echo "${deploymentPackageId[x]}" | grep "${TARGET[y]}$")" ]; then
-        #                combineArray+=(["${TARGET[y]}"]="${deploymentPackageId[x]}")
-        #        fi
-        #done
+        a=$(echo "${deploymentPackageId[x]}"| cut -d"_" -f 2-)
+        combineArray+=(["$a"]="${deploymentPackageId[x]}")
 done
+
+printf "Associative array combineArray contains next key-value elements:\n"
+for k in "${!combineArray[@]}"
+do
+        printf '%s\n' "key:$k -- value:${combineArray[$k]}"
+done
+
 
 ###
 ### Body (working with all facets exclude "ocean")

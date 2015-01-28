@@ -27,11 +27,20 @@ SDKROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/
 
 ### Create associative array
 deploymentPackageId=($(echo $ID))
+printf "Array deploymentPackageId contain nexts elements:\n"
+printf '%s\n' "${deploymentPackageId[@]}"
+
 declare -A combineArray
 for ((x=0; x<${#deploymentPackageId[@]}; x++))
 do
-	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
-	combineArray+=(["$a"]="${deploymentPackageId[i]}")
+        a=$(echo "${deploymentPackageId[x]}"| cut -d"_" -f 2-)
+        combineArray+=(["$a"]="${deploymentPackageId[x]}")
+done
+
+printf "Associative array combineArray contains next key-value elements:\n"
+for k in "${!combineArray[@]}"
+do
+        printf '%s\n' "key:$k -- value:${combineArray[$k]}"
 done
 
 ### Create ipa-file with application version for iOS

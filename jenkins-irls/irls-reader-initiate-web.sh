@@ -7,15 +7,25 @@ else
 fi
 TARGET=($(echo $TARGET))
 PREFIX=$(echo $BRANCHNAME | sed 's/\//-/g')
-deploymentPackageId=($(echo $ID))
-declare -A combineArray
 
 ### Create associative array
-for ((i=0; i<${#deploymentPackageId[@]}; i++))
+deploymentPackageId=($(echo $ID))
+printf "Array deploymentPackageId contain nexts elements:\n"
+printf '%s\n' "${deploymentPackageId[@]}"
+
+declare -A combineArray
+for ((x=0; x<${#deploymentPackageId[@]}; x++))
 do
-	a=$(echo "${deploymentPackageId[i]}"| cut -d"_" -f 2-)
-	combineArray+=(["$a"]="${deploymentPackageId[i]}")
+        a=$(echo "${deploymentPackageId[x]}"| cut -d"_" -f 2-)
+        combineArray+=(["$a"]="${deploymentPackageId[x]}")
 done
+
+printf "Associative array combineArray contains next key-value elements:\n"
+for k in "${!combineArray[@]}"
+do
+        printf '%s\n' "key:$k -- value:${combineArray[$k]}"
+done
+
 ### Create web-version of application
 function main_loop {
         notmainloop ()
