@@ -31,11 +31,15 @@ git checkout origin/master
 
 cd /Users/jenkins/git/product/client
 echo "Start build and verify"
-node compileHandlebars.js
+npm install grunt-compile-handlebars
+#node compileHandlebars.js
 node index.js --target=$TARGETNAME --targetPath=/Users/jenkins/git/targets --readerPath=/Users/jenkins/git/product
-grunt verify
-grunt productionCompile
+#grunt verify
+#grunt productionCompile
+grunt production
 cp -Rf /Users/jenkins/git/product/client/out/dist/* /Users/jenkins/git/product/client/
+if [ ! -d /Users/jenkins/git/product/packager/build ]; then mkdir -p /Users/jenkins/git/product/packager/build; fi
+cp -Rf ~/git/build_re/phonegap-plugins /Users/jenkins/git/product/packager/build/
 cd /Users/jenkins/git/product/packager
 echo "{}" > /Users/jenkins/git/product/client/meta.json
 node index.js --platform=ios --config=/Users/jenkins/git/targets --from=/Users/jenkins/git/product/client --prefix=$BRANCH- --epubs=/Users/jenkins/irls-reader-current-epubs
