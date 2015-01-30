@@ -32,6 +32,11 @@ BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 TARGET=($(echo $TARGET))
+HOME=/Users/jenkins
+CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
+MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution_profile_2015-02-04.mobileprovision
+TARGETS_REPONAME="targets"
+
 
 ### Create associative array
 deploymentPackageId=($(echo $ID))
@@ -48,13 +53,39 @@ done
 printf "Associative array combineArray contains next key-value elements:\n"
 for k in "${!combineArray[@]}"
 do
-        printf '%s\n' "key:$k -- value:${combineArray[$k]}"
+        printf '%s\n' "key: $k -- value: ${combineArray[$k]}"
 done
 
 
 ###
 ### Functions
 ###
+
+### Functions for git command
+function git_clone {
+        cd $WORKSPACE
+        git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
+        }
+
+function git_checkout {
+        cd $WORKSPACE/$REPONAME
+        git reset --hard
+        git clean -fdx
+        git fetch --all
+        git checkout origin/master
+        }
+
+function git_clone_or_checkout {
+	### Clone targets-repo and running node with target option
+	if [ ! -d $WORKSPACE/$1 ]; then
+		git_clone
+		git_checkout
+	else
+		git_checkout
+	fi
+	}
+
+### Functionsfor body of script
 function ssh_and_repack {
 	# checking the existence of a remote directory with the artifacts ($1 and $2)
 	ssh jenkins@dev01.isd.dp.ua "if [ ! -d $1 ]; then mkdir -p $1; fi"
@@ -81,21 +112,22 @@ function ssh_and_repack {
 	# removing of ipa-file
         rm -f $IPA_FILE_NAME
 	# adding or changing of "currentURL" option from build.info.json config file
+	BUILD_INFO_JSON="www/dist/app/build.info.json"
         if [ $ENVIRONMENT == current ]; then
-		if grep currentURL Payload/$IPA_NAME.app/www/dist/app/build.info.json; then
-			sed -i '' "/currentURL/d" Payload/$IPA_NAME.app/www/dist/app/build.info.json
+		if grep currentURL Payload/$IPA_NAME.app/$BUILD_INFO_JSON; then
+			sed -i '' "/currentURL/d" Payload/$IPA_NAME.app/$BUILD_INFO_JSON
 		fi
-		nl=$'\n'; sed -i '' "1s@\(.*\)@{\\$nl    \"currentURL\": \"$CURRENT_URL\",@" Payload/$IPA_NAME.app/www/dist/app/build.info.json
+		nl=$'\n'; sed -i '' "1s@\(.*\)@{\\$nl    \"currentURL\": \"$CURRENT_URL\",@" Payload/$IPA_NAME.app/$BUILD_INFO_JSON
         elif [ $ENVIRONMENT == stage ]; then
-                sed -i '' "2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@" Payload/$IPA_NAME.app/www/dist/app/build.info.json
+                sed -i '' "2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@" Payload/$IPA_NAME.app/$BUILD_INFO_JSON
         elif [ $ENVIRONMENT == live ]; then
-                sed -i '' "2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@" Payload/$IPA_NAME.app/www/dist/app/build.info.json
+                sed -i '' "2s@\(.*\)@    \"currentURL\": \"$CURRENT_URL\",@" Payload/$IPA_NAME.app/$BUILD_INFO_JSON
         else
                 exit 1
         fi
 	# create and sign of ipa-file
-	security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
-	/usr/bin/xcrun -sdk iphoneos8.1 PackageApplication -v $TEMPORARY_IPA_REPACKING_DIR/Payload/$IPA_NAME.app -o $TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME --embed /Users/jenkins/mobileprovision_profile/jenkinsdistribution_profile_2015-02-04.mobileprovision --sign 'iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)'
+	security unlock-keychain -p jenk123ins $HOME/Library/Keychains/login.keychain
+	/usr/bin/xcrun -sdk iphoneos8.1 PackageApplication -v $TEMPORARY_IPA_REPACKING_DIR/Payload/$IPA_NAME.app -o $TEMPORARY_IPA_REPACKING_DIR/$IPA_FILE_NAME --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
 	# test archive (ipa) file
 	unzip -t -q $IPA_FILE_NAME
 	# copying of ipa-file to $2 environment directory from temporary directory
@@ -105,6 +137,28 @@ function ssh_and_repack {
 		scp $IPA_FILE_NAME dvac@devzone.dp.ua:$2/
 	fi
 }
+
+function ssh_and_start_node {
+        if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
+		SSH_COMMAND="ssh jenkins@dev01.isd.dp.ua"
+		NODE_PATH="/opt/node"
+        elif [ $ENVIRONMENT == live ]; then
+		SSH_COMMAND="ssh dvac@devzone.dp.ua"
+		NODE_PATH="/home/dvac/node"
+	fi
+		
+	$SSH_COMMAND "
+		export PATH=$PATH:$NODE_PATH/bin
+		# Start node
+		cd $CURRENT_PKG_DIR
+		PID=\$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
+		if [ ! -z \$PID ];then
+			kill -9 \$PID
+			nohup node server/$INDEX_FILE > /dev/null 2>&1 &
+		else
+			nohup node server/$INDEX_FILE > /dev/null 2>&1 &
+		fi"
+	}
 
 ###
 ### Body
@@ -119,14 +173,10 @@ if [ "$dest" = "DEVELOPMENT" ]; then
                 CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
                 INDEX_FILE='index_'$i'_'$BRANCH'.js'
                 ENVIRONMENT="current"
-                TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
-                TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
-                ### Clone or "git pull" (if exist) targets-repo
-                if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
-                        cd $WORKSPACE && git clone $TARGETS_REPO
-                else
-                        cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
-                fi
+		### Clone or checkout of targets-repo
+		REPONAME="$TARGETS_REPONAME"
+		git_clone_or_checkout $REPONAME
+		### Determine of brand		
                 BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
                 ### Checking contain platform
                 if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
@@ -139,18 +189,8 @@ if [ "$dest" = "DEVELOPMENT" ]; then
         			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
 				if [ ! -d $CURRENT_PKG_DIR/server/config ]; then mkdir -p $CURRENT_PKG_DIR/server/config; fi
                                 cp ~/local.json $CURRENT_PKG_DIR/server/config/"
-                        ssh jenkins@dev01.isd.dp.ua "
-				export PATH=$PATH:/opt/node/bin
-                                # Start node
-                                cd $CURRENT_PKG_DIR
-                                PID=\$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
-                                if [ ! -z \$PID ]
-                                then
-                                        kill -9 \$PID
-                                        nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-                                else
-                                        nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-                                fi"
+			# start node
+			ssh_and_start_node
                         # update environment.json file
                         ssh jenkins@dev01.isd.dp.ua "/home/jenkins/scripts/search_for_environment.sh ${combineArray[$i]} $dest"
                 else
@@ -170,14 +210,10 @@ elif [ "$dest" = "STAGE" ]; then
                 STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
                 INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
                 ENVIRONMENT="stage"
-                TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
-                TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
-                ### Clone or "git pull" (if exist) targets-repo
-                if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
-                        cd $WORKSPACE && git clone $TARGETS_REPO
-                else
-                        cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
-                fi
+		### Clone or checkout of targets-repo
+		REPONAME="$TARGETS_REPONAME"
+		git_clone_or_checkout $REPONAME
+		### Determine of brand		
                 BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
                 ### Checking contain platform
                 if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
@@ -190,18 +226,8 @@ elif [ "$dest" = "STAGE" ]; then
         			sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
 				if [ ! -d $STAGE_PKG_DIR/server/config ]; then mkdir -p $STAGE_PKG_DIR/server/config; fi
                                 cp ~/local.json $STAGE_PKG_DIR/server/config/"
-                        ssh jenkins@dev01.isd.dp.ua "
-                                # Start node
-				export PATH=$PATH:/opt/node/bin
-                                cd $STAGE_PKG_DIR
-                                PID=\$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
-                                if [ ! -z \$PID ]
-                                then
-                                        kill -9 \$PID
-                                        nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-                                else
-                                        nohup node server/$INDEX_FILE > /dev/null 2>&1 &
-                                fi"
+			# start node
+			ssh_and_start_node
                         # update environment.json file
                         ssh jenkins@dev01.isd.dp.ua "/home/jenkins/scripts/search_for_environment.sh ${combineArray[$i]} $dest"
                 else
@@ -222,14 +248,10 @@ elif [ "$dest" = "LIVE" ]; then
                 INDEX_FILE='index_'$i'_'$BRANCH'.js'
                 TEMPORARY_IPA_REPACKING_DIR="$HOME/tmp_repacking_ipa-$i"
                 ENVIRONMENT="live"
-                TARGETS_REPO="git@wpp.isd.dp.ua:irls/targets.git"
-                TARGETS_REPO_DIR_NAME=$(echo $TARGETS_REPO | cut -d":" -f2 | cut -d"/" -f2 | sed s@.git@@g)
-                ### Clone or "git pull" (if exist) targets-repo
-                if [ ! -d $WORKSPACE/$TARGETS_REPO_DIR_NAME ]; then
-                        cd $WORKSPACE && git clone $TARGETS_REPO
-                else
-                        cd $WORKSPACE/$TARGETS_REPO_DIR_NAME && git pull
-                fi
+		### Clone or checkout of targets-repo
+		REPONAME="$TARGETS_REPONAME"
+		git_clone_or_checkout $REPONAME
+		### Determine of brand		
                 BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
                 ### Checking contain platform
                 if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
@@ -243,17 +265,9 @@ elif [ "$dest" = "LIVE" ]; then
                                 # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
                                 if [ ! -d  $LIVE_ARTIFACTS_DIR ]; then mkdir -p $LIVE_ARTIFACTS_DIR; fi
                                 /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
-                                cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
-                                # Start node
-                                cd $REMOTE_ART_PATH/${combineArray[$i]}
-                                PID=\$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
-                                if [ ! -z \$PID ]
-                                then
-                                        kill -9 \$PID
-                                        nohup ~/node/bin/node server/$INDEX_FILE > /dev/null 2>&1 &
-                                else
-                                        nohup ~/node/bin/node server/$INDEX_FILE > /dev/null 2>&1 &
-                                fi"
+                                cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config"
+			# start node
+			ssh_and_start_node
                         # update environment.json file
                         ssh jenkins@dev01.isd.dp.ua "/home/jenkins/scripts/search_for_environment.sh ${combineArray[$i]} $dest"
                 else
