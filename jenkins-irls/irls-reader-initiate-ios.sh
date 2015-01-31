@@ -62,7 +62,7 @@ function main_loop {
                 rm -f $WORKSPACE/$IPA_NAME*debug.ipa
 		if [ -f $WORKSPACE/$IPA_NAME.ipa ]; then
 			ssh jenkins@dev01.isd.dp.ua "if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts; fi"
-                	time scp -v $WORKSPACE/$IPA_NAME.ipa jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
+                	time scp $WORKSPACE/$IPA_NAME.ipa jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/
 			rm -f $WORKSPACE/$IPA_NAME.ipa
 			printf "File $WORKSPACE/$IPA_NAME.ipa moved to host dev01.isd.dp.ua \n"
 		else
