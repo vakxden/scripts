@@ -18,9 +18,9 @@ deploymentPackageId=($(echo $ID))
 
 for i in "${deploymentPackageId[@]}"
 do
-	if [ "$dest" == "DEVELOPMENT" ] || [ "$dest" == "STAGE" ]; then
+	if [ "$ENVIRONMENT" == "current" ] || [ "$ENVIRONMENT" == "stage" ]; then
         	BRANCHNAME=$(grep "reader.*:" $ARTIFACTS_DIR/$i/meta.json -A3 | grep "branchName" | awk -F "\"" '{print $4}')
-	elif [ "$dest" == "LIVE" ]; then
+	elif [ "$ENVIRONMENT" == "public" ]; then
         	BRANCHNAME=$(grep "reader.*:" $ARTIFACTS_DIR_STAGE/$i/meta.json -A3 | grep "branchName" | awk -F "\"" '{print $4}')
 	fi
         rm -f $WORKSPACE/myenv

@@ -10,7 +10,7 @@ if [ -z $mark ]; then
         printf "[ERROR_MARK] mark must be passed \n"
         exit 1
 elif [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
-        echo \[WARN_MARK\] branch name is \<b\>$BRANCHNAME\</b\>\<br\>dest is \<b\>$dest\</b\>\<br\>ID is \<b\>$ID\</b\>
+        echo \[WARN_MARK\] branch name is \<b\>$BRANCHNAME\</b\>\<br\>ENVIRONMENT is \<b\>$ENVIRONMENT\</b\>\<br\>ID is \<b\>$ID\</b\>
 elif ! [ "$mark"  = "all" ] || ! [ "$mark"  = "initiate-web" ]; then
         echo \[WARN_MARK\] just running on empty
         exit 0
@@ -56,7 +56,7 @@ done
 function generate_files {
         # $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
         cd $1
-        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $dest ${combineArray[$i]}
+        sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
 	rm -f $1/server/config/local.json
 	cp -f local.json $1/server/config/
         ls -lah
@@ -104,12 +104,12 @@ function start_node {
 ###
 ### Body
 ###
-if [ "$dest" = "DEVELOPMENT" ]; then
+if [ "$ENVIRONMENT" = "current" ]; then
         for i in "${!combineArray[@]}"
         do
                 # variables
                 PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
-                INDEX_FILE='index_'$i'_'$BRANCH'.js'
+                INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
                 # output value for a pair "key-value"
                 echo $i --- ${combineArray[$i]}
                 # generate index.html and local.json
@@ -127,20 +127,20 @@ if [ "$dest" = "DEVELOPMENT" ]; then
                 # run (re-run) node
                 start_node $PKG_DIR $INDEX_FILE
                 # update environment.json file
-                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
                 # generate links for description job
-                echo admin-link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
-                echo editor-link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
-                echo reader-link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
-                echo portal-link-$i-$dest="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
+                echo admin-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
+                echo editor-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
+                echo reader-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
+                echo portal-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
         done
-elif [ "$dest" = "STAGE" ]; then
+elif [ "$ENVIRONMENT" = "stage" ]; then
         for i in "${!combineArray[@]}"
         do
                 # variables
                 CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
                 STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
-                INDEX_FILE='index_'$i'_'$BRANCH'_'$dest'.js'
+                INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
                 # output value for a pair "key-value"
                 echo $i --- ${combineArray[$i]}
                 # copy files from CURRENT-env to STAGE-env
@@ -170,14 +170,14 @@ elif [ "$dest" = "STAGE" ]; then
                 # run (re-run) node
                 start_node $STAGE_PKG_DIR $INDEX_FILE
                 # update environment.json file
-                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
                 # generate links for description job
-                echo admin-link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
-                echo editor-link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
-                echo reader-link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
-                echo portal-link-$i-$dest="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
+                echo admin-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
+                echo editor-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
+                echo reader-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
+                echo portal-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
         done
-elif [ "$dest" = "LIVE" ]; then
+elif [ "$ENVIRONMENT" = "public" ]; then
         for i in "${!combineArray[@]}"
         do
                 STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
@@ -197,7 +197,7 @@ elif [ "$dest" = "LIVE" ]; then
                 time rsync -rz --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
                 ssh dvac@devzone.dp.ua "
                         # values
-                        INDEX_FILE=index_"$i"_$BRANCH.js
+                	INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
 			# copying files from RSYNC_FACETS_DIR to REMOTE_ART_PATH/{combineArray[i]}
                         cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
                         # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
@@ -205,7 +205,7 @@ elif [ "$dest" = "LIVE" ]; then
                                 mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art
                         fi
                         #mv $REMOTE_ART_PATH/${combineArray[$i]}/artifacts $REMOTE_ART_PATH/${combineArray[$i]}/art
-                        /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $dest ${combineArray[$i]}
+                        /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
                         cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
 			# init users database
 			cd $REMOTE_ART_PATH/${combineArray[$i]}
@@ -245,15 +245,15 @@ elif [ "$dest" = "LIVE" ]; then
 			sleep 5
 			rm -f $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt"
                 # update environment.json file
-                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$dest"
+                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
                 # generate links for description job
-                echo admin-link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
-                echo editor-link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
-                echo reader-link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
-                echo portal-link-$i-$dest="https://irls.isd.dp.ua/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
-                sed -i "s/link-$i-$dest/link$i/g" $WORKSPACE/myenv
+                echo admin-link-$i-$ENVIRONMENT="https://irls.isd.dp.ua/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
+                echo editor-link-$i-$ENVIRONMENT="https://irls.isd.dp.ua/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
+                echo reader-link-$i-$ENVIRONMENT="https://irls.isd.dp.ua/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
+                echo portal-link-$i-$ENVIRONMENT="https://irls.isd.dp.ua/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
+                sed -i "s/link-$i-$ENVIRONMENT/link$i/g" $WORKSPACE/myenv
         done
 else
-        printf "[ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE! Not $dest! \n"
+        printf "[ERROR_DEST] ENVIRONMENT must be current or stage or public! Not $ENVIRONMENT! \n"
         exit 1
 fi

@@ -66,17 +66,17 @@ done
                         ### Create file local.json
                         cat /dev/null > local.json
                         echo '{' >> local.json
-                        if [ "$1" = "DEVELOPMENT" ]; then
+                        if [ "$1" = "current" ]; then
                                 echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> local.json
-                        elif [ "$1" = "STAGE" ]; then
+                        elif [ "$1" = "stage" ]; then
                                 echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> local.json
                         fi
-                        if [ "$1" = "LIVE" ]; then
+                        if [ "$1" = "public" ]; then
                                 echo -e '\t"smtpConfig": {\n\t\t"host": "localhost",\n\t\t"port": 25,\n\t\t"ignoreTLS": false,\n\t\t"tls": {"rejectUnauthorized": false},\n\t\t"requiresAuth": false},' >> local.json
                         fi
                         echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
                         echo -e '\t"database_name": "'$FACETS'",' >> local.json
-                        echo -e '\t"environment_name": "'$CURRENT'-'$BRANCHNAME'"' >> local.json
+			echo -e '\t"environment_name": "'$CURRENT'-'$BRANCHNAME'"' >> local.json
                         echo '}'  >> local.json
                         chown jenkins:jenkins local.json
                 }
@@ -161,19 +161,20 @@ done
                 }
 
 
-                if [ "$dest" = "DEVELOPMENT" ]; then
+                if [ "$dest" = "current" ]; then
                         CURRENT="current"
                         ARTDIR="irls-reader-artifacts"
                         dest_eq_development
-                elif [ "$dest" = "STAGE" ]; then
+                elif [ "$dest" = "stage" ]; then
                         CURRENT="stage"
                         ARTDIR="irls-reader-artifacts-stage"
                         dest_eq_stage
-                elif [ "$dest" = "LIVE" ]; then
-                        CURRENT="live"
+                elif [ "$dest" = "public" ]; then
+                        CURRENT="piblic"
                 elif [ "$dest" = "NIGHT" ]; then
                         CURRENT="night"
                         ARTDIR="irls-reader-artifacts-nightly"
                         dest_eq_stage
                 fi
                 rm -f $lockfile
+

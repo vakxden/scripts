@@ -19,16 +19,16 @@ deploymentPackageId=($(echo "$1"))
 PFILE="/home/jenkins/irls-reader-artifacts/environment.json"
 
 # for right block
-if [ "$2" = "DEVELOPMENT" ]; then
+if [ "$2" = "current" ]; then
         CURRENT="current"
-elif [ "$2" = "STAGE" ]; then
+elif [ "$2" = "stage" ]; then
         CURRENT="stage"
-elif [ "$2" = "LIVE" ]; then
-        CURRENT="live"
+elif [ "$2" = "public" ]; then
+        CURRENT="public"
 elif [ "$2" = "NIGHT" ]; then
         CURRENT="night"
 else
-        echo [ERROR_DEST] dest must be DEVELOPMENT or STAGE or LIVE or NIGHT! Not $dest!
+        echo [ERROR_DEST] ENVIRONMENT must be current or stage or public or NIGHT! Not $dest!
         exit 1
 fi
 
