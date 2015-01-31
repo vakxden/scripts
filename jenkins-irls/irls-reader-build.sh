@@ -295,5 +295,5 @@ echo "GIT_COMMIT_URL_READER=$GIT_COMMIT_URL_READER" >> $WORKSPACE/myenv
 if [ -z $STARTED_BY ]; then
 	echo \[WARN_MARK\] started by \<b\>3-irls-lib-processor-convert\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
 else
-        echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$TARGET\</b\>
+	echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
 fi
