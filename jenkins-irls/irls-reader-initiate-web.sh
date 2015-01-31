@@ -30,19 +30,19 @@ done
 function main_loop {
         notmainloop ()
         {
-		# createing of web-package
+                # createing of web-package
                 cd $WORKSPACE/packager
                 time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 cd $WORKSPACE
-		# move of web-package to artifacts directory (for current environment)
+                # move of web-package to artifacts directory (for current environment)
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
-		time rsync -r --delete --exclude "tests" --exclude "packager" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                time rsync -r --delete --exclude "tests" --exclude "packager" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" --exclude "artifacts" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
-		else
-			rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/*
+                else
+                        rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/*
                 fi
                 cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
         }
