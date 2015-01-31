@@ -85,7 +85,7 @@ function git_clone_or_checkout {
 	fi
 	}
 
-### Functionsfor body of script
+### Functions for body of script
 function ssh_and_repack {
 	# checking the existence of a remote directory with the artifacts ($1 and $2)
 	ssh jenkins@dev01.isd.dp.ua "if [ ! -d $1 ]; then mkdir -p $1; fi"
@@ -177,9 +177,9 @@ if [ "$dest" = "DEVELOPMENT" ]; then
 		REPONAME="$TARGETS_REPONAME"
 		git_clone_or_checkout $REPONAME
 		### Determine of brand		
-                BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+                BRAND=$(grep brand $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json | awk -F '"|"' '{print $4}')
                 ### Checking contain platform
-                if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
+                if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
                         IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
                         IPA_FILE_NAME="$IPA_NAME.ipa"
                         TEMPORARY_IPA_REPACKING_DIR="$HOME/tmp_repacking_ipa-$i"
@@ -214,9 +214,9 @@ elif [ "$dest" = "STAGE" ]; then
 		REPONAME="$TARGETS_REPONAME"
 		git_clone_or_checkout $REPONAME
 		### Determine of brand		
-                BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+                BRAND=$(grep brand $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json | awk -F '"|"' '{print $4}')
                 ### Checking contain platform
-                if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
+                if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
                         IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
                         IPA_FILE_NAME="$IPA_NAME.ipa"
                         TEMPORARY_IPA_REPACKING_DIR="$HOME/tmp_repacking_ipa-$i"
@@ -252,9 +252,9 @@ elif [ "$dest" = "LIVE" ]; then
 		REPONAME="$TARGETS_REPONAME"
 		git_clone_or_checkout $REPONAME
 		### Determine of brand		
-                BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+                BRAND=$(grep brand $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json | awk -F '"|"' '{print $4}')
                 ### Checking contain platform
-                if grep "platforms.*ios" $WORKSPACE/targets/$i/targetConfig.json; then
+                if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
                         IPA_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
                         IPA_FILE_NAME="$IPA_NAME.ipa"
                         # repacking of ipa-file
