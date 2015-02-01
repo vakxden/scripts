@@ -1,0 +1,8 @@
+{
+	"currentBranch":  "develop",
+	"currentTargetsNotDevelop": "ffa",
+	"listOfAllTargets": "autotest chapters farsiref_ffa ffa ffa-master irls-audio irls-audiobywords irls-epubtest irls-ocean mediaoverlay_ffa nbproject ocean ocean-master test-target",
+	"lastReaderBranchCommit": "2b1b8e37ec1f958224d6fcc67bfae5b3fc6def00",
+
+	"currentTargetsDevelop": "ffa ocean"
+}

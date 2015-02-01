@@ -1,0 +1,19 @@
+{
+	"targets":
+		[
+			"autotest",
+			"chapters",
+			"farsiref_ffa",
+			"ffa",
+			"ffa-master",
+			"irls-audio",
+			"irls-audiobywords",
+			"irls-epubtest",
+			"irls-ocean",
+			"mediaoverlay_ffa",
+			"nbproject",
+			"ocean",
+			"ocean-master",
+			"test-target"
+		]
+}
