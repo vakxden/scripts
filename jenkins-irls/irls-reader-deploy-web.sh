@@ -109,7 +109,11 @@ do
 	echo starting of main loop...
 	### Output value for a pair "key-value"
 	printf '%s\n' "key: $i -- value: ${combineArray[$i]}"
-	if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ; then
+	# variables
+	CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}
+	STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}
+	INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
+	if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
 		BRAND_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH"
 	elif [ $ENVIRONMENT == public ]; then
 		BRAND_URL="https://irls.isd.dp.ua/$i/$BRANCH"
@@ -121,10 +125,6 @@ do
 		BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/packages/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
 		BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
 	fi
-	# variables
-	CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}
-	STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}
-	INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
 	
 	if [ $ENVIRONMENT == current ]; then
 		# generate index.html and local.json

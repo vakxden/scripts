@@ -86,8 +86,8 @@ if [ "$dest" = "DEVELOPMENT" ]; then
         CURRENT="current"
                 elif [ "$dest" = "STAGE" ]; then
         CURRENT="stage"
-                elif [ "$dest" = "LIVE" ]; then
-        CURRENT="live"
+                elif [ "$dest" = "public" ]; then
+        CURRENT="public"
 fi
 
 #echo "generated port: $GENERATED_PORT"
