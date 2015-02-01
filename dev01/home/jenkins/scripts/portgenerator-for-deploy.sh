@@ -64,7 +64,7 @@ done
 
                 function generate_localjson {
                         ### Create file local.json
-			if [ !-d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/; fi
+			if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/server/config; fi
                         cd /home/jenkins/$ARTDIR/$ID/packages/server/config/
                         cat /dev/null > local.json
                         echo '{' >> local.json

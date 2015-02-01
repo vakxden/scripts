@@ -104,109 +104,77 @@ function start_node {
 ###
 ### Body
 ###
-if [ "$ENVIRONMENT" = "current" ]; then
-        for i in "${!combineArray[@]}"
-        do
-                # variables
-                PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
-                INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
-                # output value for a pair "key-value"
-                echo $i --- ${combineArray[$i]}
-                # generate index.html and local.json
-                generate_files $PKG_DIR
-		# init users database
-		cd $PKG_DIR
-		if [ -f server/init.js ]; then
-			node server/init.js
-		fi
-		# add URL for development environment
-		if [ -f server/brandConfig.json ]; then
-			NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
-			sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/\",#g" server/brandConfig.json
-		fi
-                # run (re-run) node
-                start_node $PKG_DIR $INDEX_FILE
-                # update environment.json file
-                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
-                # generate links for description job
-                echo admin-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
-                echo editor-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
-                echo reader-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
-                echo portal-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/current/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
-        done
-elif [ "$ENVIRONMENT" = "stage" ]; then
-        for i in "${!combineArray[@]}"
-        do
-                # variables
-                CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}/packages
-                STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
-                INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
-                # output value for a pair "key-value"
-                echo $i --- ${combineArray[$i]}
-                # copy files from CURRENT-env to STAGE-env
-                cd $CURRENT_PKG_DIR
-                if [ ! -d $STAGE_PKG_DIR ]; then
-                        mkdir -p $STAGE_PKG_DIR
-                        time rsync -r --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
-                else
-                        cd $STAGE_PKG_DIR
-                        rm -rf common client server artifacts portal books
-                        rm -rf $STAGE_PKG_DIR/*
-                        cd $CURRENT_PKG_DIR
-                        time rsync -r --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
-                fi
-                # generate index.html and local.json
-                generate_files $STAGE_PKG_DIR
-		# init users database
-		cd $STAGE_PKG_DIR
-		if [ -f server/init.js ]; then
-			node server/init.js
-		fi
-		# replace URL for stage environment
-		if [ -f server/brandConfig.json ]; then
-			NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
-			sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/portal/\",#g" server/brandConfig.json
-		fi
-                # run (re-run) node
-                start_node $STAGE_PKG_DIR $INDEX_FILE
-                # update environment.json file
-                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
-                # generate links for description job
-                echo admin-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
-                echo editor-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
-                echo reader-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
-                echo portal-link-$i-$ENVIRONMENT="https://wpps.isd.dp.ua/irls/stage/reader/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
-        done
-elif [ "$ENVIRONMENT" = "public" ]; then
-        for i in "${!combineArray[@]}"
-        do
-                STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}/packages
-                RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
+for i in "${!combineArray[@]}"
+do
+	echo starting of main loop...
+	### Output value for a pair "key-value"
+	printf '%s\n' "key: $i -- value: ${combineArray[$i]}"
+	if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ; then
+		BRAND_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH"
+	elif [ $ENVIRONMENT == public ]; then
+		BRAND_URL="https://irls.isd.dp.ua/$i/$BRANCH"
+		BUILD_INFO_JSON="client/dist/app/build.info.json"
+		RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
 		# variables for product versioning
-		#SPRINT=$(grep sprint $STAGE_PKG_DIR/client/dist/app/build.info.json | awk -F '"|"' '{print $4}')
-		SPRINT=$(grep version $STAGE_PKG_DIR/package.json | awk -F '"|"' '{print $4}')
-		BUILD_NUMBER=$(grep buildnumber $STAGE_PKG_DIR/client/dist/app/build.info.json | awk -F '"|"' '{print $4}')
-		BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/client/dist/app/build.info.json | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
+		SPRINT=$(grep version $STAGE_PKG_DIR/packages/package.json | awk -F '"|"' '{print $4}')
+		BUILD_NUMBER=$(grep buildnumber $STAGE_PKG_DIR/packages/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}')
+		BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/packages/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
 		BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
-                ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
-                ssh dvac@devzone.dp.ua "
+	fi
+	# variables
+	CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}
+	STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}
+	INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
+	
+	if [ $ENVIRONMENT == current ]; then
+		# generate index.html and local.json
+		generate_files  $CURRENT_PKG_DIR/packages
+		# init users database
+	        cd $CURRENT_PKG_DIR/packages
+	        if [ -f server/init.js ]; then
+	                node server/init.js
+	        fi
+		 # add URL for development environment
+		if [ -f server/brandConfig.json ]; then
+	        	NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
+	        	sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"$BRAND_URL/portal/\",#g" server/brandConfig.json
+		fi
+	        # run (re-run) node
+	        start_node $CURRENT_PKG_DIR/packages $INDEX_FILE
+	elif [ $ENVIRONMENT == stage ]; then
+		if [ ! -d $STAGE_PKG_DIR ]; then mkdir -p $STAGE_PKG_DIR; fi
+		time rsync -r --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/		
+	        # generate index.html and local.json
+	        generate_files  $STAGE_PKG_DIR/packages
+		 # init users database
+	        cd $STAGE_PKG_DIR/packages
+	        if [ -f server/init.js ]; then
+	                node server/init.js
+	        fi
+		 # add URL for development environment
+	        if [ -f server/brandConfig.json ]; then
+	                NUM_OF_LINE=$(grep "brandUrl" server/brandConfig.json -n | awk -F ":" '{print $1}')
+	                sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"$BRAND_URL/portal/\",#g" server/brandConfig.json
+	        fi
+	        # run (re-run) node
+	        start_node $STAGE_PKG_DIR/packages $INDEX_FILE
+	elif [ $ENVIRONMENT == public ]; then           
+		ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
+		ssh dvac@devzone.dp.ua "
 			rm -f $RSYNC_FACETS_DIR/client/dist/app/epubs/dirstructure.json
-                        if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
+			if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
 			# create of status-deploy file
 			if [ ! -e $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt ]; then touch $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt; fi"
-                time rsync -rz --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
-                ssh dvac@devzone.dp.ua "
-                        # values
-                	INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
+		time rsync -rz --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/packages/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
+		ssh dvac@devzone.dp.ua "
+			# values
+			INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
 			# copying files from RSYNC_FACETS_DIR to REMOTE_ART_PATH/{combineArray[i]}
-                        cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
-                        # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
-                        if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then
-                                mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art
-                        fi
-                        #mv $REMOTE_ART_PATH/${combineArray[$i]}/artifacts $REMOTE_ART_PATH/${combineArray[$i]}/art
-                        /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
-                        cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
+			cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
+			# Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
+			if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art; fi
+			/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
+			cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
 			# init users database
 			cd $REMOTE_ART_PATH/${combineArray[$i]}
 			if [ -f server/init.js ]; then
@@ -214,10 +182,10 @@ elif [ "$ENVIRONMENT" = "public" ]; then
 			fi
 			# replace URL for live environment
 			if [ -f server/brandConfig.json ]; then
-				sed -i 's#\"brandUrl.*#\"brandUrl\": \"https://irls.isd.dp.ua/$i/$BRANCH/portal/\",#g' server/brandConfig.json
+				sed -i 's#\"brandUrl.*#\"brandUrl\": \"$BRAND_URL/portal/\",#g' server/brandConfig.json
 			fi
-                        # Start node
-                        cd $REMOTE_ART_PATH/${combineArray[$i]}
+			# Start node
+			cd $REMOTE_ART_PATH/${combineArray[$i]}
 			# number of version line
 			NUMBER_OF_VERSION_LINE=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep version | awk -F '-' '{print \$1}')
 			echo NUMBER_OF_VERSION_LINE=\$NUMBER_OF_VERSION_LINE
@@ -232,28 +200,24 @@ elif [ "$ENVIRONMENT" = "public" ]; then
 			echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME
 			## replace build date time for $i target
 			eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\"#g\\\" $BUILD_VERSION_JSON
-                        PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
-                        if [ ! -z \$PID ]
-                        then
-                                kill -9 \$PID
+			PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
+			if [ ! -z \$PID ]
+			then
+				kill -9 \$PID
 				if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
 				nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
-                        else
+			else
 				nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
 				if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
-                        fi
-			sleep 5
+			fi
+			sleep 3
 			rm -f $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt"
-                # update environment.json file
-                /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
-                # generate links for description job
-                echo admin-link-$i-$ENVIRONMENT="https://irls.isd.dp.ua/$i/$BRANCH/admin/dist/app/index_admin.html" >> $WORKSPACE/myenv
-                echo editor-link-$i-$ENVIRONMENT="https://irls.isd.dp.ua/$i/$BRANCH/editor/dist/app/index_editor.html" >> $WORKSPACE/myenv
-                echo reader-link-$i-$ENVIRONMENT="https://irls.isd.dp.ua/$i/$BRANCH/reader/dist/app/index_reader.html" >> $WORKSPACE/myenv
-                echo portal-link-$i-$ENVIRONMENT="https://irls.isd.dp.ua/$i/$BRANCH/portal/dist/app/index_portal.html" >> $WORKSPACE/myenv
-                sed -i "s/link-$i-$ENVIRONMENT/link$i/g" $WORKSPACE/myenv
-        done
-else
-        printf "[ERROR_DEST] ENVIRONMENT must be current or stage or public! Not $ENVIRONMENT! \n"
-        exit 1
-fi
+		fi
+	# update environment.json file
+	/home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
+	# generate links for web-version of application
+	echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/dist/app/index_admin.html"
+	echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/dist/app/index_editor.html"
+	echo reader-link-$i-$ENVIRONMENT="$BRAND_URL/reader/dist/app/index_reader.html"
+	echo portal-link-$i-$ENVIRONMENT="$BRAND_URL/portal/dist/app/index_portal.html"
+done
