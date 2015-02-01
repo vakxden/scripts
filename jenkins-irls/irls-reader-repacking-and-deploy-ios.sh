@@ -130,7 +130,7 @@ function ssh_and_start_node {
 	$SSH_COMMAND "
 		export PATH=$PATH:$NODE_PATH/bin
 		# Start node
-		cd $CURRENT_PKG_DIR
+		cd $1
 		PID=\$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
 		if [ ! -z \$PID ];then
 			kill -9 \$PID
@@ -145,7 +145,7 @@ function ssh_and_create_configs {
 	$SSH_COMMAND "
 		sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
 		if [ ! -d $CURRENT_PKG_DIR/server/config ]; then mkdir -p $1/server/config; fi
-		cp ~/local.json $1/server/config/"
+		#cp ~/local.json $1/server/config/"
 	}
 
 ###
@@ -185,13 +185,15 @@ do
 	### Checking contain platform
 	if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
 		
-		### Repacking of ipa-file and creating local.json for node-server side and apache-proxying config
+		### Repacking of ipa-file and creating local.json for node-server side, apache-proxying config and starting of node-server side
 		if [ $ENVIRONMENT == current ]; then 
 			ssh_and_repack $CURRENT_ARTIFACTS_DIR $CURRENT_ARTIFACTS_DIR
 			ssh_and_create_configs $CURRENT_PKG_DIR
+			ssh_and_start_node $CURRENT_PKG_DIR
 		elif [ $ENVIRONMENT == stage ]; then 
 			ssh_and_repack $CURRENT_ARTIFACTS_DIR $STAGE_ARTIFACTS_DIR
 			ssh_and_create_configs $STAGE_PKG_DIR
+			ssh_and_start_node $STAGE_PKG_DIR
 		elif [ $ENVIRONMENT == public ]; then
 			ssh_and_repack $STAGE_ARTIFACTS_DIR $PUBLIC_ARTIFACTS_DIR
 			ssh dvac@devzone.dp.ua "
@@ -200,9 +202,8 @@ do
 				if [ ! -d  $PUBLIC_ARTIFACTS_DIR ]; then mkdir -p $PUBLIC_ARTIFACTS_DIR; fi
 				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
 				cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config"
+			ssh_and_start_node $REMOTE_ART_PATH/${combineArray[$i]}
 		fi
-		### Starting node-server side
-		ssh_and_start_node
 		### Updating environment.json file
 		ssh jenkins@dev01.isd.dp.ua "/home/jenkins/scripts/search_for_environment.sh ${combineArray[$i]} $ENVIRONMENT"
 	else

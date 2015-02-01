@@ -55,12 +55,12 @@ done
 ###
 function generate_files {
         # $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
-        cd $1
+        #cd $1
         sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
-	rm -f $1/server/config/local.json
-	cp -f local.json $1/server/config/
-        ls -lah
-        echo PWD=$PWD
+	#rm -f $1/server/config/local.json
+	#cp -f local.json $1/server/config/
+        #ls -lah
+        #echo PWD=$PWD
 }
 
 function pid_node {
@@ -90,7 +90,7 @@ function start_node {
                                 mv server/index.js server/$2
                                 pid_node server/$2
                         elif [ -f $1/server/index_*.js ]; then
-                                        cp $(ls -1 server/index*.js | head -1) server/$2
+                                        cp $(ls -1 $1/server/index*.js | head -1) $1/server/$2
                                         pid_node server/$2
                         else
                                 echo "not found server/index.js in $1" && exit 0
