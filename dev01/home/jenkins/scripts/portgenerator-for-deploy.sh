@@ -64,6 +64,8 @@ done
 
                 function generate_localjson {
                         ### Create file local.json
+			if [ !-d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/; fi
+                        cd /home/jenkins/$ARTDIR/$ID/packages/server/config/
                         cat /dev/null > local.json
                         echo '{' >> local.json
                         if [ "$1" = "current" ]; then
@@ -148,15 +150,15 @@ done
                                         mkdir -p /home/jenkins/$ARTDIR/$ID/packages/artifacts && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/artifacts
                                 fi
                                 # filling temporary file
-                                echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> tmp
-                                echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> tmp
+                                echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> /home/jenkins/$ARTDIR/$ID/packages/tmp
+                                echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/artifacts  http://127.0.0.1/$ARTDIR/$ID/packages/artifacts/ >> /home/jenkins/$ARTDIR/$ID/packages/tmp
                                 generate_indexhtml
                         fi
                         # replace temporary file to original apache config file
-                        echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> tmp
-                        echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> tmp
-                        cp -f tmp $ACF
-                        rm -f tmp
+                        echo -e '\t'ProxyPass /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> /home/jenkins/$ARTDIR/$ID/packages/tmp
+                        echo -e '\t'ProxyPassReverse /irls/$CURRENT/reader/$FACETS/$BRANCHNAME/ http://127.0.0.1:$GENERATED_PORT/ >> /home/jenkins/$ARTDIR/$ID/packages/tmp
+                        cp -f /home/jenkins/$ARTDIR/$ID/packages/tmp $ACF
+                        rm -f /home/jenkins/$ARTDIR/$ID/packages/tmp
                         service apache2 reload
                 }
 
@@ -177,4 +179,3 @@ done
                         dest_eq_stage
                 fi
                 rm -f $lockfile
-
