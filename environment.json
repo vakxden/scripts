@@ -25,7 +25,7 @@
                 "0000000_chapters",
                 "0000000_test-target"
         ],
-        "live":[
+        "public":[
                 "0000000_ffa",
                 "0000000_ocean",
                 "0000000_irls-ocean",
