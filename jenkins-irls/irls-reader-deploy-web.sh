@@ -1,15 +1,21 @@
-###
-### Checking variables that were passed to the current bash-script
-###
-if [ -z $BRANCHNAME ]; then
-    printf "[ERROR_BRANCHNAME] branchname must be passed! \n"
-    exit 1
-fi
+# This script executes on the remote host named dev01.isd.dp.ua
 
-if [ -z $mark ]; then
-        printf "[ERROR_MARK] mark must be passed \n"
-        exit 1
-elif [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
+###
+### Checking variables that were passed to the current script
+###
+ARRAY_OF_ENVIRONMENTS=(current stage public) #an array that contains the correct names of environments
+containsElement () {
+        local e
+        for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
+        return 1
+        }
+if ! $(containsElement "$ENVIRONMENT" "${ARRAY_OF_ENVIRONMENTS[@]}"); then printf "[ERROR_DEST] ENVIRONMENT must be current or stage or public! Not $ENVIRONMENT! \n" && exit 1; fi
+
+if [ -z $BRANCHNAME ]; then printf "[ERROR_BRANCHNAME] Branchname must be passed \n" && exit 1; fi
+
+if [ -z $mark ]; then printf "[ERROR_MARK] mark must be passed \n" && exit 1; fi
+
+if [ "$mark" = "all" ] || [ "$mark" = "initiate-web" ]; then
         echo \[WARN_MARK\] branch name is \<b\>$BRANCHNAME\</b\>\<br\>ENVIRONMENT is \<b\>$ENVIRONMENT\</b\>\<br\>ID is \<b\>$ID\</b\>
 elif ! [ "$mark"  = "all" ] || ! [ "$mark"  = "initiate-web" ]; then
         echo \[WARN_MARK\] just running on empty
@@ -28,9 +34,6 @@ LIVE_DIR=/home/jenkins/irls-reader-live
 LIVE_LINKS_DIR=/home/jenkins/irls-reader-live-links
 TARGET=($(echo $TARGET))
 
-# clean file myenv
-cat /dev/null > $WORKSPACE/myenv
-
 ### Create associative array
 deploymentPackageId=($(echo $ID))
 printf "Array deploymentPackageId contain nexts elements:\n"
@@ -46,7 +49,7 @@ done
 printf "Associative array combineArray contains next key-value elements:\n"
 for k in "${!combineArray[@]}"
 do
-        printf '%s\n' "key:$k -- value:${combineArray[$k]}"
+        printf '%s\n' "key: $k -- value: ${combineArray[$k]}"
 done
 
 
@@ -54,51 +57,27 @@ done
 ### Functions
 ###
 function generate_files {
-        # $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
-        #cd $1
         sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
-	#rm -f $1/server/config/local.json
-	#cp -f local.json $1/server/config/
-        #ls -lah
-        #echo PWD=$PWD
-}
-
-function pid_node {
-        # $1 = $2 (server/$INDEX_FILE) from function start_node = $INDEX_FILE
-        ### Starting (or restarting) node server
-                PID=$(ps aux | grep "node $1" | grep -v grep | /usr/bin/awk '{print $2}')
-                if [ ! -z "$PID" ];then
-                        kill -9 $PID
-                        #nohup node $1 > /dev/null 2>&1 &
-			if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
-                        nohup node $1 >> nohup.out 2>&1 &
-                else
-                        #nohup node $1 > /dev/null 2>&1 &
-			if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
-                        nohup node $1 >> nohup.out 2>&1 &
-                fi
-                rm -f local.json irls-current-reader-* irls-stage-reader-*
 }
 
 function start_node {
-        # if content for running nodejs-server exists?
         # $1=$PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
         # $2=$INDEX_FILE
-        if [ -d $1/server/config ]; then
-                if [ ! -f $1/server/$2 ]; then
-                        if [ -f $1/server/index.js ]; then
-                                mv server/index.js server/$2
-                                pid_node server/$2
-                        elif [ -f $1/server/index_*.js ]; then
-                                        cp $(ls -1 $1/server/index*.js | head -1) $1/server/$2
-                                        pid_node server/$2
-                        else
-                                echo "not found server/index.js in $1" && exit 0
-                        fi
-                else
-                        pid_node server/$2
-                fi
-        fi
+	if [ ! -f $1/server/$2 ]; then
+		if [ $ENVIRONMENT == current ]; then mv $1/server/index.js $1/server/$2
+		elif [ $ENVIRONMENT == stage ]; then mv $1/server/index_*_current.js $1/server/$2
+		fi
+	fi
+	PID=$(ps aux | grep "node $1" | grep -v grep | /usr/bin/awk '{print $2}')
+	cd $1
+	if [ ! -z "$PID" ];then
+		kill -9 $PID
+		if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
+		nohup node server/$2 >> nohup.out 2>&1 &
+	else
+		if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
+		nohup node server/$2 >> nohup.out 2>&1 &
+	fi
 }
 
 ###
@@ -109,7 +88,8 @@ do
 	echo starting of main loop...
 	### Output value for a pair "key-value"
 	printf '%s\n' "key: $i -- value: ${combineArray[$i]}"
-	# variables
+	### Temporary local variables
+        # terms for different environments
 	CURRENT_PKG_DIR=$CURRENT_ART_PATH/${combineArray[$i]}
 	STAGE_PKG_DIR=$STAGE_ART_PATH/${combineArray[$i]}
 	INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
@@ -174,7 +154,6 @@ do
 			# Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
 			if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art; fi
 			/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
-			cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config
 			# init users database
 			cd $REMOTE_ART_PATH/${combineArray[$i]}
 			if [ -f server/init.js ]; then
@@ -184,7 +163,7 @@ do
 			if [ -f server/brandConfig.json ]; then
 				sed -i 's#\"brandUrl.*#\"brandUrl\": \"$BRAND_URL/portal/\",#g' server/brandConfig.json
 			fi
-			# Start node
+			# determine versioning values
 			cd $REMOTE_ART_PATH/${combineArray[$i]}
 			# number of version line
 			NUMBER_OF_VERSION_LINE=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep version | awk -F '-' '{print \$1}')
@@ -200,6 +179,8 @@ do
 			echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME
 			## replace build date time for $i target
 			eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\"#g\\\" $BUILD_VERSION_JSON
+			# Start node
+			if [ ! -f server/\$INDEX_FILE ]; then mv server/index_*_stage.js server/\$INDEX_FILE; fi
 			PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
 			if [ ! -z \$PID ]
 			then

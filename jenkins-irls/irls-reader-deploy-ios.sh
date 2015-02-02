@@ -200,8 +200,7 @@ do
 				if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
 				# Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
 				if [ ! -d  $PUBLIC_ARTIFACTS_DIR ]; then mkdir -p $PUBLIC_ARTIFACTS_DIR; fi
-				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
-				cp ~/local.json $REMOTE_ART_PATH/${combineArray[$i]}/server/config"
+				/home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}"
 			ssh_and_start_node $REMOTE_ART_PATH/${combineArray[$i]}
 		fi
 		### Updating environment.json file
