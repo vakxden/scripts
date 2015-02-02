@@ -92,8 +92,8 @@ fi
 
 #echo "generated port: $GENERATED_PORT"
 ### Create file local.json
-rm -f local.json
-touch local.json
+cd ~/irls-reader-artifacts/$ID/server/config
+cat /dev/null > local.json
 echo '{' >> local.json
 echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/client/dist/app/epubs/",' >> local.json
 echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
