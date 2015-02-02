@@ -1,4 +1,4 @@
-#!/bin/bash -x
+i#!/bin/bash -x
 name=$(basename $0)
 lockfile=/var/tmp/$name
 while [ -f $lockfile ]
@@ -64,7 +64,8 @@ done
 
                 function generate_localjson {
                         ### Create file local.json
-			if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/server/config; fi
+                        if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/server/config; fi
+                        chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID
                         cd /home/jenkins/$ARTDIR/$ID/packages/server/config/
                         cat /dev/null > local.json
                         echo '{' >> local.json
@@ -78,7 +79,7 @@ done
                         fi
                         echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
                         echo -e '\t"database_name": "'$FACETS'",' >> local.json
-			echo -e '\t"environment_name": "'$CURRENT'-'$BRANCHNAME'"' >> local.json
+                        echo -e '\t"environment_name": "'$CURRENT'-'$BRANCHNAME'"' >> local.json
                         echo '}'  >> local.json
                         chown jenkins:jenkins local.json
                 }
