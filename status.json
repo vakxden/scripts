@@ -1,0 +1,14 @@
+{
+        "lib-processor" : [
+                {"branchName":"master",
+                "commitID":"f9ce33c1c30f35f01d22a4d3f8ae49f0113a1fd6"
+                },
+                {"branchName":"develop",
+                "commitID":"3102ecd92cd5579dbef6704d68e477dcffe6eff6"
+                }
+        ],
+        "lib-sources" : {
+                "branchName":"master",
+                "commitID":"23b053faba4362b78b172d63e3552694d90aedfb"
+        }
+}
