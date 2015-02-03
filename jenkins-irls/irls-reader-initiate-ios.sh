@@ -17,7 +17,7 @@ echo SHELL_VERSION=$BASH_VERSION
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 CONFIGURATION_BUILD_DIR=$WORKSPACE/build
 CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
-MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution_profile_2015-02-04.mobileprovision
+MOBILEPROVISION=$HOME/mobileprovision_profile/ios_distribution_2015_02_03_profile.mobileprovision
 TARGET=($(echo $TARGET))
 SDKROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk"
 

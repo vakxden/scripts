@@ -32,7 +32,7 @@ STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 TARGET=($(echo $TARGET))
 HOME=/Users/jenkins
 CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
-MOBILEPROVISION=$HOME/mobileprovision_profile/jenkinsdistribution_profile_2015-02-04.mobileprovision
+MOBILEPROVISION=$HOME/mobileprovision_profile/ios_distribution_2015_02_03_profile.mobileprovision
 TARGETS_REPONAME="targets"
 
 ### Create associative array
