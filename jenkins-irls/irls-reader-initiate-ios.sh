@@ -52,7 +52,12 @@ function main_loop {
 		if [ ! -d $WORKSPACE/packager/build ]; then mkdir -p $WORKSPACE/packager/build; fi
 		cp -Rf ~/git/build_re/phonegap-plugins $WORKSPACE/packager/build
                 cd $WORKSPACE/packager
-                time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
+		if [ $BRANCHNAME == "master" ];
+                then
+                	time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		else
+                	time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
+		fi
                 #unlock keychain
                 security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
                 #build with xcodebuild

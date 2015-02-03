@@ -190,23 +190,17 @@ do
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
         cd $WORKSPACE/$READER_REPONAME/client
-	npm install grunt-compile-handlebars
-        #if [ $BRANCHNAME !== "feature/build_procedure_refactoring" ];
-        #then
-        #        time node compileHandlebars.js
-        #else
-        #        npm install grunt-compile-handlebars
-        #fi
         ### Build client and server parts
-        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
-	time grunt production
-        #if [ $BRANCHNAME !== "feature/build_procedure_refactoring" ];
-        #then
-        #        time grunt
-        #else
-        #        time grunt production
-        #fi
-        ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
+        if [ $BRANCHNAME == "master" ];
+        then
+                time node compileHandlebars.js
+        	time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+                time grunt
+        else
+                npm install grunt-compile-handlebars
+        	time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+		time grunt production
+        fi
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
         time rsync -r --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/

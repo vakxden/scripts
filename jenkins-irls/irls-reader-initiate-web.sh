@@ -32,7 +32,12 @@ function main_loop {
         {
                 # createing of web-package
                 cd $WORKSPACE/packager
-                time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
+		if [ $BRANCHNAME == "master" ];
+		then
+                	time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
+		else
+                	time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
+		fi
                 cd $WORKSPACE
                 # move of web-package to artifacts directory (for current environment)
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
