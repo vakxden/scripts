@@ -68,7 +68,7 @@ function start_node {
 		elif [ $ENVIRONMENT == stage ]; then mv $1/server/index_*_current.js $1/server/$2
 		fi
 	fi
-	PID=$(ps aux | grep "node $2" | grep -v grep | /usr/bin/awk '{print $2}')
+	PID=$(ps aux | grep "node server/$2" | grep -v grep | /usr/bin/awk '{print $2}')
 	cd $1
 	if [ ! -z "$PID" ];then
 		kill -9 $PID
