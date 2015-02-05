@@ -5,8 +5,8 @@
         if [ ! -f $TMP_FILE ]; then touch $TMP_FILE; fi
 for BRANCH in develop master audio
 do
-
-        LIST=$(ps aux | grep node | grep -v grep | grep "$BRANCH.js" | awk '{print $12}' | sed 's@server\/index_@@g' | sed 's@_'$BRANCH'.js@@g')
+        INDEX_FILE="$BRANCH"_public.js
+        LIST=$(ps aux | grep node | grep -v grep | grep $INDEX_FILE | awk '{print $12}' | sed 's@server\/index_@@g' | sed 's@_'$INDEX_FILE'@@g')
 
         for i in $LIST
         do
