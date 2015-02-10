@@ -3,78 +3,152 @@
 	<head>
 		<title>IRLS FACETS</title>
 		<meta charset="utf-8">
-		<base href="https://irls.isd.dp.ua/portal/" />
+		<!--base href="https://irls.isd.dp.ua/portal/" /-->
 		<!--<link rel="icon" type="image/png" href="images/favicon.ico">-->
-                <link rel="stylesheet" href="https://irls.isd.dp.ua/portal/css/main.css" />
-                <!--  -->
+                <link rel="stylesheet" href="css/main.css" />
+                <!-- https://irls.isd.dp.ua/portal/ -->
+                <script src="lib/angular/angular.js"></script>                
+                <script src="index.js"></script>
 	</head>
-	<body>
+	<body ng-app="portal">
+           <div ng-controller="build">
 		<div class="links_page">
 			<div class="header">
-				<div class="slogan">BRANDS</div>
+				<div class="slogan">Stable version</div>
 			</div>
 			<div class="links">
 				<div class="container">
 					<div class="col bahai_item">
-						<a href="https://irls.isd.dp.ua/ffa/develop/portal/" class="link_item">
+						<a href="https://irls.isd.dp.ua/ffa-master/master/portal/" class="link_item">
 							<i class="icon bahai"></i>
 							<span class="label">FFA</span>
 						</a>
 						<div class="text">
 							Firm Foundation Academy Library
 						</div>
+                                                <div>
+                                                    <span>Build version: </span><span>{{data['ffa-master'].version}}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Build date: </span><span>{{data['ffa-master'].buildDateTime}}</span>
+                                                </div>
 					</div>
-                                        <div class="col ocean_item">
-						<a href="https://irls.isd.dp.ua/ocean/develop/portal/" class="link_item">
+               <div class="col ocean_item">
+						<a href="https://irls.isd.dp.ua/ocean-master/master/portal/" class="link_item">
 							<i class="icon ocean"></i>
 							<span class="label">Ocean</span>
 						</a>
 						<div class="text">
 							Library of World’s Religious Literature
 						</div>
-					</div>	
+                                                <div>
+                                                    <span>Build version: </span><span>{{data['ocean-master'].version}}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Build date: </span><span>{{data['ocean-master'].buildDateTime}}</span>
+                                                </div>
+					</div>
 				</div>	
 			</div>
+
 			<div class="header">
-				<div class="slogan">IRLS FACETS</div>
+				<div class="slogan">Development</div>
 			</div>
 			<div class="links">
-			<div class="container">
-				<div class="col irls_item">
-					<a href="https://irls.isd.dp.ua/irls-audio/develop/portal/" class="link_item">
-						<i class="icon irls"><img src="images/audio.png"></i>
-						<span class="label">IRLS-AUDIO</span>
-					</a>
-					<div class="text">Publications synchronized with audio on sentence level
+				<div class="container">
+					<div class="col bahai_item min">
+						<a href="https://irls.isd.dp.ua/ffa/develop/portal/" class="link_item">
+							<i class="icon bahai"></i>
+							<span class="label">FFA</span>
+						</a>
+						<div class="text">Firm Foundation Academy Library</div>
+                                                <div>
+                                                    <span>Build version: </span><span>{{data.ffa.version}}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Build date: </span><span>{{data.ffa.buildDateTime}}</span>
+                                                </div>
 					</div>
-				</div>
-				<div class="col irls_item">						
-					<a href="https://irls.isd.dp.ua/irls-audiobywords/develop/portal/" class="link_item">
-						<i class="icon irls"><img src="images/audio_by_words.png"></i>
-						<span class="label">IRLS-AUDIO-BY-WORDS</span>
-					</a>
-					<div class="text">Publications synchronized with audio on word level
+					<div class="col ocean_item min">
+						<a href="https://irls.isd.dp.ua/ocean/develop/portal/" class="link_item">
+							<i class="icon ocean"></i>
+							<span class="label">Ocean</span>
+						</a>
+						<div class="text">
+							Library of World’s<br>Religious Literature
+						</div>
+                                                <div>
+                                                    <span>Build version: </span><span>{{data.ocean.version}}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Build date: </span><span>{{data.ocean.buildDateTime}}</span>
+                                                </div>
 					</div>
-				</div>
-				<div class="col irls_item">
-					<a href="https://irls.isd.dp.ua/irls-ocean/develop/portal/" class="link_item">
-						<i class="icon irls"></i>
-						<span class="label">IRLS-OCEAN</span>
-					</a>
-					<div class="text">All texts from original Ocean library for load testing
+					<div class="col irls_item">
+						<a href="https://irls.isd.dp.ua/irls-ocean/develop/portal/" class="link_item">
+							<i class="icon irls"></i>
+							<span class="label">IRLS-OCEAN</span>
+						</a>
+						<div class="text">All texts from original Ocean library for load testing
+						</div>
+                                                <div>
+                                                    <span>Build version: </span><span>{{data['irls-ocean'].version}}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Build date: </span><span>{{data['irls-ocean'].buildDateTime}}</span>
+                                                </div>
 					</div>
-				</div>
-				<div class="col irls_item">
-					<a href="https://irls.isd.dp.ua/irls-epubtest/develop/portal/" class="link_item">
-						<i class="icon irls"></i>
-						<span class="label">IRLS-TEST</span>
-					</a>
-					<div class="text">Test publications dedicated for testing of specific features of the system
+					<div class="col irls_item">
+						<a href="https://irls.isd.dp.ua/irls-epubtest/develop/portal/" class="link_item">
+							<i class="icon irls"></i>
+							<span class="label">IRLS-TEST</span>
+						</a>
+						<div class="text">Library dedicated to test the system’s features
+						</div>
+                                                <div>
+                                                    <span>Build version: </span><span>{{data['irls-epubtest'].version}}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Build date: </span><span>{{data['irls-epubtest'].buildDateTime}}</span>
+                                                </div>
 					</div>
 				</div>
 			</div>
+			<div class="header">
+				<div class="slogan">Audio (Old)</div>
 			</div>
-	
+			<div class="links">
+				<div class="container">
+					<div class="col irls_item">
+						<a href="https://irls.isd.dp.ua/irls-audio/audio/portal/artifacts/index.html" class="link_item">
+							<i class="icon irls"><img src="images/audio.png"></i>
+							<span class="label">IRLS-AUDIO</span>
+						</a>
+						<div class="text">Publications synchronized with audio on sentence level
+						</div>
+                                                <div>
+                                                    <span>Build version: </span><span>{{data['irls-audio'].version}}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Build date: </span><span>{{data['irls-audio'].buildDateTime}}</span>
+                                                </div>
+					</div>
+					<div class="col irls_item">						
+						<a href="https://irls.isd.dp.ua/irls-audiobywords/audio/portal/artifacts/index.html" class="link_item">
+							<i class="icon irls"><img src="images/audio_by_words.png"></i>
+							<span class="label">IRLS-AUDIO-BY-WORDS</span>
+						</a>
+						<div class="text">Publications synchronized with audio on word level
+						</div>
+                                                <div>
+                                                    <span>Build version: </span><span>{{data['irls-audiobywords'].version}}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Build date: </span><span>{{data['irls-audiobywords'].buildDateTime}}</span>
+                                                </div>
+					</div>					
+				</div>
+			</div>
 		</div>
 		<div class="footer">
                     <div class="footer-wrapp">
@@ -82,5 +156,6 @@
 			<div class="copyright">&copy; IRLS 2014</div>
                     </div>
 		</div>
+               </div>
 	</body>
 </html>
