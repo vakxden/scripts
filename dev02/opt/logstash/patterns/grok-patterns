@@ -92,3 +92,13 @@ COMBINEDAPACHELOG %{COMMONAPACHELOG} %{QS:referrer} %{QS:agent}
 
 # Log Levels
 LOGLEVEL ([Aa]lert|ALERT|[Tt]race|TRACE|[Dd]ebug|DEBUG|[Nn]otice|NOTICE|[Ii]nfo|INFO|[Ww]arn?(?:ing)?|WARN?(?:ING)?|[Ee]rr?(?:or)?|ERR?(?:OR)?|[Cc]rit?(?:ical)?|CRIT?(?:ICAL)?|[Ff]atal|FATAL|[Ss]evere|SEVERE|EMERG(?:ENCY)?|[Ee]merg(?:ency)?)
+
+# Node Dates: e.g., [2015-02-03 19:02:34.701]
+NODETIMESTAMP %{YEAR}-%{MONTHNUM}-%{MONTHDAY}[T ]%{HOUR}:?%{MINUTE}(?::?%{SECOND})
+NODECLIENTTIMESTAMP %{HOUR}:?%{MINUTE}(?::?%{SECOND})
+# Node Log Levels
+NODELOGLEVEL (ALL|LOG|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
+# Node logs
+NODECLIENTLOG1 \[%{NODETIMESTAMP:node_timestamp}\] \[%{NODELOGLEVEL:node_loglevel}\] \[%{GREEDYDATA:node_client_id}\] - \(%{IPV4:node_client_ip1}, %{IPV4:node_client_ip2}\) \[%{GREEDYDATA:node_client_request}\] %{NODECLIENTTIMESTAMP:node_client_timestamp} %{GREEDYDATA:node_message}
+NODECLIENTLOG2 \[%{NODETIMESTAMP:node_timestamp}\] \[%{NODELOGLEVEL:node_loglevel}\] \[%{GREEDYDATA:node_client_id}\] - \(%{IPV4:node_client_ip1}\) \[%{GREEDYDATA:node_client_request}\] %{NODECLIENTTIMESTAMP:node_client_timestamp} %{GREEDYDATA:node_message}
+NODESERVERLOG \[%{NODETIMESTAMP:node_timestamp}\] \[%{NODELOGLEVEL:node_loglevel}\] \[%{GREEDYDATA:node_client_id}\] - \(%{IPV4:node_client_ip1}\) \[%{GREEDYDATA:node_client_request}\] %{GREEDYDATA:node_message}
