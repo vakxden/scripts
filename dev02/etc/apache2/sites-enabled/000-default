@@ -22,6 +22,8 @@
         </Directory>
 
         ProxyPass /volnt-arni http://localhost:8065
+        # kibana proxy pass
+        ProxyPass /kibana http://localhost:9199
 
         ErrorLog ${APACHE_LOG_DIR}/error.log
 
