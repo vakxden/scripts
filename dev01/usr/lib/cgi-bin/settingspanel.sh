@@ -149,7 +149,7 @@ echo '<form action="'${SCRIPT}'" method=POST>'
 echo '<span>Select branch:</span>'
 echo '<select name="convertbranch">'
 echo '<option value="" disabled="disabled" selected="selected">Please select a branch name</option>'
-for j in master develop
+for j in master develop feature/conversion_result_caching
 do
         echo '<option value="'$j'">'$j'</option>'
 done
