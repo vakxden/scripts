@@ -54,7 +54,7 @@ do
         mkdir -p $RESULTS/$FACET_NAME
         cd $WORKSPACE/$PROCESSOR_COMMIT/src
         ### Processing raw texts
-	if [ $PROCESSOR_BRANCH = "feature/conversionResultCaching" ]; then
+	if [ $PROCESSOR_BRANCH = "feature/conversionresultcaching" ]; then
 		time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -c $EPUBS_CACHE
         else 
 		time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -t $WORKSPACE/tmp

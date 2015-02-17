@@ -77,10 +77,12 @@ elif [ "$REPONAME" == "targets" ]; then
         done
 	echo \[WARN_MARK\] Started by commit to repo \<b\>$REPONAME\</b\>\<br\> run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-reader-build" title="irls-reader-build"\>irls-reader-build\</a\> job
 elif [ "$REPONAME" == "lib-processor" ]; then
-	curl curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-processor-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
+	if [ "$BRANCH" == "master" ] || [ "$BRANCH" == "develop" ] || [ "$BRANCH" == "feature/conversionresultcaching" ]; then
+		curl curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-processor-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
+	fi
 	echo \[WARN_MARK\] Started by commit to repo \<b\>$REPONAME\</b\>\<br\> run the \<a href="http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-processor-build" title="1-irls-lib-processor-build"\>1-irls-lib-processor-build\</a\> job
 elif [ "$REPONAME" == "lib-sources" ]; then
-	if [ "$BRANCH" == "master" ] || [ "$BRANCH" == "develop" ] || [ "$BRANCH" == "feature/conversionResultCaching" ]; then
+	if [ "$BRANCH" == "master" ]; then
 		curl curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-sources-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
 	fi
 	echo \[WARN_MARK\] Started by commit to repo \<b\>$REPONAME\</b\>\<br\> run the \<a href="http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-sources-build" title="1-irls-lib-sources-build"\>1-irls-lib-sources-build\</a\> job
