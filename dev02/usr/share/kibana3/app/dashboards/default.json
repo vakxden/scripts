@@ -1,0 +1,106 @@
+{
+  "title": "Start Page",
+  "services": {
+    "query": {
+      "list": {
+        "0": {
+          "query": "*",
+          "alias": "",
+          "color": "#7EB26D",
+          "id": 0,
+          "pin": false,
+          "type": "lucene",
+          "enable": true
+        }
+      },
+      "ids": [
+        0
+      ]
+    },
+    "filter": {
+      "list": {},
+      "ids": []
+    }
+  },
+  "rows": [
+    {
+      "title": "Intro",
+      "height": "700px",
+      "editable": true,
+      "collapse": false,
+      "collapsable": false,
+      "panels": [
+        {
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "group": [
+            "default"
+          ],
+          "type": "text",
+          "mode": "markdown",
+          "content": "![reader](img/reader.png) \nHello! Here is log-files of reader application!",
+          "style": {},
+          "title": "Welcome",
+          "status": "Stable"
+        },
+        {
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "group": [
+            "default"
+          ],
+          "type": "text",
+          "mode": "markdown",
+          "content": "[ffa (develop)](#/dashboard/file/current-reader-ffa-develop_logs.json)\n\n[ocean (develop)](#/dashboard/file/current-reader-ocean-develop_logs.json)\n\n[test-target (develop)](#/dashboard/file/current-reader-test-target-develop_logs.json)",
+          "style": {},
+          "status": "Stable",
+          "title": "current environment links"
+        },
+        {
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "group": [
+            "default"
+          ],
+          "type": "text",
+          "mode": "markdown",
+          "content": "...\n\n...\n\n[Sample Dashboard](index.html#/dashboard/file/guided.json) \n\n [Unconfigured Dashboard](index.html#/dashboard/file/noted.json)\n\n [Blank Dashboard](index.html#/dashboard/file/blank.json)\n\n",
+          "style": {},
+          "status": "Stable",
+          "title": "useful links"
+        }
+      ],
+      "notice": false
+    }
+  ],
+  "editable": false,
+  "index": {
+    "interval": "none",
+    "pattern": "[logstash-]YYYY.MM.DD",
+    "default": "_all",
+    "warm_fields": false
+  },
+  "style": "dark",
+  "failover": false,
+  "panel_hints": true,
+  "pulldowns": [],
+  "nav": [],
+  "loader": {
+    "save_gist": false,
+    "save_elasticsearch": true,
+    "save_local": true,
+    "save_default": true,
+    "save_temp": true,
+    "save_temp_ttl_enable": true,
+    "save_temp_ttl": "30d",
+    "load_gist": true,
+    "load_elasticsearch": true,
+    "load_elasticsearch_size": 20,
+    "load_local": true,
+    "hide": false
+  },
+  "refresh": false
+}
