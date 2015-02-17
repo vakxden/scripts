@@ -21,26 +21,26 @@ if [ ! -f $STATUS_FILE ]; then
 fi
 
 function update_status_file {
-	# $1 = received commit
-	# $2 = reponame
-	# $3 = $PROCESSOR_BRANCH or $SOURCES_BRANCH
-	CURRENT=$(grep $2 $STATUS_FILE -A9 | grep "branchName.*$3" -A1 | grep commit | awk -F '"|"' '{print $4}')
-	if [ "$1" == "$CURRENT" ]; then
-	        echo received commit from $2 is equal to current commit from $STATUS_FILE
-	else
-	        NOL=$(grep -n $CURRENT $STATUS_FILE | awk -F ":" '{print $1}')
-	        sed -i "$NOL""s/$CURRENT/$1/" $STATUS_FILE
-	fi
+        # $1 = received commit
+        # $2 = reponame
+        # $3 = $PROCESSOR_BRANCH or $SOURCES_BRANCH
+        CURRENT=$(grep $2 $STATUS_FILE -A9 | grep "branchName.*$3" -A1 | grep commit | awk -F '"|"' '{print $4}')
+        if [ "$1" == "$CURRENT" ]; then
+                echo received commit from $2 is equal to current commit from $STATUS_FILE
+        else
+                NOL=$(grep -n $CURRENT $STATUS_FILE | awk -F ":" '{print $1}')
+                sed -i "$NOL""s/$CURRENT/$1/" $STATUS_FILE
+        fi
 }
 if [ ! -z $PROCESSOR_COMMIT ]; then update_status_file $PROCESSOR_COMMIT $PROCESSOR_REPONAME $PROCESSOR_BRANCH; fi
-if [ ! -z $SOURCES_COMMIT ];then update_status_file $SOURCES_COMMIT $SOURCES_REPONAME $SOURCES_BRANCH;	fi
+if [ ! -z $SOURCES_COMMIT ];then update_status_file $SOURCES_COMMIT $SOURCES_REPONAME $SOURCES_BRANCH;  fi
 
 LAST_PROCESSOR_COMMIT=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A9| grep "branchName.*$PROCESSOR_BRANCH" -A1 | grep commit | awk -F '"|"' '{print $4}')
 LAST_PROCESSOR_BRANCH=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A9 | grep "branchName.*$PROCESSOR_BRANCH" -A1 |grep branch | awk -F '"|"' '{print $4}')
 LAST_SOURCES_COMMIT=$(grep $SOURCES_REPONAME $STATUS_FILE -A2 | grep commit | awk -F '"|"' '{print $4}')
 
-if [ "$LAST_PROCESSOR_BRANCH" == "master" ] || [ "$LAST_PROCESSOR_BRANCH" == "develop" ]; then
-        TARGET=(ffa ocean)
+if [ "$LAST_PROCESSOR_BRANCH" == "master" ] || [ "$LAST_PROCESSOR_BRANCH" == "develop" ] || [ "$LAST_PROCESSOR_BRANCH" == "feature/conversion_result_caching" ]; then
+        TARGET=(test-target)
         for i in ${TARGET[@]}
         do
                 curl http://wpp.isd.dp.ua/jenkins/job/3-irls-lib-processor-convert/buildWithParameters?token=Sheedah8\&TARGET=$i\&PROCESSOR_COMMIT=$LAST_PROCESSOR_COMMIT\&SOURCES_COMMIT=$LAST_SOURCES_COMMIT\&PROCESSOR_BRANCH=$LAST_PROCESSOR_BRANCH
