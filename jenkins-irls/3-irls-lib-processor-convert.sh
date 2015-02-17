@@ -14,6 +14,7 @@ if [ -z $SOURCES_COMMIT ]; then
         exit 1
 fi
 ### Variables
+EPUBS_CACHE="$HOME/irls-reader-current-epubs/cache"
 CURRENT_RRM=$HOME/irls-rrm-processor-deploy/$PROCESSOR_COMMIT
 CURRENT_TEXTS=$HOME/irls-reader-current-texts/$SOURCES_COMMIT
 RESULTS=$WORKSPACE/results
@@ -53,7 +54,11 @@ do
         mkdir -p $RESULTS/$FACET_NAME
         cd $WORKSPACE/$PROCESSOR_COMMIT/src
         ### Processing raw texts
-        time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -t $WORKSPACE/tmp
+	if [ $PROCESSOR_BRANCH = "feature/conversionResultCaching" ]; then
+		time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -c $EPUBS_CACHE
+        else 
+		time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -t $WORKSPACE/tmp
+	fi
         time node --max-old-space-size=7000 $WORKSPACE/$PROCESSOR_COMMIT/src/createJSON.js $RESULTS/$FACET_NAME/
         ### Create (if not exist) current "target named"-, "current epub"-directory
         if [ ! -d $CURRENT_EPUBS/$TARGET_NAME ]; then mkdir -p $CURRENT_EPUBS/$TARGET_NAME; fi
