@@ -10,7 +10,9 @@
 # bits.
 #
 # By default this script does nothing.
-#cd /opt && nohup java -jar selenium-server-standalone-2.37.0.jar &
-cd /opt && nohup java -jar selenium-server-standalone-2.44.0.jar &
+
+date | mail -s "[$(hostname)] reboot" root
+/opt/elasticsearch/bin/elasticsearch -d
+/opt/logstash/bin/logstash -f /opt/logstash/conf &
 
 exit 0
