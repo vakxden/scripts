@@ -52,7 +52,9 @@ fi
 ### Variables
 ###
 CURRENT_BUILD=$HOME/irls-reader-current-build
-if [ "$BRANCHNAME" != "master" ]; then
+if [ "$BRANCHNAME" == "feature/conversion_result_caching" ]; then
+        CURRENT_EPUBS=$HOME/irls-reader-current-epubs/feature/conversion_result_caching
+elif [ "$BRANCHNAME" != "master" ]; then
         CURRENT_EPUBS=$HOME/irls-reader-current-epubs/develop
 else
         CURRENT_EPUBS=$HOME/irls-reader-current-epubs/$BRANCHNAME
@@ -194,12 +196,12 @@ do
         if [ $BRANCHNAME == "master" ];
         then
                 time node compileHandlebars.js
-        	time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+                time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt
         else
                 npm install grunt-compile-handlebars
-        	time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
-		time grunt production
+                time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+                time grunt production
         fi
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
@@ -287,7 +289,7 @@ echo "GIT_COMMITTER_EMAIL=$GIT_COMMITTER_EMAIL" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_URL_READER=$GIT_COMMIT_URL_READER" >> $WORKSPACE/myenv
 ### Description
 if [ -z $STARTED_BY ]; then
-	echo \[WARN_MARK\] started by \<b\>3-irls-lib-processor-convert\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
+        echo \[WARN_MARK\] started by \<b\>3-irls-lib-processor-convert\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
 else
-	echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
+        echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
 fi
