@@ -1,28 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Oauth Parser</title>
+    <title>Oauth Parser</title>
 </head>
 <body>
-<h3>Redirecting...</h3>
-<div id="dv"></div>
 	<script type="text/javascript">
-var lg=function(msg){document.getElementById('dv').innerHTML+=msg+'<br/>\n';};
-		var hash = window.location.hash;lg(hash);
-		if ( hash.length > 0){
-			var m = hash.match(/state=([^&]+)(?:&|$)/);
-lg(m.toString());
-			if(m && m[1]){
-				hash = hash.split(m[1]);
-				var parsedObject = JSON.parse(atob(decodeURIComponent(m[1])));
-lg(atob(decodeURIComponent(m[1])));
+		var query = (window.location.search || window.location.hash).substr(1).split('&');
+		for(var i = 0; i<query.length; i++){
+			if(query[i].indexOf('state=')>-1){
+				var parsedObject = JSON.parse(atob(decodeURIComponent(query[i].replace('state=',''))));
 				if (parsedObject && parsedObject.hasOwnProperty('link') && parsedObject.hasOwnProperty('provider')){
-lg(parsedObject.link);
-					window.location.href = parsedObject.link.split('#')[0] + hash[0] + parsedObject.provider + (hash[1] || '');
+					query[i] = 'state=' + parsedObject.provider;
+					window.location.href = parsedObject.link.split('#')[0] + '#' +query.join('&');
+					break; // is it necessary?
 				}
-
 			}
 		}
 	</script>
+
+</script>
 </body>
 </html>
+
