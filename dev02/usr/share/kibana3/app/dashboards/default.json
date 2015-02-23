@@ -53,7 +53,7 @@
           ],
           "type": "text",
           "mode": "markdown",
-          "content": "[ffa (develop)](#/dashboard/file/current-reader-ffa-develop_logs.json)\n\n[ocean (develop)](#/dashboard/file/current-reader-ocean-develop_logs.json)\n\n[test-target (develop)](#/dashboard/file/current-reader-test-target-develop_logs.json)",
+          "content": "[ffa (develop)](#/dashboard/file/current-reader-ffa-develop_logs.json)\n\n[ocean (develop)](#/dashboard/file/current-reader-ocean-develop_logs.json)\n\n[test-target (develop)](#/dashboard/file/current-reader-test-target-develop_logs.json)\n\n[autotest (develop)](#/dashboard/file/current-reader-autotest-develop_logs.json)",
           "style": {},
           "status": "Stable",
           "title": "current environment links"
