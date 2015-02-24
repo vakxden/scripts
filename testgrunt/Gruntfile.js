@@ -22,20 +22,19 @@ grunt.initConfig({
     },
 });
 
-
-var fs=require('fs');
-fs.exists('./build_re',function(exists){
-    if(exists){
-        console.log('yes');
-	// Default task(s).
-	grunt.loadNpmTasks('grunt-git');
-	grunt.registerTask('default', ['gitcheckout']);
-    }else{
-        console.log("no");
-	// Default task(s).
-	grunt.loadNpmTasks('grunt-git');
-	grunt.registerTask('default', ['gitclone', 'gitcheckout']);
-    }
+grunt.registerTask('gitTask', 'Git', function() {   
+    var fs=require('fs');
+    var exists = fs.existsSync('./build_re');
+        grunt.loadNpmTasks('grunt-git');
+        if(exists){
+            console.log('yes');
+            grunt.task.run('gitcheckout');
+        }else{
+            console.log("no");
+            grunt.task.run('gitclone', 'gitcheckout');
+        }
 });
+
+grunt.registerTask('default', ['gitTask']);
 
 };
