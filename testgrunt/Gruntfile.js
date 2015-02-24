@@ -1,4 +1,4 @@
-// this running with next command: "grunt gitTask:./build_re
+// this running with next command: " grunt --reponame=test_for_grunt gitTask:./test_for_grunt"
 
 module.exports = function(grunt) {
 
@@ -6,7 +6,7 @@ grunt.initConfig({
     gitclone: {
         clone: {
             options: {
-                repository: 'git@wpp.isd.dp.ua:irls/build_re.git',
+                repository: 'git@wpp.isd.dp.ua:irls/<%= grunt.option("reponame") %>',
                 branch: 'develop',
                 directory: '<%= grunt.option("directory") %>'
             }
@@ -28,6 +28,8 @@ grunt.registerTask('gitTask', 'Git', function(directory) {
     var exists = fs.existsSync(directory);
     console.log(directory);
     grunt.option('directory', directory);
+    var reponame = grunt.option('reponame');
+    console.log(reponame);
     grunt.loadNpmTasks('grunt-git');
     if(exists){
         console.log('yes');
@@ -42,3 +44,4 @@ grunt.registerTask('gitTask', 'Git', function(directory) {
 grunt.registerTask('default', ['gitTask']);
 
 };
+
