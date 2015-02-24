@@ -100,7 +100,11 @@ function ssh_and_repack {
 	# removing of ipa-file
         rm -f $IPA_FILE_NAME
 	# adding or changing of "currentURL" option from build.info.json config file
-	BUILD_INFO_JSON="www/dist/app/build.info.json"
+	if [ $BRANCHNAME = "feature/delete_unused_modules" ]; then
+		BUILD_INFO_JSON="www/dist/app/Config.json"
+	else
+		BUILD_INFO_JSON="www/dist/app/build.info.json"
+	fi
         if [ $ENVIRONMENT == current ]; then
 		if grep currentURL Payload/$IPA_NAME.app/$BUILD_INFO_JSON; then
 			sed -i '' "/currentURL/d" Payload/$IPA_NAME.app/$BUILD_INFO_JSON
