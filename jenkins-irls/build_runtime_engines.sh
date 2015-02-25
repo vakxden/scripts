@@ -29,12 +29,5 @@ else
         git_checkout
 fi
 
-ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d ~/git/$REPONAME ]; then mkdir -p ~/git/$REPONAME ; fi"
-time rsync -rz --delete -e "ssh" $WORKSPACE/$REPONAME/ jenkins@yuriys-mac-mini.isd.dp.ua:~/git/$REPONAME
-ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d ~/git/$REPONAME ]; then mkdir -p ~/git/$REPONAME ; fi"
-time rsync -rz --delete -e "ssh" $WORKSPACE/$REPONAME/ jenkins@dev02.design.isd.dp.ua:~/git/$REPONAME
-ssh jenkins@irls-autotests.design.isd.dp.ua "if [ ! -d ~/git/$REPONAME ]; then mkdir -p ~/git/$REPONAME ; fi"
-time rsync -rz --delete -e "ssh" $WORKSPACE/$REPONAME/ jenkins@irls-autotests.design.isd.dp.ua:~/git/$REPONAME
-# scp to users-mac-mini
-ssh jenkins@users-Mac-mini.design.isd.dp.ua "if [ ! -d ~/git/$REPONAME ]; then mkdir -p ~/git/$REPONAME ; fi"
-time rsync -rz --delete -e "ssh" $WORKSPACE/$REPONAME/ jenkins@users-Mac-mini.design.isd.dp.ua:~/git/$REPONAME
+cd $WORKSPACE/$REPONAME
+time grunt --reponame=$REPONAME --branchname=$BRANCH
