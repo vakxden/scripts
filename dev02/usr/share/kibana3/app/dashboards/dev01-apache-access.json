@@ -1,5 +1,5 @@
 {
-  "title": "Apache logs",
+  "title": "dev01 apache access logs",
   "services": {
     "query": {
       "list": {

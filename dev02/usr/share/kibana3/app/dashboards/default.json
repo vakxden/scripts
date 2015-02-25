@@ -79,9 +79,20 @@
           "type": "text",
           "loadingEditor": false,
           "mode": "markdown",
-          "content": "[ffa (develop)](#/dashboard/file/stage-reader-ffa-develop_logs.json)",
+          "content": "[ffa (develop)](#/dashboard/file/stage-reader-ffa-develop_logs.json)\n\n[ocean (develop)](#/dashboard/file/stage-reader-ocean-develop_logs.json)",
           "style": {},
           "title": "stage environment links"
+        },
+        {
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "text",
+          "loadingEditor": false,
+          "mode": "markdown",
+          "content": "[dev01 apache access](#/dashboard/file/dev01-apache-access.json)",
+          "style": {},
+          "title": "dev01 apache access logs"
         }
       ],
       "notice": false
