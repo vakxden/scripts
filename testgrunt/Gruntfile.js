@@ -1,4 +1,4 @@
-//run with next command: "time grunt --reponame=test_for_grunt --branchname=develop"
+//run with next command: "time grunt --reponame=build_re --branchname=develop"
 
 module.exports = function(grunt) {
 
@@ -8,7 +8,6 @@ grunt.initConfig({
             options: {
                 repository: 'git@wpp.isd.dp.ua:irls/<%= grunt.option("reponame") %>.git',
                 branch: '<%= grunt.option("branchname") %>',
-                directory: '<%= grunt.option("dirname") %>'
             }
         }
     },
@@ -42,28 +41,63 @@ grunt.initConfig({
             }
         }
     },
+    rsync: {
+        options: {
+            args: ["--verbose"],
+            exclude: [".git*", "node_modules", "Gruntfile.js", "package.json"],
+            recursive: true
+        },
+        irls-autotests: {
+            options: {
+                src: '<%= grunt.option("dirname") %>/',
+                dest: '~/git/<%= grunt.option("reponame") %>/',
+                host: 'jenkins@irls-autotests.design.isd.dp.ua',
+                delete: true
+            }
+        },
+        users-mac-mini: {
+            options: {
+                src: '<%= grunt.option("dirname") %>/',
+                dest: '~/git/<%= grunt.option("reponame") %>/',
+                host: 'jenkins@users-mac-mini.design.isd.dp.ua',
+                delete: true
+            }
+        },
+        yuriys-mac-mini: {
+            options: {
+                src: '<%= grunt.option("dirname") %>/',
+                dest: '~/git/<%= grunt.option("reponame") %>/',
+                host: 'jenkins@yuriys-mac-mini.isd.dp.ua',
+                delete: true
+            }
+        },
+        dev02: {
+            options: {
+                src: '<%= grunt.option("dirname") %>/',
+                dest: '~/git/<%= grunt.option("reponame") %>/',
+                host: 'jenkins@dev02.design.isd.dp.ua',
+                delete: true
+            }
+        }
+    }
 });
 
 
 var branchname = grunt.option('branchname');
-console.log("received branchname is " + branchname);
 var reponame = grunt.option('reponame');
-console.log("received reponame is " + reponame);
-var dirname = './'+reponame;
-console.log("dirname is " + dirname);
+var dirname = __dirname+'/'+reponame;
 
 grunt.registerTask('gitTask', 'Git', function(dirname) {
-    console.log("function dirname is " + dirname);
     var fs=require('fs');
     var exists = fs.existsSync(dirname);
     grunt.loadNpmTasks('grunt-git');
+    grunt.loadNpmTasks('grunt-rsync');
+    grunt.option ('dirname', dirname);
     if(exists){
-        console.log('yes');
         process.chdir(dirname);
-        grunt.task.run('gitreset', 'gitclean', 'gitfetch','gitcheckout');
+        grunt.task.run('gitreset', 'gitclean', 'gitfetch', 'gitcheckout', 'rsync');
     }else{
-        console.log("no");
-        grunt.task.run('gitclone');
+        grunt.task.run('gitclone', 'rsync');
     }
 });
 
