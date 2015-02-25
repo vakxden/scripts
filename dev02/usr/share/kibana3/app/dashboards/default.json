@@ -71,12 +71,23 @@
           "style": {},
           "status": "Stable",
           "title": "useful links"
+        },
+        {
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "text",
+          "loadingEditor": false,
+          "mode": "markdown",
+          "content": "[ffa (develop)](#/dashboard/file/stage-reader-ffa-develop_logs.json)",
+          "style": {},
+          "title": "stage environment links"
         }
       ],
       "notice": false
     }
   ],
-  "editable": false,
+  "editable": true,
   "index": {
     "interval": "none",
     "pattern": "[logstash-]YYYY.MM.DD",
