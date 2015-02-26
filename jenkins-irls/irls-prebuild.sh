@@ -3,6 +3,7 @@
 # /home/git/repositories/irls/targets.git/hooks/post-receive or
 # /home/git/repositories/irls/lib-processor.git/hooks/post-receive or
 # /home/git/repositories/irls/lib-sources.git/hooks/post-receive
+# /home/git/repositories/irls/build_re.git/hooks/post-receive
 # with help of next command:
 # wget -qO- --auth-no-challenge --http-user=dvac --http-password="0f64d6238d107249f79deda4d6a2f9fc" http://wpp.isd.dp.ua/jenkins/job/irls-reader-prebuild/buildWithParameters\?token=Sheedah8\&REPONAME=$REPONAME\&BRANCH=$BRANCH &> /dev/null
 # P.S. Link for post-receive+run of jenkins job: http://blog.avisi.nl/2012/01/13/push-based-builds-using-jenkins-and-git/
@@ -78,14 +79,16 @@ elif [ "$REPONAME" == "targets" ]; then
 	echo \[WARN_MARK\] Started by commit to repo \<b\>$REPONAME\</b\>\<br\> run the \<a href="http://wpp.isd.dp.ua/jenkins/job/irls-reader-build" title="irls-reader-build"\>irls-reader-build\</a\> job
 elif [ "$REPONAME" == "lib-processor" ]; then
 	if [ "$BRANCH" == "master" ] || [ "$BRANCH" == "develop" ] || [ "$BRANCH" == "feature/conversion_result_caching" ]; then
-		curl curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-processor-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
+		curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-processor-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
 	fi
 	echo \[WARN_MARK\] Started by commit to repo \<b\>$REPONAME\</b\>\<br\> run the \<a href="http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-processor-build" title="1-irls-lib-processor-build"\>1-irls-lib-processor-build\</a\> job
 elif [ "$REPONAME" == "lib-sources" ]; then
 	if [ "$BRANCH" == "master" ]; then
-		curl curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-sources-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
+		curl http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-sources-build/buildWithParameters?token=Sheedah8\&BRANCHNAME=$BRANCH
 	fi
 	echo \[WARN_MARK\] Started by commit to repo \<b\>$REPONAME\</b\>\<br\> run the \<a href="http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-sources-build" title="1-irls-lib-sources-build"\>1-irls-lib-sources-build\</a\> job
+elif [ "$REPONAME" == "build_re" ]; then
+		curl http://wpp.isd.dp.ua/jenkins/job/build_runtime_engines/buildWithParameters?token=Sheedah8\&REPONAME=$REPONAME\&BRANCH=$BRANCH
 else
 	echo \[ERROR_REPO\] Wrong reponame!
 	exit 1
