@@ -88,7 +88,8 @@ elif [ "$REPONAME" == "lib-sources" ]; then
 	fi
 	echo \[WARN_MARK\] Started by commit to repo \<b\>$REPONAME\</b\>\<br\> run the \<a href="http://wpp.isd.dp.ua/jenkins/job/1-irls-lib-sources-build" title="1-irls-lib-sources-build"\>1-irls-lib-sources-build\</a\> job
 elif [ "$REPONAME" == "build_re" ]; then
-		curl http://wpp.isd.dp.ua/jenkins/job/build_runtime_engines/buildWithParameters?token=Sheedah8\&REPONAME=$REPONAME\&BRANCH=$BRANCH
+	curl http://wpp.isd.dp.ua/jenkins/job/build_runtime_engines/buildWithParameters?token=Sheedah8\&REPONAME=$REPONAME\&BRANCH=$BRANCH
+	echo \[WARN_MARK\] Started by commit to repo \<b\>$REPONAME\</b\>\<br\> run the \<a href="http://wpp.isd.dp.ua/jenkins/job/build_runtime_engines" title="build_runtime_engines"\>build_runtime_engines\</a\> job
 else
 	echo \[ERROR_REPO\] Wrong reponame!
 	exit 1
