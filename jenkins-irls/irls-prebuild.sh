@@ -49,7 +49,10 @@ if [ "$REPONAME" == "product" ]; then
                                 continue
                         else
 				if [[ $BRANCH == $y ]]; then
-                                        curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=$BRANCH\&STARTED_BY=$JOB_NAME%20$BUILD_NUMBER
+					GIT_COMMIT=$(git log -1  --pretty=format:%H)
+					if ! git show --pretty=format: --name-only $GIT_COMMIT | grep -o '^tests/' && [[ $y == "develop" ]]; then
+                                        	curl http://wpp.isd.dp.ua/jenkins/job/irls-reader-build/buildWithParameters?token=Sheedah8\&TARGET=$i\&BRANCHNAME=$BRANCH\&STARTED_BY=$JOB_NAME%20$BUILD_NUMBER
+					fi
                                 fi
                         fi
                 done
