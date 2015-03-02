@@ -55,7 +55,8 @@ do
         cd $WORKSPACE/$PROCESSOR_COMMIT/src
         ### Processing raw texts
 	if [ $PROCESSOR_BRANCH = "feature/conversion_result_caching" ]; then
-		time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -c $EPUBS_CACHE
+		if [ ! -d $EPUBS_CACHE/$FACET_NAME ]; then mkdir -p $EPUBS_CACHE/$FACET_NAME; fi
+		time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -c $EPUBS_CACHE/$FACET_NAME
         else 
 		time node main.js -s $CURRENT_TEXTS -d $RESULTS/$FACET_NAME -f $FACET_NAME -t $WORKSPACE/tmp
 	fi
