@@ -21,6 +21,7 @@
 #
 # m h  dom mon dow   command
 0 */6 * * * /root/clean_artifactdir.sh
+05 00 * * * /root/kill_unused_couch.sh
 30 04 * * * /root/backup.sh
 30 10 * * * /root/clean_unused_dir.sh
 35 10 * * * /root/unused_branches.sh
