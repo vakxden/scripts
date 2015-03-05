@@ -1,0 +1,19 @@
+{
+        "targets":
+                [
+                        { "target_name": "autotest", "branch": "" },
+                        { "target_name": "chapters", "branch": "" },
+                        { "target_name": "farsiref_ffa", "branch": "" },
+                        { "target_name": "ffa", "branch": "master,develop" },
+                        { "target_name": "ffa-master", "branch": "master" },
+                        { "target_name": "irls-audio", "branch": "audio" },
+                        { "target_name": "irls-audiobywords", "branch": "audio" },
+                        { "target_name": "irls-epubtest", "branch": "" },
+                        { "target_name": "irls-ocean", "branch": "" },
+                        { "target_name": "mediaoverlay_ffa", "branch": "" },
+                        { "target_name": "nbproject", "branch": "" },
+                        { "target_name": "ocean", "branch": "master,develop" },
+                        { "target_name": "ocean-master", "branch": "master" },
+                        { "target_name": "test-target", "branch": "feature/*,hotfix/*" }
+                ]
+}
