@@ -1,4 +1,0 @@
-	ProxyPass /puddle/develop/artifacts http://127.0.0.1:8890/irls-reader-artifacts/1a2d86b3b2414a58c418c_puddle/packages/art/
-	ProxyPassReverse /puddle/develop/artifacts http://127.0.0.1:8890/irls-reader-artifacts/1a2d86b3b2414a58c418c_puddle/packages/art/
-	ProxyPass /puddle/develop/ http://127.0.0.1:3003/
-	ProxyPassReverse /puddle/develop/ http://127.0.0.1:3003/
