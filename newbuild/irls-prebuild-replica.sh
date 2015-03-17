@@ -34,7 +34,7 @@ function check_and_start_job () {
 	        	for branch in ${branches_array[@]}
 	        	do
 	        	        if [[ $BRANCH == $branch ]]; then
-					run_of_job $1 $branch
+					run_of_job $1 $BRANCH
 	        	        fi
 	        	done
 	        fi
