@@ -22,7 +22,7 @@ do
                 MASK="$environment-reader-$target-$BRANCH"
                 PID_OF_NODE=$(ps aux | grep node.*_"$target"_"$BRANCH"_"$environment" | grep -v grep | awk '{print $2}')
                 if [ -z $PID_OF_NODE ]; then continue; fi
-                PORT_OF_NODE=$(netstat -nlpt | grep $PID_OF_NODE | awk '{print $4}' | awk -F ':' '{print $2}')
+                PORT_OF_NODE=$(netstat -nlpt | grep node | grep $PID_OF_NODE | awk '{print $4}' | awk -F ':' '{print $2}')
                 PORT_OF_APACHE=$(grep $PORT_OF_NODE /etc/apache2/sites-enabled/irls-$MASK | awk '{print $3}' | sort | uniq | awk -F ":" '{print $3}' | sed 's@\/@@g')
 
                 if [ $PORT_OF_NODE = $PORT_OF_APACHE ]; then
