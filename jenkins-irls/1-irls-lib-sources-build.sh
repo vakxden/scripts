@@ -5,14 +5,14 @@ CURRENT_TEXTS=$HOME/irls-reader-current-texts
 ### Functions for git command
 function git_clone {
         cd $WORKSPACE
-        git clone git@wpp.isd.dp.ua:irls/$SOURCES_REPONAME
+        git clone git@wpp.isd.dp.ua:irls/$SOURCES_REPONAME.git --branch $BRANCHNAME --single-branch $SOURCES_REPONAME
         }
 
 function git_checkout {
         cd $WORKSPACE/$SOURCES_REPONAME
         git reset --hard
         git clean -fdx
-        git fetch --all
+        #git fetch --all
         git checkout origin/$BRANCHNAME
         GIT_COMMIT=$(git log -1  --pretty=format:%H)
         GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT | sed 's@"@@g')
