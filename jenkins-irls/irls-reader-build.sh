@@ -118,7 +118,7 @@ do
         GIT_COMMIT_OC=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}')
         GIT_COMMIT_MESSAGE_OC=$( grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
         GIT_BRANCHNAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-        GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_AUTHOR | awk -F "=" '{print $2}')
+        GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
         GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
         GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
         GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')

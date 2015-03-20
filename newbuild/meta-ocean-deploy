@@ -1,0 +1,8 @@
+GIT_URL=http://wpp.isd.dp.ua/gitlab/irls/lib-sources.git
+BRANCHNAME=master
+GIT_COMMIT_OC=08bbd134795697a486f9ea407407d99ba0cd6eb3
+GIT_COMMIT_MESSAGE=republic by plato for autotest
+GIT_COMMIT_DATE=2015-02-20 13:48:16 +0200
+GIT_COMMITTER_NAME=Max Kovalchuk
+GIT_COMMITTER_EMAIL=mkov@isd.dp.ua
+GIT_COMMIT_URL_OC=http://wpp.isd.dp.ua/gitlab/irls/lib-sources/commit/08bbd134795697a486f9ea407407d99ba0cd6eb3
