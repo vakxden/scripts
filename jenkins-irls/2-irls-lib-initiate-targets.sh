@@ -5,17 +5,13 @@ STATUS_FILE="/home/jenkins/irls-reader-artifacts/status.json"
 if [ ! -f $STATUS_FILE ]; then
         touch $STATUS_FILE
         echo -e '{
-        "lib-processor" : [
-                {"branchName":"master",
-                "commitID":"f9ce33c1c30f35f01d22a4d3f8ae49f0113a1fd6"
-                },
-                {"branchName":"develop",
-                "commitID":"3102ecd92cd5579dbef6704d68e477dcffe6eff6"
-                }
-        ],
+        "lib-processor" : {
+                "branchName":"develop",
+                "commitID":"8fff0140ad5a49cf5519d5d0ea0aa0109212b36b"
+        },
         "lib-sources" : {
                 "branchName":"master",
-                "commitID":"7e654f91941bb72bafa5c208dc51d3126a7b2511"
+                "commitID":"c126f76c5464db9bdbfac13dbb07f99c159abb13"
         }
 }' >> $STATUS_FILE
 fi
