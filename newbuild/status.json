@@ -1,0 +1,22 @@
+{
+	"libprocessor": [
+		{
+			"branchName": "master",
+			"commitID": "e4c4bcec74b5dd90aaeb34d8d7b6ddb84784d53e"
+		},
+		{
+			"branchName": "develop",
+			"commitID": "3102ecd92cd5579dbef6704d68e477dcffe6eff6"
+		},
+		{
+			"branchName": "feature/conversion_result_caching",
+			"commitID": "b34e62abe823426397890b12441b6c11d20d5c8d"
+		}
+	],
+	"libsources": [
+		{
+			"branchName": "master",
+			"commitID": "c04a22a91161f6514faa5eb2681de7d90c167009"
+		}
+	]
+}
