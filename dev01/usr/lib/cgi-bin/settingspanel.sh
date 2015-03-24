@@ -137,9 +137,9 @@ if [ ! -z "$QUERY_STRING_POST" ]; then
                 echo '<script>window.setTimeout(function(){document.location.href = document.location.href;}, 3000);</script>'
         fi
 fi
-echo '<h3><b>Settings for jenkins irls-rrm-processor-convert:</b></span></h3>'
+echo '<h3><b>Settings for jenkins irls-lib-processor-convert:</b></span></h3>'
 echo '<span>Link to build job: </span>'
-echo '<span id="ConvertJob" class="text-danger"><b><a href="http://wpp.isd.dp.ua/jenkins/job/irls-rrm-processor-convert/">irls-rrm-processor-convert job</a></b></span>'
+echo '<span id="ConvertJob" class="text-danger"><b><a href="http://wpp.isd.dp.ua/jenkins/job/3-irls-lib-processor-convert/">irls-lib-processor-convert job</a></b></span>'
 echo '<br>'
 echo 'Current targets is <b>'$(echo ${CURRENT_TARGETS_ARRAY[@]})'</b>'
 echo '<br>'

@@ -30,9 +30,13 @@ function update_status_file {
 }
 if [ ! -z $PROCESSOR_COMMIT ]; then update_status_file $PROCESSOR_COMMIT $PROCESSOR_REPONAME $PROCESSOR_BRANCH; fi
 if [ ! -z $SOURCES_COMMIT ];then update_status_file $SOURCES_COMMIT $SOURCES_REPONAME $SOURCES_BRANCH;  fi
-
-LAST_PROCESSOR_COMMIT=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A9| grep "branchName.*$PROCESSOR_BRANCH" -A1 | grep commit | awk -F '"|"' '{print $4}')
-LAST_PROCESSOR_BRANCH=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A9 | grep "branchName.*$PROCESSOR_BRANCH" -A1 |grep branch | awk -F '"|"' '{print $4}')
+if [ -z $PROCESSOR_BRANCH ]; then
+	LAST_PROCESSOR_BRANCH=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A3 | grep "branchName.*$PROCESSOR_BRANCH" -A1 |grep branch | awk -F '"|"' '{print $4}')
+	LAST_PROCESSOR_COMMIT=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A3 | grep "branchName.*$PROCESSOR_BRANCH" -A1 | grep commit | awk -F '"|"' '{print $4}')
+else
+	LAST_PROCESSOR_BRANCH=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A9 | grep "branchName.*$PROCESSOR_BRANCH" -A1 |grep branch | awk -F '"|"' '{print $4}')
+	LAST_PROCESSOR_COMMIT=$(grep $PROCESSOR_REPONAME $STATUS_FILE -A9 | grep "branchName.*$PROCESSOR_BRANCH" -A1 | grep commit | awk -F '"|"' '{print $4}')
+fi
 LAST_SOURCES_COMMIT=$(grep $SOURCES_REPONAME $STATUS_FILE -A2 | grep commit | awk -F '"|"' '{print $4}')
 
 if [ "$LAST_PROCESSOR_BRANCH" == "master" ] || [ "$LAST_PROCESSOR_BRANCH" == "develop" ] || [ "$LAST_PROCESSOR_BRANCH" == "feature/conversion_result_caching" ]; then

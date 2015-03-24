@@ -13,7 +13,8 @@ function git_checkout {
         git reset --hard
         git clean -fdx
         #git fetch --all
-        git checkout origin/$BRANCHNAME
+	git fetch origin $BRANCHNAME:refs/remotes/origin/$BRANCHNAME
+        #git checkout origin/$BRANCHNAME
         GIT_COMMIT=$(git log -1  --pretty=format:%H)
         GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT | sed 's@"@@g')
         GIT_COMMIT_DATE=$(git show -s --format=%ci)
