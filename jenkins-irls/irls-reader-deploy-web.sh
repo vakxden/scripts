@@ -98,7 +98,7 @@ do
                 BRAND_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH"
         elif [ $ENVIRONMENT == public ]; then
                 BRAND_URL="https://irls.isd.dp.ua/$i/$BRANCH"
-                BUILD_INFO_JSON="client/dist/app/build.info.json"
+                BUILD_INFO_JSON="client/dist/app/client.config.json"
                 RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
                 # variables for product versioning
                 SPRINT=$(grep version $STAGE_PKG_DIR/packages/package.json | awk -F '"|"' '{print $4}')
