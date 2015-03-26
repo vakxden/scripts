@@ -3,24 +3,24 @@ GIT_URL="http://wpp.isd.dp.ua/gitlab/irls/$SOURCES_REPONAME"
 CURRENT_TEXTS=$HOME/irls-reader-current-texts
 
 ### Functions for git command
-function git_clone {
-        cd $WORKSPACE
-        git clone git@wpp.isd.dp.ua:irls/$SOURCES_REPONAME.git --branch $BRANCHNAME --single-branch $SOURCES_REPONAME
-        }
+#function git_clone {
+#        cd $WORKSPACE
+#        git clone git@wpp.isd.dp.ua:irls/$SOURCES_REPONAME.git --branch $BRANCHNAME --single-branch $SOURCES_REPONAME
+#        }
 
-function git_checkout {
-        cd $WORKSPACE/$SOURCES_REPONAME
-        git reset --hard
-        git clean -fdx
-        #git fetch --all
-	git fetch origin $BRANCHNAME:refs/remotes/origin/$BRANCHNAME
-        #git checkout origin/$BRANCHNAME
-        GIT_COMMIT=$(git log -1  --pretty=format:%H)
-        GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT | sed 's@"@@g')
-        GIT_COMMIT_DATE=$(git show -s --format=%ci)
-        GIT_COMMITTER_NAME=$(git show -s --format=%cn)
-        GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
-        }
+#function git_checkout {
+#        cd $WORKSPACE/$SOURCES_REPONAME
+#        git reset --hard
+#        git clean -fdx
+#        #git fetch --all
+#        git fetch origin $BRANCHNAME:refs/remotes/origin/$BRANCHNAME
+#        git checkout origin/$BRANCHNAME
+#        GIT_COMMIT=$(git log -1  --pretty=format:%H)
+#        GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT | sed 's@"@@g')
+#        GIT_COMMIT_DATE=$(git show -s --format=%ci)
+#        GIT_COMMITTER_NAME=$(git show -s --format=%cn)
+#        GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
+#        }
 
 function sources_dir_clean (){
                 # Numbers of directories in the $CURRENT_TEXTS/
@@ -39,17 +39,23 @@ function sources_dir_clean (){
 
 
 ### Clone or checkout
-if [ ! -d $WORKSPACE/$SOURCES_REPONAME ]; then
-        git_clone
-        git_checkout
-else
-        git_checkout
-fi
+#if [ ! -d $WORKSPACE/$SOURCES_REPONAME ]; then
+#        git_clone
+#        git_checkout
+#else
+#        git_checkout
+#fi
 
 ### Move code to current directory
 cd $WORKSPACE
+GIT_COMMIT=$(git log -1  --pretty=format:%H)
+GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT | sed 's@"@@g')
+GIT_COMMIT_DATE=$(git show -s --format=%ci)
+GIT_COMMITTER_NAME=$(git show -s --format=%cn)
+GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
 if [ ! -d $CURRENT_TEXTS/$GIT_COMMIT ]; then mkdir -p $CURRENT_TEXTS/$GIT_COMMIT; fi
-time rsync -r --delete --exclude ".git" $WORKSPACE/$SOURCES_REPONAME/ $CURRENT_TEXTS/$GIT_COMMIT/
+#time rsync -r --delete --exclude ".git" $WORKSPACE/$SOURCES_REPONAME/ $CURRENT_TEXTS/$GIT_COMMIT/
+time rsync -r --delete --exclude ".git" $WORKSPACE/ $CURRENT_TEXTS/$GIT_COMMIT/
 
 ### Clean of old directories
 sources_dir_clean $CURRENT_TEXTS
