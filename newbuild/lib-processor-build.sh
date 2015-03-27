@@ -1,0 +1,1 @@
+grunt --git_commit=$PROCESSOR_HASHCOMMIT --commit_message="$COMMIT_MESSAGE" --branchname="$PROCESSOR_BRANCHNAME" --commit_author="$COMMIT_AUTHOR" --commit_date="$COMMIT_DATE" --email="$EMAIL" --commit_url="$COMMIT_URL" --meta_json_file=$PROCESSOR_META --current_code_path=$PROCESSOR_CURRENT_CODE_PATH
