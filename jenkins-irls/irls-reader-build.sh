@@ -1,4 +1,3 @@
-#BUILD_DATE=$(date "+%Y-%m-%d %H:%M (GMT %z)")
 BUILD_DATE=$(date "+%Y-%m-%d %H:%M")
 ### Checking of parameters
 if [ -z $BRANCHNAME ]; then
@@ -61,8 +60,6 @@ else
 fi
 CURRENT_REMOTE_BUILD=/Users/jenkins/irls-reader-current-build
 ARTIFACTS_DIR=$HOME/irls-reader-artifacts
-#GIT_COMMIT_RRM_SHORT=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
-#GIT_COMMIT_OC_SHORT=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}' | cut -c1-7)
 cd $WORKSPACE/$READER_REPONAME
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
 GIT_COMMIT_DATE=$(git show -s --format=%ci)
@@ -100,29 +97,12 @@ do
         fi
         ### Determine facet name
         TARGET_NAME=$(echo $i | sed 's@^.[0-9a-z]*_@@g')
-        META_SUM_ALL=$CURRENT_EPUBS/$TARGET_NAME/meta-all
+        META_SUM_ALL=$CURRENT_EPUBS/$TARGET_NAME/meta-current-epubs-$TARGET_NAME.json
+
         ###
         ### Create variables for meta.json
         ###
-        # lib-processor
-        LIB_PROCESSOR_REPO="lib-processor.git"
-        GIT_COMMIT_RRM=$(grep GIT_COMMIT_RRM $META_SUM_ALL | awk -F "=" '{print $2}')
-        GIT_COMMIT_MESSAGE_RRM=$( grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-        GIT_BRANCHNAME_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-        GIT_COMMITTER_NAME_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
-        GIT_COMMIT_DATE_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-        GIT_COMMITTER_EMAIL_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-        GIT_COMMIT_URL_RRM=$(grep $LIB_PROCESSOR_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_RRM | awk -F "=" '{print $2}')
-        # lib-sources
-        LIB_SOURCES_REPO="lib-sources.git"
-        GIT_COMMIT_OC=$(grep GIT_COMMIT_OC $META_SUM_ALL | awk -F "=" '{print $2}')
-        GIT_COMMIT_MESSAGE_OC=$( grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_MESSAGE | awk -F "=" '{print $2}')
-        GIT_BRANCHNAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep BRANCHNAME | awk -F "=" '{print $2}')
-        GIT_COMMITTER_NAME_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_NAME | awk -F "=" '{print $2}')
-        GIT_COMMIT_DATE_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_DATE | awk -F "=" '{print $2}')
-        GIT_COMMITTER_EMAIL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMITTER_EMAIL | awk -F "=" '{print $2}')
-        GIT_COMMIT_URL_OC=$(grep $LIB_SOURCES_REPO $META_SUM_ALL -A7 | grep GIT_COMMIT_URL_OC | awk -F "=" '{print $2}')
-        # product (old reader)
+        # product
         cd $WORKSPACE/$READER_REPONAME
         GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $GIT_COMMIT)
         GIT_COMMIT_DATE=$(git show -s --format=%ci)
@@ -142,25 +122,11 @@ do
                 echo -e "\t\"targetName\":\""$2"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
-                echo -e "\t\"rrm-processor\" : {" >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitID\":\""$GIT_COMMIT_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"branchName\":\""$GIT_BRANCHNAME_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMITTER_NAME_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL_RRM"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_RRM"\"" >> $CURRENT_META_JSON
-                echo -e "\t}," >> $CURRENT_META_JSON
-                echo -e "\t\"rrm-ocean\" : {" >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitID\":\""$GIT_COMMIT_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitMessage\":\""$GIT_COMMIT_MESSAGE_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"branchName\":\""$GIT_BRANCHNAME_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitAuthor\":\""$GIT_COMMITTER_NAME_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitDate\":\""$GIT_COMMIT_DATE_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"email\":\""$GIT_COMMITTER_EMAIL_OC"\"," >> $CURRENT_META_JSON
-                echo -e "\t\t\"commitURL\":\""$GIT_COMMIT_URL_OC"\"" >> $CURRENT_META_JSON
-                echo -e "\t}," >> $CURRENT_META_JSON
-                echo -e "\t\"reader\" : {" >> $CURRENT_META_JSON
+		grep "Processor" -A8 $META_SUM_ALL >> $CURRENT_META_JSON
+		echo "," >> $CURRENT_META_JSON
+		grep "Sources" -A8 $META_SUM_ALL >> $CURRENT_META_JSON
+		echo "," >> $CURRENT_META_JSON
+                echo -e "\t\"Product\" : {" >> $CURRENT_META_JSON
                 echo -e "\t\t\"commitID\":\""$GIT_COMMIT"\"," >> $CURRENT_META_JSON
                 echo -e "\t\t\"commitMessage\":\""$( echo $GIT_COMMIT_MESSAGE | sed 's@"@@g')"\"," >> $CURRENT_META_JSON
                 echo -e "\t\t\"branchName\":\""$BRANCHNAME"\"," >> $CURRENT_META_JSON
@@ -289,7 +255,7 @@ echo "GIT_COMMITTER_EMAIL=$GIT_COMMITTER_EMAIL" >> $WORKSPACE/myenv
 echo "GIT_COMMIT_URL_READER=$GIT_COMMIT_URL_READER" >> $WORKSPACE/myenv
 ### Description
 if [ -z $STARTED_BY ]; then
-        echo \[WARN_MARK\] started by \<b\>3-irls-lib-processor-convert\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
+        echo \[WARN_MARK\] started by \<b\>lib-convert\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
 else
         echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
 fi
