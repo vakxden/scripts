@@ -7,6 +7,8 @@
 BRANCHES_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/branches.json | awk -F'"|"' '{print $2}' | grep -v branches))
 TARGETS_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/targets.json | awk -F'"|"' '{print $2}' | grep -v targets))
 CURRENT_TARGETS_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/irls-reader-build.json | grep currentTargetsConverter | awk -F'"|"' '{print $4}'))
+PROCESSOR_BRANCHNAMES_ARRAY=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/lib-processor-status.json | grep "branchName" | awk -F '"|"' '{print $4}'))
+SOURCES_BRANCHNAMES_ARRAY=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/lib-sources-status.json | grep "branchName" | awk -F '"|"' '{print $4}'))
 
 ###
 ### Functions
@@ -137,28 +139,39 @@ if [ ! -z "$QUERY_STRING_POST" ]; then
                 echo '<script>window.setTimeout(function(){document.location.href = document.location.href;}, 3000);</script>'
         fi
 fi
-echo '<h3><b>Settings for jenkins irls-lib-processor-convert:</b></span></h3>'
-echo '<span>Link to build job: </span>'
-echo '<span id="ConvertJob" class="text-danger"><b><a href="http://wpp.isd.dp.ua/jenkins/job/3-irls-lib-processor-convert/">irls-lib-processor-convert job</a></b></span>'
-echo '<br>'
-echo 'Current targets is <b>'$(echo ${CURRENT_TARGETS_ARRAY[@]})'</b>'
-echo '<br>'
-echo '<br>'
 # form of Convert
+echo '<h3><b>Settings for jenkins lib-convert:</b></span></h3>'
+echo '<span>Link to build job: </span>'
+echo '<span id="ConvertJob" class="text-danger"><b><a href="http://wpp.isd.dp.ua/jenkins/job/lib-build/">lib-build job</a></b></span>'
+echo '<br>'
+echo 'Default target is <b>test-target</b>'
+echo '<br>'
+echo '<br>'
 echo '<form action="'${SCRIPT}'" method=POST>'
-echo '<span>Select branch:</span>'
-echo '<select name="convertbranch">'
-echo '<option value="" disabled="disabled" selected="selected">Please select a branch name</option>'
-for j in master develop feature/conversion_result_caching
+echo '<span>Select <b>lib-processor</b> branch:</span>'
+echo '<select name="processor_branchname">'
+#echo '<option value="" disabled="disabled" selected="selected">Please select a branch name</option>'
+echo '<option value="" disabled="disabled" selected="selected">develop</option>'
+for j in ${PROCESSOR_BRANCHNAMES_ARRAY[@]}
 do
         echo '<option value="'$j'">'$j'</option>'
 done
 echo '</select>'
 echo '<br>'
-echo '<span>Select target:</span>'
+echo '<span>Select <b>lib-sources</b> branch:</span>'
+echo '<select name="sources_branchname">'
+#echo '<option value="" disabled="disabled" selected="selected">Please select a branch name</option>'
+echo '<option value="" disabled="disabled" selected="selected">master</option>'
+for k in ${SOURCES_BRANCHNAMES_ARRAY[@]}
+do
+        echo '<option value="'$k'">'$k'</option>'
+done
+echo '</select>'
+echo '<br>'
+echo '<span>Select target (one only):</span>'
 for z in ${TARGETS_ARRAY[@]}
 do
-        echo '<input type="checkbox" name="converttarget" value="'$z'"/>'$z'</label>'
+        echo '<input type="radio" name="converttarget" value="'$z'" checked="test-target"/>'$z'</label>'
 done
 echo '<br><input type="submit" value="Convert"></form>'
 echo '<hr align="left" width="400" size="3" color="#0000dd" />'
@@ -166,16 +179,20 @@ echo '<hr align="left" width="400" size="3" color="#0000dd" />'
 cgi_getvars BOTH ALL
 # Processing of parameters, run of "irls-rrm-processor-convert" job
 if [ ! -z "$QUERY_STRING_POST" ]; then
-        declare -a CONVERT_TARGET
-        CONVERT_TARGET=($(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])converttarget=[0-9a-z_-]++" |  cut -f 2 -d "="))
-        CONVERT_BRANCH=($(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])convertbranch=[0-9a-z_-]++" |  cut -f 2 -d "="))
-        if [ ! -z $CONVERT_TARGET ]; then
-                curl http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet/buildWithParameters?token=neLei5ie\&CHANGE_TARGET=$(echo ${CONVERT_TARGET[@]} | sed 's@ @%20@g')\&CONVERT_BRANCH=$CONVERT_BRANCH
-                curl http://wpp.isd.dp.ua/jenkins/job/switch-converter-facet/buildWithParameters?token=neLei5ie\&RUN_OF_JOB=run_of_job\&CONVERT_BRANCH=$CONVERT_BRANCH
+        TARGET=$(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])converttarget=[0-9a-z_-]++" |  cut -f 2 -d "=")
+        PROCESSOR_BRANCHNAME=($(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])processor_branchname=[0-9a-z_-]++" |  cut -f 2 -d "="))
+        SOURCES_BRANCHNAME=($(echo $QUERY_STRING_POST |  grep -oE "(^|[?&])sources_branchname=[0-9a-z_-]++" |  cut -f 2 -d "="))
+        STARTED_BY="Settings Panel"
+        if [ ! -z $TARGET ]; then
+                curl -d SOURCES_BRANCHNAME="$SOURCES_BRANCHNAME" \
+                -d PROCESSOR_BRANCHNAME="$PROCESSOR_BRANCHNAME" \
+                -d TARGET="$TARGET" \
+                -d STARTED_BY="$STARTED_BY" \
+                http://wpp.isd.dp.ua/jenkins/job/lib-build/buildWithParameters\?token=Sheedah8
                 echo '<p>'
                 echo 'Processing of convert parameters:'
                 echo '<br>'
-                echo '"irls-rrm-processor-convert" job running with next parameters: TARGET is <b>'$(echo ${CONVERT_TARGET[@]})'</b>'
+                echo '"lib-convert" job will running with next parameters: target is <b>'$TARGET'</b>,<br>processor branchname is <b>'$PROCESSOR_BRANCHNAME'</b>,<br> sources branchname is <b>'$SOURCES_BRANCHNAME'</b>'
                 echo '<hr align="left" width="400" size="3" color="#0000dd" />'
                 echo '</p>'
                 echo '<script>window.setTimeout(function(){document.location.href = document.location.href;}, 3000);</script>'
