@@ -16,6 +16,7 @@ echo SHELL=$BASH
 echo SHELL_VERSION=$BASH_VERSION
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 CONFIGURATION_BUILD_DIR=$WORKSPACE/build
+#CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
 CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
 MOBILEPROVISION=$HOME/mobileprovision_profile/ios_distribution_2015_02_03_profile.mobileprovision
 TARGET=($(echo $TARGET))
@@ -49,9 +50,9 @@ function main_loop {
         {
 		BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
 		IPA_NAME=$BRANCH-$BRAND\_Reader-$i
-		if [ ! -d $WORKSPACE/packager/build ]; then mkdir -p $WORKSPACE/packager/build; fi
-		cp -Rf ~/git/build_re/phonegap-plugins $WORKSPACE/packager/build
-                cd $WORKSPACE/packager
+		if [ ! -d $WORKSPACE/build/build ]; then mkdir -p $WORKSPACE/build/build; fi
+		cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build
+                cd $WORKSPACE/build
 		if [ $BRANCHNAME == "master" ];
                 then
                 	time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
@@ -61,7 +62,7 @@ function main_loop {
                 #unlock keychain
                 security unlock-keychain -p jenk123ins /Users/jenkins/Library/Keychains/login.keychain
                 #build with xcodebuild
-                time /usr/bin/xcodebuild -sdk iphoneos8.1 -target $IPA_NAME -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/packager/out/dest/platforms/ios/$IPA_NAME.xcodeproj/ -arch armv7 CODE_SIGN_RESOURCE_RULES_PATH="$SDKROOT/ResourceRules.plist" > /dev/null
+                time /usr/bin/xcodebuild -sdk iphoneos8.1 -target $IPA_NAME -configuration Release clean build CONFIGURATION_BUILD_DIR=$CONFIGURATION_BUILD_DIR CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" -project $WORKSPACE/build/out/dest/platforms/ios/$IPA_NAME.xcodeproj/ -arch armv7 CODE_SIGN_RESOURCE_RULES_PATH="$SDKROOT/ResourceRules.plist" > /dev/null
                 #create ipa-file
                 time /usr/bin/xcrun -sdk iphoneos8.1 PackageApplication -v "$WORKSPACE/build/$IPA_NAME.app" -o $WORKSPACE/$IPA_NAME.ipa --embed $MOBILEPROVISION --sign "$CODE_SIGN_IDENTITY"
                 rm -f $WORKSPACE/$IPA_NAME*debug.ipa
