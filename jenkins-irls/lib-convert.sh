@@ -88,14 +88,14 @@ FACET_NAME=$(grep facet $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET/targetConfig.j
 ### Sync current "target named"-epubs to mac-mini ("yuriys-mac-mini" and "users-mac-mini"), if target config contain platform "ios"
 if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET/targetConfig.json; then
         ssh jenkins@yuriys-mac-mini.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET; fi"
-        time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET/
+        time rsync -rz --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET/ jenkins@yuriys-mac-mini.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET/
         ssh jenkins@users-mac-mini.design.isd.dp.ua "if [ ! -d /Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET ]; then mkdir -p /Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET; fi"
-        time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET/
+        time rsync -rz --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET/
 fi
 ### Sync current "target named"-epubs to dev02.design.isd.dp.ua
 if grep "platforms.*android" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET/targetConfig.json; then
         ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d $CURRENT_EPUBS/$TARGET ]; then mkdir -p $CURRENT_EPUBS/$TARGET; fi"
-        time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET/ jenkins@dev02.design.isd.dp.ua:$CURRENT_EPUBS/$TARGET/
+        time rsync -rz --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET/ jenkins@dev02.design.isd.dp.ua:$CURRENT_EPUBS/$TARGET/
 fi
 ### For Summary+Display+Plugin
 if [ ! -d /var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive ]; then mkdir -p /var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive; fi
