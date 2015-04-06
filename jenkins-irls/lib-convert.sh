@@ -93,9 +93,7 @@ if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET/targetConfig.
         time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET/ jenkins@users-mac-mini.design.isd.dp.ua:/Users/jenkins/irls-reader-current-epubs/$PROCESSOR_BRANCHNAME/$TARGET/
 fi
 ### Sync current "target named"-epubs to dev02.design.isd.dp.ua
-if [ "$FACET_NAME" = "ocean" ]; then
-        printf "epubs for facet named 'ocean', target is $TARGET, will not be copying to dev02.design.isd.dp.ua \n"
-else
+if grep "platforms.*android" $WORKSPACE/$TARGETS_REPO_DIR_NAME/$TARGET/targetConfig.json; then
         ssh jenkins@dev02.design.isd.dp.ua "if [ ! -d $CURRENT_EPUBS/$TARGET ]; then mkdir -p $CURRENT_EPUBS/$TARGET; fi"
         time rsync -rzv --delete --exclude "_oldjson" -e "ssh" $CURRENT_EPUBS/$TARGET/ jenkins@dev02.design.isd.dp.ua:$CURRENT_EPUBS/$TARGET/
 fi
