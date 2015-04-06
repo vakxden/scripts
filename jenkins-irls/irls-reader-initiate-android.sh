@@ -12,7 +12,11 @@ export ANDROID_HOME=/opt/android-sdk-linux
 export PATH=$PATH:$NODE_HOME/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin
 BRANCH=$(echo $BRANCHNAME | sed 's/\//-/g' | sed 's/_/-/g')
 ARTIFACTS_DIR=/home/jenkins/irls-reader-artifacts
-CURRENT_EPUBS=$HOME/irls-reader-current-epubs
+if [ ! -d $HOME/irls-reader-current-epubs/$BRANCHNAME ]; then
+	CURRENT_EPUBS=$HOME/irls-reader-current-epubs/develop
+else
+	CURRENT_EPUBS=$HOME/irls-reader-current-epubs/$BRANCHNAME
+fi
 TARGET=($(echo $TARGET))
 
 ### Create associative array
