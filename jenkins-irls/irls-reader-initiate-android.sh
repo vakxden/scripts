@@ -39,33 +39,34 @@ done
 
 
 ###
-### Body (working with all facets exclude "ocean")
+### Body of script
 ###
 
 ### Main loop
 function main_loop {
         notmainloop ()
         {
-        if [ $(echo "$i" | egrep "ocean$") ]; then
-                getAbort()
-                {
-                        printf "we do not create the apk-file for facet named 'ocean'\n"
-                }
-                getAbort
-                trap 'getAbort; exit' SIGTERM
-        else
-                # Create apk-file
-                cd $WORKSPACE/packager
-                time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		if [ ! -d $WORKSPACE/build/build ]; then mkdir -p $WORKSPACE/build/build; fi
+                if [ "$BRANCHNAME" == "feature/cordova" ]; then
+                        cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build
+                else
+                        cp -Rf ~/build_re/develop/phonegap-plugins $WORKSPACE/build/build
+                fi
+                cd $WORKSPACE/build
+                if [ $BRANCHNAME == "master" ];
+                then
+                	time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+                else
+                	time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+                fi
                 rm -f out/dest/platforms/android/ant-build/*unaligned.apk
-                mv $WORKSPACE/packager/out/dest/platforms/android/ant-build/*.apk $WORKSPACE/$BRANCH-$i.apk
+                mv $WORKSPACE/build/out/dest/platforms/android/ant-build/*.apk $WORKSPACE/$BRANCH-$i.apk
                 ssh jenkins@dev01.isd.dp.ua "
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts
                 fi
                 "
                 time scp $WORKSPACE/$BRANCH-$i.apk  jenkins@dev01.isd.dp.ua:$ARTIFACTS_DIR/${combineArray[$i]}/packages/artifacts/ && rm -f $WORKSPACE/$BRANCH-$i.apk
-        fi
         }
 
         for i in "${!combineArray[@]}"
@@ -73,7 +74,7 @@ function main_loop {
                 rm -rf $WORKSPACE/*
                 GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
 		if [ ! -d $CURRENT_BUILD/$GIT_COMMIT_TARGET ]; then
-			echo "[ERROR_INITIATE] Directory not found! Maybe for this target ($i) disabled option platform:android."
+			echo "[ERROR_INITIATE] Directory  $CURRENT_BUILD/$GIT_COMMIT_TARGET not found! Maybe for this target ($i) disabled option platform:android ?"
 			exit 1
 		else
 			cp -Rf $CURRENT_BUILD/$GIT_COMMIT_TARGET/* $WORKSPACE/
