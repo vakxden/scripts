@@ -1,4 +1,4 @@
-# This script executes on the remote host named Yuriys-mac-mini.isd.dp.ua
+# This script executes on the remote host named dev02.design.isd.dp.ua
 
 ###
 ### Checking variables that were passed to the current script
@@ -83,7 +83,11 @@ function repack {
         # $1 - it's $CURRENT_ARTIFACTS_DIR or $STAGE_ARTIFACTS_DIR
         # $2 - it's $CURRENT_ARTIFACTS_DIR or $STAGE_ARTIFACTS_DIR or $PUBLIC_ARTIFACTS_DIR
         # checking the existence of a remote directory for the artifacts
-        if [ ! -d $2 ]; then mkdir -p $2; fi
+	if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
+        	if [ ! -d $2 ]; then mkdir -p $2; fi
+	elif [ $ENVIRONMENT == public ]; then
+		$SSH_COMMAND "if [ ! -d $2 ]; then mkdir -p $2; fi"
+	fi
         # creating temporary directory
         if [ ! -d $TEMPORARY_APK_REPACKING_DIR ]; then mkdir -p $TEMPORARY_APK_REPACKING_DIR; else rm -rf $TEMPORARY_APK_REPACKING_DIR/*; fi
         cd $TEMPORARY_APK_REPACKING_DIR
