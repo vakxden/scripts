@@ -124,7 +124,7 @@ do
                 start_node $CURRENT_PKG_DIR/packages $INDEX_FILE
         elif [ $ENVIRONMENT == stage ]; then
                 if [ ! -d $STAGE_PKG_DIR ]; then mkdir -p $STAGE_PKG_DIR; fi
-                time rsync -r --delete --exclude "*.ipa" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
+                time rsync -r --delete --exclude "*.ipa" --exclude "*.apk" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
                 # generate index.html and local.json
                 generate_files  $STAGE_PKG_DIR/packages
                  # init users database
@@ -146,7 +146,7 @@ do
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
                         # create of status-deploy file
                         if [ ! -e $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt ]; then touch $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt; fi"
-                time rsync -rz --delete --exclude "*.ipa" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/packages/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
+                time rsync -rz --delete --exclude "*.ipa" --exclude "*.apk" --exclude "_oldjson" -e "ssh" $STAGE_PKG_DIR/packages/ dvac@devzone.dp.ua:$RSYNC_FACETS_DIR/
                 ssh dvac@devzone.dp.ua "
                         # values
                         INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
