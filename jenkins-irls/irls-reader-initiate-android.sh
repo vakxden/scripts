@@ -57,13 +57,8 @@ function main_loop {
         notmainloop ()
         {
                 if [ ! -d $WORKSPACE/build/build ]; then mkdir -p $WORKSPACE/build/build; fi
-                if [ "$BRANCHNAME" == "feature/cordova" ]; then
-                        cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build/
-                        cp -Rf ~/build_re/$BRANCHNAME/android $WORKSPACE/build/build/
-                else
-                        cp -Rf ~/build_re/develop/phonegap-plugins $WORKSPACE/build/build/
-						
-                fi
+                cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build/
+                cp -Rf ~/build_re/$BRANCHNAME/android $WORKSPACE/build/build/
                 cd $WORKSPACE/build
                 if [ $BRANCHNAME == "master" ];
                 then
