@@ -51,7 +51,11 @@ function main_loop {
                 BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
                 IPA_NAME=$BRANCH-$BRAND\_Reader-$i
                 if [ ! -d $WORKSPACE/build/build ]; then mkdir -p $WORKSPACE/build/build; fi
-                cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build
+		if [ -d ~/build_re/$BRANCHNAME ]; then
+                	cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build
+		else
+			cp -Rf ~/build_re/develop/phonegap-plugins $WORKSPACE/build/build
+		fi
                 cd $WORKSPACE/build
                 if [ $BRANCHNAME == "master" ];
                 then
