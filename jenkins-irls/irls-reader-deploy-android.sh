@@ -30,7 +30,8 @@ BUILD_ID=donotkillme
 CURRENT_ART_PATH=/home/jenkins/irls-reader-artifacts
 STAGE_ART_PATH=/home/jenkins/irls-reader-artifacts-stage
 TARGET=($(echo $TARGET))
-TARGETS_REPONAME="targets"
+TARGETS_REPO="targets"
+URL_TARGETS_JSON="http://wpp.isd.dp.ua/irls-reader-artifacts"
 
 ### Create associative array
 deploymentPackageId=($(echo $ID))
@@ -53,30 +54,6 @@ done
 ###
 ### Functions
 ###
-
-### Functions for git command
-function git_clone {
-        cd $WORKSPACE
-        git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
-        }
-
-function git_checkout {
-        cd $WORKSPACE/$REPONAME
-        git reset --hard
-        git clean -fdx
-        git fetch --all
-        git checkout origin/master
-        }
-
-function git_clone_or_checkout {
-        # clone targets-repo and running node with target option
-        if [ ! -d $WORKSPACE/$1 ]; then
-                git_clone
-                git_checkout
-        else
-                git_checkout
-        fi
-        }
 
 ### Functions for body of script
 function repack {
@@ -158,7 +135,6 @@ function create_configs {
         # $1 - it's $CURRENT_PKG_DIR or $STAGE_PKG_DIR
         sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
         if [ ! -d $CURRENT_PKG_DIR/server/config ]; then mkdir -p $1/server/config; fi
-        #cp ~/local.json $1/server/config/
         }
 
 ###
@@ -169,11 +145,8 @@ do
         echo starting of main loop...
         ### Output value for a pair "key-value"
         printf '%s\n' "key: $i -- value: ${combineArray[$i]}"
-        ### Clone or checkout of targets-repo
-        REPONAME="$TARGETS_REPONAME"
-        git_clone_or_checkout $REPONAME
         ### Determine of brand
-        BRAND=$(grep brand $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+	BRAND=$(curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | sed 's/^\(.*\)brand"//g' | awk -F '"|"' '{print $2}')
         ### Temporary local variables
         # terms for different environments
         if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
@@ -196,8 +169,7 @@ do
 		APK_FILE_NAME="$APK_NAME.apk"
         TEMPORARY_APK_REPACKING_DIR="$HOME/tmp_repacking_apk-$i"
         ### Checking contain platform
-        if grep "platforms.*android" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
-
+	if curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | grep "platforms.*android"; then
                 ### Repacking of apk-file and creating local.json for node-server side, apache-proxying config and starting of node-server side
                 if [ $ENVIRONMENT == current ]; then
                         repack $CURRENT_ARTIFACTS_DIR $CURRENT_ARTIFACTS_DIR

@@ -33,7 +33,8 @@ TARGET=($(echo $TARGET))
 HOME=/Users/jenkins
 CODE_SIGN_IDENTITY="iPhone Distribution: Yuriy Ponomarchuk (UC7ZS26U3J)"
 MOBILEPROVISION=$HOME/mobileprovision_profile/ios_distribution_2015_02_03_profile.mobileprovision
-TARGETS_REPONAME="targets"
+TARGETS_REPO="targets"
+URL_TARGETS_JSON="http://wpp.isd.dp.ua/irls-reader-artifacts"
 
 ### Create associative array
 deploymentPackageId=($(echo $ID))
@@ -57,30 +58,6 @@ done
 ###
 ### Functions
 ###
-
-### Functions for git command
-function git_clone {
-        cd $WORKSPACE
-        git clone git@wpp.isd.dp.ua:irls/$REPONAME.git
-        }
-
-function git_checkout {
-        cd $WORKSPACE/$REPONAME
-        git reset --hard
-        git clean -fdx
-        git fetch --all
-        git checkout origin/master
-        }
-
-function git_clone_or_checkout {
-        # clone targets-repo and running node with target option
-        if [ ! -d $WORKSPACE/$1 ]; then
-                git_clone
-                git_checkout
-        else
-                git_checkout
-        fi
-        }
 
 ### Functions for body of script
 function ssh_and_repack {
@@ -161,11 +138,8 @@ do
         echo starting of main loop...
         ### Output value for a pair "key-value"
         printf '%s\n' "key: $i -- value: ${combineArray[$i]}"
-        ### Clone or checkout of targets-repo
-        REPONAME="$TARGETS_REPONAME"
-        git_clone_or_checkout $REPONAME
         ### Determine of brand
-        BRAND=$(grep brand $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+	BRAND=$(curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | sed 's/^\(.*\)brand"//g' | awk -F '"|"' '{print $2}')
         ### Temporary local variables
         # terms for different environments
         if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
@@ -188,8 +162,7 @@ do
         IPA_FILE_NAME="$IPA_NAME.ipa"
         TEMPORARY_IPA_REPACKING_DIR="$HOME/tmp_repacking_ipa-$i"
         ### Checking contain platform
-        if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
-
+	if curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | grep "platforms.*ios"; then
                 ### Repacking of ipa-file and creating local.json for node-server side, apache-proxying config and starting of node-server side
                 if [ $ENVIRONMENT == current ]; then
                         ssh_and_repack $CURRENT_ARTIFACTS_DIR $CURRENT_ARTIFACTS_DIR

@@ -12,7 +12,7 @@ TARGET=($(echo $TARGET))
 
 ### Variables of repositories
 READER_REPONAME="product"
-TARGETS_REPONAME="targets"
+TARGETS_REPONAME="$HOME/targets/master"
 
 ### Functions for git command
 function git_clone {
@@ -67,21 +67,10 @@ GIT_COMMITTER_NAME=$(git show -s --format=%cn)
 GIT_COMMITTER_EMAIL=$(git show -s --format=%ce)
 GIT_COMMIT_SHORT=$(git log -1  --pretty=format:%h)
 
-
-### Clone targets-repo and running node with target option
-REPONAME="$TARGETS_REPONAME"
-if [ ! -d $WORKSPACE/$REPONAME ]; then
-        git_clone
-        git_checkout
-else
-        git_checkout
-fi
-
 ### Generate deploymentPackageId array
 deploymentPackageId=()
 for i in "${TARGET[@]}"
 do
-        #deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT$GIT_COMMIT_RRM_SHORT$GIT_COMMIT_OC_SHORT"_"$i")")
         deploymentPackageId=("${deploymentPackageId[@]}" "$(echo "$GIT_COMMIT_SHORT"_"$i")")
 done
 
@@ -162,18 +151,18 @@ do
         if [ $BRANCHNAME == "master" ];
         then
                 time node compileHandlebars.js
-                time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+                time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt
         else
                 npm install grunt-compile-handlebars
-                time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+                time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt production
         fi
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
         time rsync -r --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
         time rsync -r --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
-        time rsync -r --delete --exclude ".git" $WORKSPACE/$TARGETS_REPONAME/ $CB_DIR/targets/
+        time rsync -r --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
 
         ### Copy meta.json to application directory
         for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
@@ -198,7 +187,7 @@ do
         # remove archive from failed builds
         rm -f $WORKSPACE/current_build-*.tar.gz
         # rsync GIT_COMMIT_TARGET directory to other hosts
-        if grep "platforms.*ios" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
+        if grep "platforms.*ios" $TARGETS_REPONAME/$i/targetConfig.json; then
                 ssh jenkins@yuriys-mac-mini.isd.dp.ua "
                         if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
                 "
@@ -206,7 +195,7 @@ do
                 ### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
                 typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
         fi
-        if grep "platforms.*android" $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json; then
+        if grep "platforms.*android" $TARGETS_REPONAME/$i/targetConfig.json; then
                 ssh jenkins@dev02.design.isd.dp.ua "
                         if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
                 "
