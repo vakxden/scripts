@@ -153,15 +153,10 @@ do
                 time node compileHandlebars.js
                 time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt
-        elif [ $BRANCHNAME == "feature/handlebars" ];
-        then
-                npm cache clear
-                npm install grunt-compile-handlebars
-                time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
-                time grunt production
+
         else
                 npm cache clear
-                npm install grunt-compile-handlebars@1.0.1
+                npm install grunt-compile-handlebars
                 time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt production
         fi
@@ -255,3 +250,4 @@ if [ -z $STARTED_BY ]; then
 else
         echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
 fi
+
