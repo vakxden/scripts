@@ -8,7 +8,9 @@ export https_proxy="http://10.98.192.120:3128"
 export HTTP_PROXY="http://10.98.192.120:3128"
 export http_proxy="http://10.98.192.120:3128"
 export NODE_HOME=/opt/node
-export CORDOVA_ARM=/home/jenkins/crosswalk_environment/crosswalk-cordova-11.40.277.7-arm
+export CROSSWALK=/home/jenkins/crosswalk_environment/crosswalk-12.41.296.9
+export CORDOVA_ARM=/home/jenkins/crosswalk_environment/crosswalk-cordova-12.41.296.9-arm
+export CORDOVA_X86=/home/jenkins/crosswalk_environment/crosswalk-cordova-12.41.296.9-x86
 export PATH=/home/jenkins/crosswalk_environment/ant/bin:/home/jenkins/crosswalk_environment/jdk1.7.0_76/bin:$NODE_HOME/bin:$PATH
 export JAVA_HOME=/home/jenkins/crosswalk_environment/jdk1.7.0_76
 export PATH=/home/jenkins/crosswalk_environment/android-sdk-linux:$PATH
@@ -52,6 +54,11 @@ done
 function main_loop {
         notmainloop ()
         {
+		### Determine of brand
+		BRAND=$(grep brand $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json | awk -F '"|"' '{print $4}')
+		### Determine of apk name
+		APK_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
+		APK_FILE_NAME="$APK_NAME.apk"
                 if [ ! -d $WORKSPACE/build/build ]; then mkdir -p $WORKSPACE/build/build; fi
 		### Determine of build runtime engines path
 		if [ -d ~/build_re/$BRANCHNAME ]; then
@@ -66,15 +73,10 @@ function main_loop {
                 then
                         time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
                 else
-			$CORDOVA_ARM/bin/create $i org.crosswalkproject.$(echo $i | sed 's/-/_/g') $BRANCH
-                        time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=/home/jenkins/crosswalk_environment/crosswalk-11.40.277.7
+			$CORDOVA_ARM/bin/create $i org.crosswalkproject.$(echo $i | sed 's/-/_/g') $APK_NAME
+                        time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
 			$WORKSPACE/build/$i/cordova/build
                 fi
-		### Determine of brand
-		BRAND=$(grep brand $WORKSPACE/$TARGETS_REPONAME/$i/targetConfig.json | awk -F '"|"' '{print $4}')
-		### Determine of apk name
-		APK_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
-		APK_FILE_NAME="$APK_NAME.apk"
 		### Copying builded apk to workspace
                 cp $WORKSPACE/build/$i/out/*.apk $WORKSPACE/$APK_FILE_NAME
                 ssh jenkins@dev01.isd.dp.ua "

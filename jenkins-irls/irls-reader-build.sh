@@ -111,10 +111,10 @@ do
                 echo -e "\t\"targetName\":\""$2"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"buildURL\":\""$BUILD_URL"\"," >> $CURRENT_META_JSON
                 echo -e "\t\"commitDate\":\""$GIT_COMMIT_DATE"\"," >> $CURRENT_META_JSON
-		grep "Processor" -A8 $META_SUM_ALL >> $CURRENT_META_JSON
-		echo "," >> $CURRENT_META_JSON
-		grep "Sources" -A8 $META_SUM_ALL >> $CURRENT_META_JSON
-		echo "," >> $CURRENT_META_JSON
+                grep "Processor" -A8 $META_SUM_ALL >> $CURRENT_META_JSON
+                echo "," >> $CURRENT_META_JSON
+                grep "Sources" -A8 $META_SUM_ALL >> $CURRENT_META_JSON
+                echo "," >> $CURRENT_META_JSON
                 echo -e "\t\"Product\" : {" >> $CURRENT_META_JSON
                 echo -e "\t\t\"commitID\":\""$GIT_COMMIT"\"," >> $CURRENT_META_JSON
                 echo -e "\t\t\"commitMessage\":\""$( echo $GIT_COMMIT_MESSAGE | sed 's@"@@g')"\"," >> $CURRENT_META_JSON
@@ -153,8 +153,15 @@ do
                 time node compileHandlebars.js
                 time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt
-        else
+        elif [ $BRANCHNAME == "feature/handlebars" ];
+        then
+                npm cache clear
                 npm install grunt-compile-handlebars
+                time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+                time grunt production
+        else
+                npm cache clear
+                npm install grunt-compile-handlebars@1.0.1
                 time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt production
         fi
