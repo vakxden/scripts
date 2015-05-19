@@ -45,4 +45,5 @@ if [ $BRANCH = develop ]; then
 fi
 
 # email notify
-cat $TMP_FILE | git-commit-notifier /usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.6/config/git-notifier-config
+cat $TMP_FILE | git-commit-notifier /usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.10/config/git-notifier-config.yml
+

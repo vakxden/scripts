@@ -1,17 +1,29 @@
 #!/bin/bash
-TMP_FILE=temptemptemp
+
+export GEM_PATH=/usr/local/lib/ruby/gems/2.1.0
+
+REPONAME=product
+LOG_FILE="post-receive.log"
+DATE=$(date)
+
+echo "date is $DATE" >> $LOG_FILE
+echo "user id is: " >> $LOG_FILE
+id  >> $LOG_FILE 2>&1
+TMP_FILE="$REPONAME.raw"
 cat /dev/null > $TMP_FILE
 cat - > $TMP_FILE
 
-REPONAME=product
 NEWREW=$(cat $TMP_FILE | awk '{print $2}')
 BRANCH=$(cat $TMP_FILE | awk '{print $3}' | sed 's/refs\/heads\///g')
 
 # run of job
+A=$(git show --pretty=format: --name-only $NEWREV | grep -o '^tests/');
+if [ -z $A ]; then
         curl -s -d REPONAME="$REPONAME" \
         -d BRANCH="$BRANCH" \
         http://wpp.isd.dp.ua/jenkins/job/irls-prebuild/buildWithParameters\?token=Sheedah8
-if [ "$BRANCH" == "develop" ]; then
+fi
+if [ "$BRANCH" == "feature/angular140" ]; then
         curl -s -d BRANCHNAME="$BRANCH" \
         http://wpp.isd.dp.ua/jenkins/job/build-for-test-environment/buildWithParameters\?token=Sheedah8
 fi
@@ -21,8 +33,6 @@ if ! [ "$BRANCH" == "develop" ]; then
         NUM=$(grep lastReaderBranchCommit $JSON -n | awk -F ":" '{print $1}')
         sed -i "$NUM""s#\"lastReaderBranchCommit.*#\"lastReaderBranchCommit\": \""$BRANCH"\",#g" $JSON
 fi
-
-git_commit_notifier_config="/usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.6/config/git-notifier-config"
 
 FILE=/home/jenkins/irls-reader-artifacts/branches.json
 
@@ -51,7 +61,11 @@ if [ `git rev-parse --abbrev-ref develop` = "develop" ]; then
         git push github develop
 fi
 
+echo "temp file contain is" >> $LOG_FILE
+cat $TMP_FILE >> $LOG_FILE
+echo "gem env is:" >> $LOG_FILE
+gem env >> $LOG_FILE
+echo "send email?" >> $LOG_FILE
+cat $TMP_FILE | /usr/local/bin/git-commit-notifier /usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.10/config/git-notifier-config.yml >> $LOG_FILE 2>&1
+echo "==========================" >> $LOG_FILE
 
-cat $TMP_FILE | git-commit-notifier $git_commit_notifier_config
-
-#if git show --pretty=format: --name-only $NEWREV | grep -o '^tests/'; then echo "commit $NEWREV contains changes in the 'tests' directory" >> $TMP_FILE; fi
