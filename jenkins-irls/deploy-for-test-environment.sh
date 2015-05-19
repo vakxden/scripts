@@ -42,8 +42,10 @@ function generate_files {
         # $1 = $PKG_DIR ( or STAGE_PKG_DIR from STAGE-env )
         cd $1
         sudo $HOME/scripts/portgenerator-for-deploy.sh $BRANCH $i ${combineArray[$i]}
-        rm -f $1/server/config/local.json
-        cp -f local.json $1/server/config/
+        #rm -f $1/server/config/local.json
+        rm -f $1/config/local.json
+        #cp -f local.json $1/server/config/
+        cp -f local.json $1/config/
         ls -lah
         echo PWD=$PWD
 }
@@ -95,7 +97,7 @@ do
         INDEX_FILE='index_'$i'_'$BRANCH'.js'
         # output value for a pair "key-value"
         echo $i --- ${combineArray[$i]}
-        # generate index.html and local.json
+        # generate index.html and file local.config.json ( old name - "local.json")
         generate_files $PKG_DIR
         # init users database
         cd $PKG_DIR

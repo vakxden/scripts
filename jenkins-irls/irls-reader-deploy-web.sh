@@ -108,7 +108,7 @@ do
         fi
 
         if [ $ENVIRONMENT == current ]; then
-                # generate index.html and local.json
+                # generate index.html and file local.config.json ( old name - "local.json")
                 generate_files  $CURRENT_PKG_DIR/packages
                 # init users database
                 cd $CURRENT_PKG_DIR/packages
@@ -125,7 +125,7 @@ do
         elif [ $ENVIRONMENT == stage ]; then
                 if [ ! -d $STAGE_PKG_DIR ]; then mkdir -p $STAGE_PKG_DIR; fi
                 time rsync -r --delete --exclude "*.ipa" --exclude "*.apk" --exclude "_oldjson" $CURRENT_PKG_DIR/ $STAGE_PKG_DIR/
-                # generate index.html and local.json
+                # generate index.html and file local.config.json ( old name - "local.json")
                 generate_files  $STAGE_PKG_DIR/packages
                  # init users database
                 cd $STAGE_PKG_DIR/packages
@@ -154,6 +154,7 @@ do
                         cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
                         # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art; fi
+			# generate index.html and file local.config.json ( old name - local.json)
                         /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
                         # init users database
                         cd $REMOTE_ART_PATH/${combineArray[$i]}

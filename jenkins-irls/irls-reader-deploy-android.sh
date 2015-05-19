@@ -134,7 +134,8 @@ function start_node {
 function create_configs {
         # $1 - it's $CURRENT_PKG_DIR or $STAGE_PKG_DIR
         sudo /home/jenkins/scripts/portgenerator-for-deploy.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
-        if [ ! -d $CURRENT_PKG_DIR/server/config ]; then mkdir -p $1/server/config; fi
+        #if [ ! -d $CURRENT_PKG_DIR/server/config ]; then mkdir -p $1/server/config; fi
+        if [ ! -d $CURRENT_PKG_DIR/config ]; then mkdir -p $1/config; fi
         }
 
 ###
@@ -170,7 +171,7 @@ do
         TEMPORARY_APK_REPACKING_DIR="$HOME/tmp_repacking_apk-$i"
         ### Checking contain platform
 	if curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | grep "platforms.*android"; then
-                ### Repacking of apk-file and creating local.json for node-server side, apache-proxying config and starting of node-server side
+                ### Repacking of apk-file and creating file local.config.json ( old name - "local.json") for node-server side, apache-proxying config and starting of node-server side
                 if [ $ENVIRONMENT == current ]; then
                         repack $CURRENT_ARTIFACTS_DIR $CURRENT_ARTIFACTS_DIR
                         create_configs $CURRENT_PKG_DIR
@@ -184,7 +185,8 @@ do
                         ssh dvac@devzone.dp.ua "
                                 if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
                                 # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
-								if [ ! -d  $PUBLIC_ARTIFACTS_DIR ]; then mkdir -p $PUBLIC_ARTIFACTS_DIR; fi
+				if [ ! -d  $PUBLIC_ARTIFACTS_DIR ]; then mkdir -p $PUBLIC_ARTIFACTS_DIR; fi
+				# creating file local.config.json ( old name - local.json)
                                 /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}"
                         ssh_and_start_node $REMOTE_ART_PATH/${combineArray[$i]}
                 fi

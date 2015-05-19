@@ -1,4 +1,4 @@
-i#!/bin/bash -x
+#!/bin/bash -x
 name=$(basename $0)
 lockfile=/var/tmp/$name
 while [ -f $lockfile ]
@@ -63,25 +63,29 @@ done
                 done
 
                 function generate_localjson {
-                        ### Create file local.json
-                        if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/server/config; fi
+                        ### Create file local.config.json ( old name - "local.json")
+                        #LOCAL_CONFIG_JSON_FILE="local.json"
+                        LOCAL_CONFIG_JSON_FILE="local.config.json"
+                        #if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/server/config; fi
+                        #if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/config; fi
                         chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID
-                        cd /home/jenkins/$ARTDIR/$ID/packages/server/config/
-                        cat /dev/null > local.json
-                        echo '{' >> local.json
+                        #cd /home/jenkins/$ARTDIR/$ID/packages/server/config/
+                        cd /home/jenkins/$ARTDIR/$ID/packages/config/
+                        cat /dev/null > $LOCAL_CONFIG_JSON_FILE
+                        echo '{' >> $LOCAL_CONFIG_JSON_FILE
                         if [ "$1" = "current" ]; then
-                                echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> local.json
+                                echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
                         elif [ "$1" = "stage" ]; then
-                                echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> local.json
+                                echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
                         fi
                         if [ "$1" = "public" ]; then
-                                echo -e '\t"smtpConfig": {\n\t\t"host": "localhost",\n\t\t"port": 25,\n\t\t"ignoreTLS": false,\n\t\t"tls": {"rejectUnauthorized": false},\n\t\t"requiresAuth": false},' >> local.json
+                                echo -e '\t"smtpConfig": {\n\t\t"host": "localhost",\n\t\t"port": 25,\n\t\t"ignoreTLS": false,\n\t\t"tls": {"rejectUnauthorized": false},\n\t\t"requiresAuth": false},' >> $LOCAL_CONFIG_JSON_FILE
                         fi
-                        echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
-                        echo -e '\t"database_name": "'$FACETS'",' >> local.json
-                        echo -e '\t"environment_name": "'$CURRENT'-'$BRANCHNAME'"' >> local.json
-                        echo '}'  >> local.json
-                        chown jenkins:jenkins local.json
+                        echo -e '\t"listenPort"':$GENERATED_PORT, >> $LOCAL_CONFIG_JSON_FILE
+                        echo -e '\t"database_name": "'$FACETS'",' >> $LOCAL_CONFIG_JSON_FILE
+                        echo -e '\t"environment_name": "'$CURRENT'-'$BRANCHNAME'"' >> $LOCAL_CONFIG_JSON_FILE
+                        echo '}'  >> $LOCAL_CONFIG_JSON_FILE
+                        chown jenkins:jenkins $LOCAL_CONFIG_JSON_FILE
                 }
 
                 function generate_indexhtml {
@@ -180,3 +184,4 @@ done
                         dest_eq_stage
                 fi
                 rm -f $lockfile
+

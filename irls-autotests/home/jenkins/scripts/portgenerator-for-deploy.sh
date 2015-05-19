@@ -38,7 +38,7 @@ ARRAY_CUP=($(netstat -nlpt | awk '{print $4}' | egrep "^0|^127" | awk -F ":" '{p
 CONCAT_ARRAY=(${ARRAY_RSP[@]} ${ARRAY_CUP[@]})
 
 function generate_port {
-        echo $(shuf -i 3000-3999 -n 1)
+        echo $(shuf -i 3129-3999 -n 1)
 }
 
 array_contains () {
@@ -63,14 +63,16 @@ do
 done
 
 function generate_localjson {
-        ### Create file local.json
-        cat /dev/null > local.json
-        echo '{' >> local.json
-        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> local.json
-        echo -e '\t"listenPort"':$GENERATED_PORT, >> local.json
-        echo -e '\t"database_name": "'$FACETS'",' >> local.json
-        echo -e '\t"environment_name": "'$CURRENT'"' >> local.json
-        echo '}'  >> local.json
+        ### Create file local.config.json ( old name - "local.json")
+        #LOCAL_CONFIG_JSON_FILE="local.json"
+        LOCAL_CONFIG_JSON_FILE="local.config.json"
+        cat /dev/null > $LOCAL_CONFIG_JSON_FILE
+        echo '{' >> $LOCAL_CONFIG_JSON_FILE
+        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+        echo -e '\t"listenPort"':$GENERATED_PORT, >> $LOCAL_CONFIG_JSON_FILE
+        echo -e '\t"database_name": "'$FACETS'",' >> $LOCAL_CONFIG_JSON_FILE
+        echo -e '\t"environment_name": "'$CURRENT'"' >> $LOCAL_CONFIG_JSON_FILE
+        echo '}'  >> $LOCAL_CONFIG_JSON_FILE
         }
 
 
