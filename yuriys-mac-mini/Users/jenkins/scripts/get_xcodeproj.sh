@@ -38,14 +38,14 @@ node index.js --target=$TARGETNAME --targetPath=/Users/jenkins/git/targets --rea
 #grunt productionCompile
 grunt production
 cp -Rf /Users/jenkins/git/product/client/out/dist/* /Users/jenkins/git/product/client/
-if [ ! -d /Users/jenkins/git/product/packager/build ]; then mkdir -p /Users/jenkins/git/product/packager/build; fi
-cp -Rf ~/git/build_re/phonegap-plugins /Users/jenkins/git/product/packager/build/
-cd /Users/jenkins/git/product/packager
+if [ ! -d /Users/jenkins/git/product/build/build ]; then mkdir -p /Users/jenkins/git/product/build/build; fi
+cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins /Users/jenkins/git/product/build/build/
+cd /Users/jenkins/git/product/build
 echo "{}" > /Users/jenkins/git/product/client/meta.json
 node index.js --platform=ios --config=/Users/jenkins/git/targets --from=/Users/jenkins/git/product/client --prefix=$BRANCH- --epubs=/Users/jenkins/irls-reader-current-epubs
 
 echo ""
 echo "Good news, username!"
 echo "The xcode-project will be located at the following path: "
-echo /Users/jenkins/git/product/packager/out/dest/platforms/ios/$BRANCH-$BRAND\_Reader-$TARGETNAME.xcodeproj
+echo /Users/jenkins/git/product/build/out/dest/platforms/ios/$BRANCH-$BRAND\_Reader-$TARGETNAME.xcodeproj
 echo ""
