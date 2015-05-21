@@ -77,10 +77,14 @@ function main_loop {
                         time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
                 else
                         $CORDOVA_ARM/bin/create $i org.crosswalkproject.$(echo $i | sed 's/-/_/g') --enable-remote-debugging $APK_NAME
-			cd $i
-			plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser.git
-                	cd $WORKSPACE/build
                         time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
+                        cd $i
+                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-device.git#r0.2.9
+                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-globalization.git#r0.2.7
+                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser.git#r0.4.0
+                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-file.git#r1.1.0
+                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-file-transfer.git#r0.4.3
+                        cd $WORKSPACE/build
                         $WORKSPACE/build/$i/cordova/build
                 fi
                 ### Copying builded apk to workspace

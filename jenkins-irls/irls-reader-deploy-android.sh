@@ -77,7 +77,7 @@ function repack {
         # removing of apk-file
         rm -f $APK_FILE_NAME
         # adding or changing of "currentURL" option from build.info.json config file
-        BUILD_INFO_JSON="www/dist/app/client.config.json"
+        BUILD_INFO_JSON="www/dist/app/build.config.json"
         if [ $ENVIRONMENT == current ]; then
             if grep currentURL assets/$BUILD_INFO_JSON; then
                     sed -i "/currentURL/d" assets/$BUILD_INFO_JSON
