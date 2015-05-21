@@ -23,7 +23,7 @@ if [ -z $A ]; then
         -d BRANCH="$BRANCH" \
         http://wpp.isd.dp.ua/jenkins/job/irls-prebuild/buildWithParameters\?token=Sheedah8
 fi
-if [ "$BRANCH" == "feature/angular140" ]; then
+if [ "$BRANCH" == "develop" ]; then
         curl -s -d BRANCHNAME="$BRANCH" \
         http://wpp.isd.dp.ua/jenkins/job/build-for-test-environment/buildWithParameters\?token=Sheedah8
 fi

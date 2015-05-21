@@ -188,6 +188,30 @@ do
 				if [ ! -d  $PUBLIC_ARTIFACTS_DIR ]; then mkdir -p $PUBLIC_ARTIFACTS_DIR; fi
 				# creating file local.config.json ( old name - local.json)
                                 /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}"
+
+			BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
+			SPRINT=$(grep version $STAGE_PKG_DIR/package.json | awk -F '"|"' '{print $4}')
+			BUILD_INFO_JSON="client/dist/app/client.config.json"
+			BUILD_NUMBER=$(grep buildnumber $STAGE_PKG_DIR/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}')
+			BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
+
+			ssh dvac@devzone.dp.ua "	
+				# determine versioning values
+				cd $REMOTE_ART_PATH/${combineArray[$i]}
+				# number of version line
+				NUMBER_OF_VERSION_LINE=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep version | awk -F '-' '{print \$1}')
+				echo NUMBER_OF_VERSION_LINE=\$NUMBER_OF_VERSION_LINE
+				# replace version for $i target
+				if [ $i == ffa ] || [ $i == ocean ] || [ $i == irls-ocean ] || [ $i == irls-epubtest ]; then
+					eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER-dev'\'\\\",#g\\\" $BUILD_VERSION_JSON
+				else
+					eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER'\'\\\",#g\\\" $BUILD_VERSION_JSON
+				fi
+				## number of build date time
+				NUMBER_OF_BUILD_DATE_TIME=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep buildDateTime | awk -F '-' '{print \$1}')
+				echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME
+				## replace build date time for $i target
+				eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\"#g\\\" $BUILD_VERSION_JSON"
                         ssh_and_start_node $REMOTE_ART_PATH/${combineArray[$i]}
                 fi
                 ### Updating environment.json file

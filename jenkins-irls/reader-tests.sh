@@ -32,7 +32,7 @@ export PATH=$PATH:$NODE_HOME/bin
 ENV_CONFIG="$WORKSPACE/$READER_REPONAME/tests/data/environmentConfig.json"
 cat $ENV_CONFIG
 cat /dev/null > $ENV_CONFIG
-echo -e '{\n"url":"http://irls-autotests.design.isd.dp.ua/irls/test/reader/test-target/develop/"\n}' >> $ENV_CONFIG
+echo -e '{\n"url":"http://irls-autotests.design.isd.dp.ua/irls/test/reader/autotest/develop/"\n}' >> $ENV_CONFIG
 cat $ENV_CONFIG
 ### Running tests
 cd $WORKSPACE/$READER_REPONAME/tests/spec
@@ -43,3 +43,12 @@ cd $WORKSPACE/$READER_REPONAME/tests/spec
 ### Old command from running of tests
 # jasmine-node reader-spec.js --junitreport --verbose
 grunt
+### Archiving test results and screenshots
+ssh jenkins@dev01.isd.dp.ua "if [ ! -d /var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive ]; then mkdir -p /var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive/{reports,screenshots}; fi"
+scp $WORKSPACE/product/tests/reports/*.xml jenkins@dev01.isd.dp.ua:/var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive/reports/
+if [ "$(ls -A $WORKSPACE/product/tests/screenshots)" ]; then
+    echo "Directory $WORKSPACE/product/tests/screenshots is not empty"
+	scp $WORKSPACE/product/tests/screenshots/*.png jenkins@dev01.isd.dp.ua:/var/lib/jenkins/jobs/$JOB_NAME/builds/$BUILD_ID/archive/screenshots/
+else
+    echo "directory $WORKSPACE/product/tests/screenshots is empty"
+fi
