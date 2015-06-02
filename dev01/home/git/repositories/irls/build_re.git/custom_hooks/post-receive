@@ -1,0 +1,16 @@
+#!/bin/bash
+
+REPONAME=build_re
+TMP_FILE=$REPONAME.raw
+cat /dev/null > $TMP_FILE
+cat - > $TMP_FILE
+
+BRANCH=$(cat $TMP_FILE | awk '{print $3}' | sed 's/refs\/heads\///g')
+
+# run of job
+curl -s -d REPONAME="$REPONAME" \
+-d BRANCH="$BRANCH" \
+http://wpp.isd.dp.ua/jenkins/job/irls-prebuild/buildWithParameters\?token=Sheedah8
+
+# email notify
+cat $TMP_FILE | /usr/local/bin/git-commit-notifier /usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.10/config/git-notifier-config.yml

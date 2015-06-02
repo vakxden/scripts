@@ -1,0 +1,47 @@
+#!/bin/bash
+
+REPONAME=lib-sources
+TMP_FILE=$REPONAME.raw
+cat /dev/null > $TMP_FILE
+cat - > $TMP_FILE
+
+### don't remember chmod 664 $STATUS_FILE and chown jenkins:git $STATUS_FILE
+STATUS_FILE=/home/jenkins/irls-reader-artifacts/$REPONAME-status.json
+
+# create status of repo json file
+cat /dev/null > $STATUS_FILE
+echo '{' >> $STATUS_FILE
+echo -e '\t"sourcesBranch": [' >> $STATUS_FILE
+counter=1
+a=$(git branch -a | sed 's/\*//g' | wc -l)
+for i in $(git branch -a | sed 's/\*//g'); do
+        HASHCOMMIT=$(git log -1 "$i" --pretty=format:%H)
+        if [ "$counter" -eq "$a" ]
+        then
+                echo -e '\t\t{ "branchName":"'$i'", "hashCommit":"'$HASHCOMMIT'" }' >> $STATUS_FILE
+                ((counter++))
+        else
+                echo -e '\t\t{ "branchName":"'$i'", "hashCommit":"'$HASHCOMMIT'" },' >> $STATUS_FILE
+                ((counter++))
+        fi
+done
+echo -e '\t]' >> $STATUS_FILE
+echo '}'  >> $STATUS_FILE
+
+# determine variables for running jenkins job (for meta json creating)
+BRANCH=$(cat $TMP_FILE | awk '{print $3}' | sed 's/refs\/heads\///g')
+GIT_COMMIT=$(git show $BRANCH -s --format=%H)
+STARTED_BY="commit to $REPONAME repo"
+
+# run of job
+if [ $BRANCH = master ]; then
+        #curl http://wpp.isd.dp.ua/jenkins/job/irls-prebuild/buildWithParameters\?token=Sheedah8\&REPONAME=$REPONAME\&BRANCH=$BRANCH &> /dev/null
+        curl -d SOURCES_BRANCHNAME="$BRANCH" \
+        -d SOURCES_HASHCOMMIT=$GIT_COMMIT \
+        -d SOURCES_REPONAME="$REPONAME" \
+        -d STARTED_BY="$STARTED_BY" \
+        http://wpp.isd.dp.ua/jenkins/job/lib-build/buildWithParameters\?token=Sheedah8
+fi
+
+# email notify
+cat $TMP_FILE | /usr/local/bin/git-commit-notifier /usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.10/config/git-notifier-config.yml
