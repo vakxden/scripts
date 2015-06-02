@@ -76,6 +76,7 @@ function main_loop {
                 then
                         time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
                 else
+                        cp -Rf $WORKSPACE/build/build/android/*.java $CORDOVA_ARM/bin/templates/project
                         $CORDOVA_ARM/bin/create $i org.crosswalkproject.$(echo $i | sed 's/-/_/g') --enable-remote-debugging $APK_NAME
                         time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
                         cd $i
@@ -84,6 +85,7 @@ function main_loop {
                         plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser.git#r0.4.0
                         plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-file.git#r1.1.0
                         plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-file-transfer.git#r0.4.3
+                        plugman install --platform android --project . --plugin https://github.com/EddyVerbruggen/LaunchMyApp-PhoneGap-Plugin.git --variable URL_SCHEME=$(echo $i | sed 's/-/_/g')
                         cd $WORKSPACE/build
                         $WORKSPACE/build/$i/cordova/build
                 fi

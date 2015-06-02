@@ -39,12 +39,12 @@ if [ ! -d $WORKSPACE/$REPONAME ]; then
         git_checkout
         GIT_COMMIT=$(git log -1  --pretty=format:%H)
         # if commit was to tests directory then this job is exit
-        if git show --pretty="format:" --name-only $GIT_COMMIT | grep -o "^tests/"; then echo "[ERROR_COMMIT] This commit contains changes relating to the tests directory!" && exit 1; fi
+        #if git show --pretty="format:" --name-only $GIT_COMMIT | grep -o "^tests/"; then echo "[ERROR_COMMIT] This commit contains changes relating to the tests directory!" && exit 1; fi
 else
         git_checkout
         GIT_COMMIT=$(git log -1  --pretty=format:%H)
         # if commit was to tests directory then this job is exit
-        if git show --pretty="format:" --name-only $GIT_COMMIT | grep -o "^tests/"; then echo "[ERROR_COMMIT] This commit contains changes relating to the tests directory!" && exit 1; fi
+        #if git show --pretty="format:" --name-only $GIT_COMMIT | grep -o "^tests/"; then echo "[ERROR_COMMIT] This commit contains changes relating to the tests directory!" && exit 1; fi
 fi
 
 ###
@@ -159,6 +159,9 @@ do
                 npm install grunt-compile-handlebars
                 time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt production
+                cd $WORKSPACE/$READER_REPONAME/server
+                time grunt 
+                cd $WORKSPACE/$READER_REPONAME/client
         fi
         rm -rf $CB_DIR
         mkdir -p $CB_DIR/client $CB_DIR/targets
@@ -250,4 +253,3 @@ if [ -z $STARTED_BY ]; then
 else
         echo \[WARN_MARK\] started by \<b\>$STARTED_BY\</b\>\<br\> branch is \<b\>$BRANCHNAME\</b\>\<br\> target is \<b\>$(for i in ${TARGET[@]}; do printf "$i "; done)\</b\>
 fi
-

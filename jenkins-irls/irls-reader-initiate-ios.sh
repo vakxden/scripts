@@ -51,16 +51,17 @@ function main_loop {
                 BRAND=$(grep brand $WORKSPACE/targets/$i/targetConfig.json | awk -F '"|"' '{print $4}')
                 IPA_NAME=$BRANCH-$BRAND\_Reader-$i
                 if [ ! -d $WORKSPACE/build/build ]; then mkdir -p $WORKSPACE/build/build; fi
-		if [ -d ~/build_re/$BRANCHNAME ]; then
-                	cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build
-		else
-			cp -Rf ~/build_re/develop/phonegap-plugins $WORKSPACE/build/build
-		fi
+                if [ -d ~/build_re/$BRANCHNAME ]; then
+                        cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build
+                else
+                        cp -Rf ~/build_re/develop/phonegap-plugins $WORKSPACE/build/build
+                fi
                 cd $WORKSPACE/build
                 if [ $BRANCHNAME == "master" ];
                 then
                         time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
                 else
+                        cordova -v
                         time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 fi
                 #unlock keychain
