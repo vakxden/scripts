@@ -82,12 +82,16 @@ function main_loop {
                         $CORDOVA_ARM/bin/create $i org.crosswalkproject.$(echo $i | sed 's/-/_/g') --enable-remote-debugging $APK_NAME
                         time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
                         cd $i
-                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-device.git#r0.2.9
-                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-globalization.git#r0.2.7
-                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser.git#r0.4.0
-                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-file.git#r1.1.0
-                        plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-file-transfer.git#r0.4.3
-                        plugman install --platform android --project . --plugin https://github.com/EddyVerbruggen/LaunchMyApp-PhoneGap-Plugin.git --variable URL_SCHEME=$(echo $i | sed 's/-/_/g')
+                        #plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-device.git#r0.2.9
+			plugman install --platform android --project . --plugin $WORKSPACE/build/build/phonegap-plugins/cordova-plugin-device
+                        #plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-globalization.git#r0.2.7
+			plugman install --platform android --project . --plugin $WORKSPACE/build/build/phonegap-plugins/cordova-plugin-globalization
+                        #plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser.git#r0.4.0
+			plugman install --platform android --project . --plugin $WORKSPACE/build/build/phonegap-plugins/cordova-plugin-inappbrowser
+                        #plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-file.git#r1.1.0
+			plugman install --platform android --project . --plugin $WORKSPACE/build/build/phonegap-plugins/cordova-plugin-file
+                        #plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-file-transfer.git#r0.4.3
+                        #plugman install --platform android --project . --plugin https://github.com/EddyVerbruggen/LaunchMyApp-PhoneGap-Plugin.git --variable URL_SCHEME=$(echo $i | sed 's/-/_/g')
                         cd $WORKSPACE/build
                         $WORKSPACE/build/$i/cordova/build
                 fi
