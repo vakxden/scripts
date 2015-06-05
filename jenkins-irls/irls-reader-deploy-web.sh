@@ -74,10 +74,10 @@ function start_node {
         if [ ! -z "$PID" ];then
                 kill -9 $PID
                 if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
-                nohup node server/$2 >> nohup.out 2>&1 &
+                nohup node server/$2 > nohup.out 2>&1 &
         else
                 if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
-                nohup node server/$2 >> nohup.out 2>&1 &
+                nohup node server/$2 > nohup.out 2>&1 &
         fi
 }
 
@@ -188,10 +188,10 @@ do
                         then
                                 kill -9 \$PID
                                 if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
-                                nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
+                                nohup ~/node/bin/node server/\$INDEX_FILE > nohup.out 2>&1 &
                         else
-                                nohup ~/node/bin/node server/\$INDEX_FILE >> nohup.out 2>&1 &
                                 if [ -f nohup.out ]; then cat /dev/null > nohup.out; fi
+                                nohup ~/node/bin/node server/\$INDEX_FILE > nohup.out 2>&1 &
                         fi
                         sleep 3
                         rm -f $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt"
