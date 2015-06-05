@@ -113,9 +113,9 @@ function ssh_and_start_node {
                 PID=\$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
                 if [ ! -z \$PID ];then
                         kill -9 \$PID
-                        nohup node server/$INDEX_FILE > /dev/null 2>&1 &
+                        nohup node server/$INDEX_FILE > nohup.out 2>&1 &
                 else
-                        nohup node server/$INDEX_FILE > /dev/null 2>&1 &
+                        nohup node server/$INDEX_FILE > nohup.out 2>&1 &
                 fi"
         }
 function start_node {
@@ -125,9 +125,9 @@ function start_node {
                 PID=$(ps aux | grep node.*server/$INDEX_FILE | grep -v grep | /usr/bin/awk '{print $2}')
                 if [ ! -z $PID ];then
                         kill -9 $PID
-                        nohup node server/$INDEX_FILE > /dev/null 2>&1 &
+                        nohup node server/$INDEX_FILE > nohup.out 2>&1 &
                 else
-                        nohup node server/$INDEX_FILE > /dev/null 2>&1 &
+                        nohup node server/$INDEX_FILE > nohup.out 2>&1 &
                 fi
         }
 
