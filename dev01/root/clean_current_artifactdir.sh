@@ -3,7 +3,9 @@
 # Current artifacts directory
 CURRENT_ART_DIR="/home/jenkins/irls-reader-artifacts"
 BRANCHES_JSON="/home/jenkins/irls-reader-artifacts/branches.json"
-SIZE=20
+SIZE=15
+
+if du -hs $CURRENT_ART_DIR/ | grep M ; then exit 0; fi
 
 while (($(du -hs $CURRENT_ART_DIR/ | awk '{print $1}' | sed 's/G//g' | sed 's/\.[0-9]//g') > $SIZE))
 do
@@ -14,9 +16,9 @@ do
         #
         ### remove unused apache config files
         #
-        # list of names of running node-processes from not-develop branches (branches like as 'feature*' or 'hotfix*' or 'test*')
+        # list of names of running node-processes from not-develop (not-master and not-audio) branches (branches like as 'feature*' or 'hotfix*' or 'test*')
         declare -a LIST
-        LIST=($(ps aux | grep node | egrep -v "_stage|NIGHT|grep node|develop|master|audio|main.js|init.js" | awk '{print $12}' | sed -e 's@server\/index_[a-z_-]*_feature-@feature\/@g' -e 's@\_current.js@@g' | sort | uniq))
+        LIST=($(ps aux | grep node | egrep -v "_stage|NIGHT|grep node|develop_current.js|master_current.js|audio_current.js|main.js|init.js" | awk '{print $12}' | sed -e 's@server\/index_[a-z_-]*_feature-@feature\/@g' -e 's@\_current.js@@g' | sort | uniq))
         # kill node with unused branches and remove apache proxy- files and artifacts directories
         LENGTH_OF_LIST=${#LIST[@]}
         for (( i=0; i<${LENGTH_OF_LIST}; i++ ));
@@ -56,7 +58,7 @@ do
                 COUNT_LINES_TMP_FILE="$(cat $TMP_FILE | wc -l)"
                 # fill tmp-file
                 if [ "$COUNT_LINES_TMP_FILE" = "0" ]; then
-                        echo "ls -oAtrL $CURRENT_ART_DIR | grep  "^d" | grep -v json"  >> $TMP_FILE
+                        echo "ls -oAtrL $CURRENT_ART_DIR | grep  "^d" | grep -v json |"  >> $TMP_FILE
                 else
                         for excluded_art_dir in ${EXCLUDED_ART_DIR[@]}
                         do
