@@ -146,14 +146,28 @@ do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-        cd $WORKSPACE/$READER_REPONAME/client
+	if [ $BRANCHNAME == "feature/refactoring" ];
+	then
+		cd $WORKSPACE/$READER_REPONAME/build
+	else
+        	cd $WORKSPACE/$READER_REPONAME/client
+	fi
         ### Build client and server parts
         if [ $BRANCHNAME == "master" ];
         then
                 time node compileHandlebars.js
                 time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt
-
+	elif [ $BRANCHNAME == "feature/refactoring" ];
+	then
+                npm cache clear
+                npm install grunt-compile-handlebars
+                time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+                time grunt production
+                cd $WORKSPACE/$READER_REPONAME/server
+                time grunt 
+                cd $WORKSPACE/$READER_REPONAME/build
+		
         else
                 npm cache clear
                 npm install grunt-compile-handlebars
@@ -164,10 +178,18 @@ do
                 cd $WORKSPACE/$READER_REPONAME/client
         fi
         rm -rf $CB_DIR
-        mkdir -p $CB_DIR/client $CB_DIR/targets
-        time rsync -r --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
-        time rsync -r --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
-        time rsync -r --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
+	if [ $BRANCHNAME == "feature/refactoring" ];
+	then
+		mkdir -p $CB_DIR/build $CB_DIR/targets
+		time rsync -r --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+		time rsync -r --delete $WORKSPACE/$READER_REPONAME/build/out/dist/ $CB_DIR/build/
+		time rsync -r --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
+	else
+		mkdir -p $CB_DIR/client $CB_DIR/targets
+		time rsync -r --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+		time rsync -r --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
+		time rsync -r --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
+	fi
 
         ### Copy meta.json to application directory
         for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
