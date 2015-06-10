@@ -6,26 +6,30 @@ REPONAME=product
 LOG_FILE="post-receive.log"
 DATE=$(date)
 
-echo "date is $DATE" >> $LOG_FILE
+echo "### date is $DATE" >> $LOG_FILE
 TMP_FILE="$REPONAME.raw"
 cat /dev/null > $TMP_FILE
 cat - > $TMP_FILE
 
-NEWREW=$(cat $TMP_FILE | awk '{print $2}')
+NEWREV=$(cat $TMP_FILE | awk '{print $2}')
 BRANCH=$(cat $TMP_FILE | awk '{print $3}' | sed 's/refs\/heads\///g')
 
+echo "### NEWREV (new revision) is: $NEWREV" >> $LOG_FILE
+
 # run of job
-echo "check for commit containing test:" >> $LOG_FILE
-A=$(git show --pretty=format: --name-only $NEWREV | grep -o '^tests/');  #>> $LOG_FILE 2>&1
-#A=$(git diff-tree --no-commit-id --name-only -r $NEWREV | grep -o '^tests/') >> $LOG_FILE 2>&1
-echo "A=$A"  >> $LOG_FILE
-if [ -z $A ]; then
-        echo "A is empty (No argument supplied). Starting CURL" >> $LOG_FILE
+CURRENT_PATH=$(pwd)
+echo "### current path is: $CURRENT_PATH" >> $LOG_FILE
+echo "### git show command result is: git show --pretty=format: --name-only $NEWREV" >> $LOG_FILE
+git show --pretty=format: --name-only $NEWREV >> $LOG_FILE 2>&1
+echo "### determine A" >> $LOG_FILE
+cd /home/git/repositories/irls/$REPONAME.git && A=($(git show --pretty=format: --name-only $NEWREV | grep -o '^tests/')) >> $LOG_FILE 2>&1
+if [ -z ${A[@]} ]; then
+        echo "### A is empty (No argument supplied). Running irls-prebuild job" >> $LOG_FILE
         curl -s -d REPONAME="$REPONAME" \
         -d BRANCH="$BRANCH" \
         http://wpp.isd.dp.ua/jenkins/job/irls-prebuild/buildWithParameters\?token=Sheedah8
 else
-        echo "A is not empty. A=$A" >> $LOG_FILE
+        echo "### A is not empty. Not running job. A=${A[@]}" >> $LOG_FILE
 fi
 if [ "$BRANCH" == "develop" ]; then
         curl -s -d BRANCHNAME="$BRANCH" \
@@ -65,8 +69,8 @@ if [ `git rev-parse --abbrev-ref develop` = "develop" ]; then
         git push github develop
 fi
 
-echo "temp file contain is" >> $LOG_FILE
+echo "### temp file contain is:" >> $LOG_FILE
 cat $TMP_FILE >> $LOG_FILE
-echo "send email?" >> $LOG_FILE
+echo "### send email (maybe)" >> $LOG_FILE
 cat $TMP_FILE | /usr/local/bin/git-commit-notifier /usr/local/lib/ruby/gems/2.1.0/gems/git-commit-notifier-0.12.10/config/git-notifier-config.yml >> $LOG_FILE 2>&1
 echo "==========================" >> $LOG_FILE
