@@ -165,22 +165,6 @@ do
                         if [ -f server/config/brandConfig.json ]; then
                                 sed -i 's#\"brandUrl.*#\"brandUrl\": \"$BRAND_URL/portal/\",#g' server/config/brandConfig.json
                         fi
-                        # determine versioning values
-                        cd $REMOTE_ART_PATH/${combineArray[$i]}
-                        # number of version line
-                        NUMBER_OF_VERSION_LINE=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep version | awk -F '-' '{print \$1}')
-                        echo NUMBER_OF_VERSION_LINE=\$NUMBER_OF_VERSION_LINE
-                        # replace version for $i target
-                        if [ $i == ffa ] || [ $i == ocean ] || [ $i == irls-ocean ] || [ $i == irls-epubtest ]; then
-                                eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER-dev'\'\\\",#g\\\" $BUILD_VERSION_JSON
-                        else
-                                eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER'\'\\\",#g\\\" $BUILD_VERSION_JSON
-                        fi
-                        ## number of build date time
-                        NUMBER_OF_BUILD_DATE_TIME=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep buildDateTime | awk -F '-' '{print \$1}')
-                        echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME
-                        ## replace build date time for $i target
-                        eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\"#g\\\" $BUILD_VERSION_JSON
                         # Start node
                         if [ ! -f server/\$INDEX_FILE ]; then mv server/index_*_stage.js server/\$INDEX_FILE; fi
                         PID=\$(ps aux | grep node.*server/\$INDEX_FILE | grep -v grep | /usr/bin/awk '{print \$2}')
@@ -195,6 +179,23 @@ do
                         fi
                         sleep 3
                         rm -f $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt"
+                # change versioning values
+                ssh dvac@devzone.dp.ua "
+                        ## number of version line
+                        NUMBER_OF_VERSION_LINE=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep version | awk -F '-' '{print \$1}')
+                        ## replace version for $i target
+                        if [ $i == ffa ] || [ $i == ocean ] || [ $i == irls-ocean ] || [ $i == irls-epubtest ]; then
+                                eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER-dev'\'\\\",#g\\\" $BUILD_VERSION_JSON
+                        else
+                                eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER'\'\\\",#g\\\" $BUILD_VERSION_JSON
+                        fi
+                        ## number of build date time
+                        NUMBER_OF_BUILD_DATE_TIME=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep buildDateTime | awk -F '-' '{print \$1}')
+                        ## replace build date time for $i target
+                        eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\"#g\\\" $BUILD_VERSION_JSON
+			## print of values
+                        echo NUMBER_OF_VERSION_LINE=\$NUMBER_OF_VERSION_LINE
+                        echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME"
                 fi
         # update environment.json file
         /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
