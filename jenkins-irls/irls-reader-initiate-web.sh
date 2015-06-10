@@ -37,8 +37,10 @@ function main_loop {
                 if [ $BRANCHNAME == "master" ];
                 then
                         time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
+		elif [ $BRANCHNAME == "feature/refactoring" ];
+		then
+                        time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/build --manifest=$WORKSPACE/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 else
-                        #time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                         time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 fi
                 cd $WORKSPACE
@@ -47,12 +49,22 @@ function main_loop {
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
                 time rsync -r --delete --exclude "tests" --exclude "build" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" --exclude "artifacts" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
-                        mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
-                else
-                        rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/*
-                fi
-                cp -Rf $WORKSPACE/build/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
+		if [ $BRANCHNAME == "feature/refactoring" ];
+		then
+			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/build ]; then
+                        	mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/build
+                	else
+                        	rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/build/*
+                	fi
+                	cp -Rf $WORKSPACE/build/out/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/build/
+		else
+			if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
+                        	mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
+                	else
+                        	rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/*
+                	fi
+                	cp -Rf $WORKSPACE/build/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
+		fi
         }
         for i in "${!combineArray[@]}"
         do
