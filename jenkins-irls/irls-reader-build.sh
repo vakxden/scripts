@@ -179,7 +179,7 @@ do
         then
                 mkdir -p $CB_DIR/build $CB_DIR/targets
                 time rsync -r --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
-                time rsync -r --delete $WORKSPACE/$READER_REPONAME/build/out/dist/ $CB_DIR/build/
+                time rsync -r --delete $WORKSPACE/$READER_REPONAME/build/out/ $CB_DIR/build/
                 time rsync -r --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
         else
                 mkdir -p $CB_DIR/client $CB_DIR/targets
