@@ -7,8 +7,10 @@ SIZE=15728640 # 15 Gb
 
 if (($(du -s $CURRENT_ART_DIR/ | awk '{print $1}') > $SIZE));
 then
-        echo "$(tput setaf 1)Before:"
-        echo "$(tput sgr 0)$CURRENT_ART_DIR used $(du -s $CURRENT_ART_DIR/ | awk '{print $1}') kilobytes"
+        #echo "$(tput setaf 1)Before:"
+        echo "Before:"
+        #echo "$(tput sgr 0)$CURRENT_ART_DIR used $(du -s $CURRENT_ART_DIR/ | awk '{print $1}') kilobytes"
+        echo "$CURRENT_ART_DIR used $(du -s $CURRENT_ART_DIR/ | awk '{print $1}') kilobytes"
         echo "$CURRENT_ART_DIR used more then $SIZE kilobytes"
         echo ""
         SCRIPT_NAME=$(basename $0)
@@ -149,8 +151,10 @@ then
         cat $TMP_FILE | tr '\n' ' ' | xargs -0 bash -c | tail -"$COUNT_LINES" | xargs rm -rf
         echo ""
 
-        echo "$(tput setaf 2)After:"
-        echo "$(tput sgr 0)$CURRENT_ART_DIR used $(du -s $CURRENT_ART_DIR/ | awk '{print $1}') kilobytes"
+        #echo "$(tput setaf 2)After:"
+        echo "After:"
+        #echo "$(tput sgr 0)$CURRENT_ART_DIR used $(du -s $CURRENT_ART_DIR/ | awk '{print $1}') kilobytes"
+        echo "$CURRENT_ART_DIR used $(du -s $CURRENT_ART_DIR/ | awk '{print $1}') kilobytes"
         service apache2 stop
         sleep 1
         service apache2 start
