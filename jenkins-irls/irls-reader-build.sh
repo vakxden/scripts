@@ -1,3 +1,4 @@
+#rm -rf $WORKSPACE/*
 BUILD_DATE=$(date "+%Y-%m-%d %H:%M")
 ### Checking of parameters
 if [ -z $BRANCHNAME ]; then
@@ -178,23 +179,23 @@ do
         if [ $BRANCHNAME == "feature/refactoring" ];
         then
                 mkdir -p $CB_DIR/build $CB_DIR/targets
-                time rsync -r --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
-                time rsync -r --delete $WORKSPACE/$READER_REPONAME/build/out/ $CB_DIR/build/
-                time rsync -r --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
+                time rsync -lr --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+                #time rsync -r --delete $WORKSPACE/$READER_REPONAME/build/out/ $CB_DIR/build/
+                time rsync -lr --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
         else
                 mkdir -p $CB_DIR/client $CB_DIR/targets
-                time rsync -r --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
-                time rsync -r --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
-                time rsync -r --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
+                time rsync -lr --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+                time rsync -lr --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
+                time rsync -lr --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
         fi
 
         ### Copy meta.json to application directory
-	if [ $BRANCHNAME == "feature/refactoring" ];
+        if [ $BRANCHNAME == "feature/refactoring" ];
         then
-		for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/build/; fi; done
-	else
-		for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
-	fi
+                for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/build/; fi; done
+        else
+                for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
+        fi
 
         ### Create function for cleaning outdated directories from the directory of current code build
         function build_dir_clean (){
@@ -220,7 +221,7 @@ do
                 ssh jenkins@yuriys-mac-mini.isd.dp.ua "
                         if [ ! -d $CB_REMOTE_DIR ]; then mkdir -p $CB_REMOTE_DIR ; else rm -rf $CB_REMOTE_DIR/* ; fi
                 "
-                time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
+                time rsync -rlz --delete -e "ssh" $CB_DIR/ jenkins@yuriys-mac-mini.isd.dp.ua:$CB_REMOTE_DIR/
                 ### removing outdated directories from the directory $CURRENT_REMOTE_BUILD (on the host yuriys-mac-mini)
                 typeset -f | ssh jenkins@yuriys-mac-mini.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_REMOTE_BUILD"
         fi
@@ -228,7 +229,7 @@ do
                 ssh jenkins@dev02.design.isd.dp.ua "
                         if [ ! -d $CB_DIR ]; then mkdir -p $CB_DIR ; else rm -rf $CB_DIR/* ; fi
                 "
-                time rsync -rz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
+                time rsync -rlz --delete -e "ssh" $CB_DIR/ jenkins@dev02.design.isd.dp.ua:$CB_DIR/
                 ### removing outdated directories from the directory $CURRENT_BUILD (on the host dev02)
                 typeset -f | ssh jenkins@dev02.design.isd.dp.ua "$(typeset -f); build_dir_clean $CURRENT_BUILD"
         fi
