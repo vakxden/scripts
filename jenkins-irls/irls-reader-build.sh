@@ -189,7 +189,12 @@ do
         fi
 
         ### Copy meta.json to application directory
-        for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
+	if [ $BRANCHNAME == "feature/refactoring" ];
+        then
+		for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/build/; fi; done
+	else
+		for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
+	fi
 
         ### Create function for cleaning outdated directories from the directory of current code build
         function build_dir_clean (){
