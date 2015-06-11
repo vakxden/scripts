@@ -49,11 +49,11 @@ function main_loop {
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
                 if [ $BRANCHNAME == "feature/refactoring" ];
-		then
-                time rsync -lr --delete --exclude "tests" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" --exclude "artifacts" -- --exclude "node_modules" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-		else
-                time rsync -lr --delete --exclude "tests" --exclude "build" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" --exclude "artifacts" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-		fi
+                then
+                time rsync -r --delete --exclude "tests" --exclude "targets" --exclude "build/node_modules" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                else
+                time rsync -r --delete --exclude "tests" --exclude "build" --exclude "targets" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                fi
                 if [ $BRANCHNAME == "feature/refactoring" ];
                 then
                         if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/build ]; then
