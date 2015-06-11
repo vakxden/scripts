@@ -155,7 +155,7 @@ then
         echo "After:"
         #echo "$(tput sgr 0)$CURRENT_ART_DIR used $(du -s $CURRENT_ART_DIR/ | awk '{print $1}') kilobytes"
         echo "$CURRENT_ART_DIR used $(du -s $CURRENT_ART_DIR/ | awk '{print $1}') kilobytes"
-        service apache2 stop
+        /usr/sbin/service apache2 stop
         sleep 1
-        service apache2 start
+        /usr/sbin/service apache2 start
 fi
