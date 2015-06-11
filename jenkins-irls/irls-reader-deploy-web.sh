@@ -98,7 +98,12 @@ do
                 BRAND_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH"
         elif [ $ENVIRONMENT == public ]; then
                 BRAND_URL="https://irls.isd.dp.ua/$i/$BRANCH"
-                BUILD_INFO_JSON="client/dist/app/build.config.json"
+		if [ $BRANCH == "feature/refactoring" ];
+		then
+                	BUILD_INFO_JSON="buil/build.config.json"
+		else
+                	BUILD_INFO_JSON="client/dist/app/build.config.json"
+		fi
                 RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
                 # variables for product versioning
                 SPRINT=$(grep version $STAGE_PKG_DIR/packages/package.json | awk -F '"|"' '{print $4}')
@@ -142,7 +147,7 @@ do
         elif [ $ENVIRONMENT == public ]; then
                 ssh dvac@devzone.dp.ua "if [ ! -d $RSYNC_FACETS_DIR ]; then mkdir -p $RSYNC_FACETS_DIR; fi"
                 ssh dvac@devzone.dp.ua "
-                        rm -f $RSYNC_FACETS_DIR/client/dist/app/epubs/dirstructure.json
+                        #rm -f $RSYNC_FACETS_DIR/client/dist/app/epubs/dirstructure.json
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
                         # create of status-deploy file
                         if [ ! -e $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt ]; then touch $REMOTE_ART_PATH/${combineArray[$i]}/status_deploy.txt; fi"
@@ -200,8 +205,16 @@ do
         # update environment.json file
         /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
         # generate links for web-version of application
-        echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/dist/app/index_admin.html"
-        echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/dist/app/index_editor.html"
-        echo reader-link-$i-$ENVIRONMENT="$BRAND_URL/reader/dist/app/index_reader.html"
-        echo portal-link-$i-$ENVIRONMENT="$BRAND_URL/portal/dist/app/index_portal.html"
+	if [ $BRANCH == "feature/refactoring" ];
+        then
+        	echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/index_admin.html"
+        	echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/index_editor.html"
+        	echo reader-link-$i-$ENVIRONMENT="$BRAND_URL/reader/index_reader.html"
+        	echo portal-link-$i-$ENVIRONMENT="$BRAND_URL/portal/index_portal.html"
+	else
+        	echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/dist/app/index_admin.html"
+        	echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/dist/app/index_editor.html"
+        	echo reader-link-$i-$ENVIRONMENT="$BRAND_URL/reader/dist/app/index_reader.html"
+        	echo portal-link-$i-$ENVIRONMENT="$BRAND_URL/portal/dist/app/index_portal.html"
+	fi
 done
