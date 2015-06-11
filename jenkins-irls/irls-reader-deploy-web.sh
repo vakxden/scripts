@@ -98,7 +98,7 @@ do
                 BRAND_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH"
         elif [ $ENVIRONMENT == public ]; then
                 BRAND_URL="https://irls.isd.dp.ua/$i/$BRANCH"
-		if [ $BRANCH == "feature/refactoring" ];
+		if [ $BRANCHNAME == "feature/refactoring" ];
 		then
                 	BUILD_INFO_JSON="buil/build.config.json"
 		else
@@ -205,7 +205,7 @@ do
         # update environment.json file
         /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
         # generate links for web-version of application
-	if [ $BRANCH == "feature/refactoring" ];
+	if [ $BRANCHNAME == "feature/refactoring" ];
         then
         	echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/index_admin.html"
         	echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/index_editor.html"
