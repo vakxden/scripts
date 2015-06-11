@@ -10,6 +10,7 @@ done
                 # body of script
                 touch $lockfile
                 BRANCHNAME="$1"
+                BRANCHNAME_WITH_SLASH=$(echo $BRANCHNAME | sed 's/feature-/feature\//g')
                 FACETS="$2"
                 dest="$3"
                 ID="$4"
@@ -74,9 +75,19 @@ done
                         cat /dev/null > $LOCAL_CONFIG_JSON_FILE
                         echo '{' >> $LOCAL_CONFIG_JSON_FILE
                         if [ "$1" = "current" ]; then
-                                echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+                                if [ $BRANCHNAME_WITH_SLASH == "feature/refactoring" ];
+                                then
+                                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+                                else
+                                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+                                fi
                         elif [ "$1" = "stage" ]; then
-                                echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+                                if [ $BRANCHNAME_WITH_SLASH == "feature/refactoring" ];
+                                then
+                                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+                                else
+                                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+                                fi
                         fi
                         if [ "$1" = "public" ]; then
                                 echo -e '\t"smtpConfig": {\n\t\t"host": "localhost",\n\t\t"port": 25,\n\t\t"ignoreTLS": false,\n\t\t"tls": {"rejectUnauthorized": false},\n\t\t"requiresAuth": false},' >> $LOCAL_CONFIG_JSON_FILE
@@ -184,4 +195,3 @@ done
                         dest_eq_stage
                 fi
                 rm -f $lockfile
-
