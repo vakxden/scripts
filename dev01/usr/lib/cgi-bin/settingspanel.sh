@@ -4,9 +4,9 @@
 ### Variables
 ###
 
-BRANCHES_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/branches.json | awk -F'"|"' '{print $2}' | grep -v branches))
-TARGETS_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/targets.json | awk -F'"|"' '{print $2}' | grep -v targets))
-CURRENT_TARGETS_ARRAY=($(curl http://wpp.isd.dp.ua/irls-reader-artifacts/irls-reader-build.json | grep currentTargetsConverter | awk -F'"|"' '{print $4}'))
+BRANCHES_ARRAY=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/branches.json | awk -F'"|"' '{print $2}' | grep -v branches))
+TARGETS_ARRAY=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/targets.json | awk -F'"|"' '{print $4}' | grep -v targets))
+CURRENT_TARGETS_ARRAY=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/irls-reader-build.json | grep currentTargetsConverter | awk -F'"|"' '{print $4}'))
 PROCESSOR_BRANCHNAMES_ARRAY=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/lib-processor-status.json | grep "branchName" | awk -F '"|"' '{print $4}'))
 SOURCES_BRANCHNAMES_ARRAY=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/lib-sources-status.json | grep "branchName" | awk -F '"|"' '{print $4}'))
 
@@ -116,7 +116,7 @@ echo '<br>'
 echo '<span>Select target:</span>'
 for y in ${TARGETS_ARRAY[@]}
 do
-        echo '<input type="checkbox" name="deploytarget" value="'$y'"/>'$y'</label>'
+        echo '<input type="radio" name="deploytarget" value="'$y'"/>'$y'</label>'
 done
 echo '<br><input type="submit" value="Deploy"></form>'
 
@@ -151,7 +151,7 @@ echo '<form action="'${SCRIPT}'" method=POST>'
 echo '<span>Select <b>lib-processor</b> branch:</span>'
 echo '<select name="processor_branchname">'
 #echo '<option value="" disabled="disabled" selected="selected">Please select a branch name</option>'
-echo '<option value="" disabled="disabled" selected="selected">develop</option>'
+echo '<option value="" disabled="disabled" selected="selected">select please</option>'
 for j in ${PROCESSOR_BRANCHNAMES_ARRAY[@]}
 do
         echo '<option value="'$j'">'$j'</option>'
@@ -161,7 +161,7 @@ echo '<br>'
 echo '<span>Select <b>lib-sources</b> branch:</span>'
 echo '<select name="sources_branchname">'
 #echo '<option value="" disabled="disabled" selected="selected">Please select a branch name</option>'
-echo '<option value="" disabled="disabled" selected="selected">master</option>'
+echo '<option value="" disabled="disabled" selected="selected">select please</option>'
 for k in ${SOURCES_BRANCHNAMES_ARRAY[@]}
 do
         echo '<option value="'$k'">'$k'</option>'
