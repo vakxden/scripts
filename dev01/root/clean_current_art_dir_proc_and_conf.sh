@@ -1,4 +1,6 @@
-urrent artifacts directory
+#!/bin/bash
+
+# Current artifacts directory
 CURRENT_ART_DIR="/home/jenkins/irls-reader-artifacts"
 BRANCHES_JSON="/home/jenkins/irls-reader-artifacts/branches.json"
 SIZE=15728640 # 15 Gb
