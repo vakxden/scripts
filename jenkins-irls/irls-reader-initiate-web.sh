@@ -50,25 +50,10 @@ function main_loop {
                 fi
                 if [ $BRANCHNAME == "feature/refactoring" ];
                 then
-                time rsync -r --delete --exclude "tests" --exclude "targets" --exclude "build/node_modules" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                	time rsync -lr --exclude "tests" --exclude "targets" --exclude "build/node_modules" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 else
-                time rsync -r --delete --exclude "tests" --exclude "build" --exclude "targets" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                fi
-                if [ $BRANCHNAME == "feature/refactoring" ];
-                then
-                        if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/build ]; then
-                                mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/build
-                        else
-                                rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/build/*
-                        fi
-                        cp -Rf $WORKSPACE/build/out/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/build/
-                else
-                        if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
-                                mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
-                        else
-                                rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/*
-                        fi
-                        cp -Rf $WORKSPACE/build/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
+			mv $WORKSPACE/build/out/dest/*/*  $WORKSPACE/client/
+                	time rsync -lr --exclude "tests" --exclude "build" --exclude "targets" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 fi
         }
         for i in "${!combineArray[@]}"
