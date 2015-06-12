@@ -20,13 +20,9 @@
 # For more information see the manual pages of crontab(5) and cron(8)
 #
 # m h  dom mon dow   command
-#0 */4 * * * /root/clean_artifactdir.sh
-#0 */4 * * * /root/clean_current_artifactdir.sh
-#0 */4 * * * /root/clean_stage_artifactdir.sh
 0 */4 * * * /root/clean_current_art_dir_proc_and_conf.sh
+0 */4 * * * /root/clean_stage_art_dir_proc_and_conf.sh
 05 00 * * * /root/kill_unused_couch.sh
 30 04 * * * /root/backup.sh
-#30 10 * * * /root/clean_unused_dir.sh
-#35 10 * * * /root/unused_branches.sh
 #0,30 * * * * /root/scp_apache_logs.sh
 #*/5 * * * * /root/scp_reader_logs.sh
