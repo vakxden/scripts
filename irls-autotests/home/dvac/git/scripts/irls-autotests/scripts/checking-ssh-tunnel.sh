@@ -23,6 +23,7 @@ ps aux | grep "$PROC" | grep -v grep
 if [ $? -eq 1 ]
 then
         l "Process with ssh-tunnelling not found. Starting process..."
+	if ! /bin/pidof squid3; then l "squid3 is not running. Starting squid3..." && /usr/bin/sudo /usr/sbin/service squid3 start && sleep 5; fi
         $PROC -o "$OPT" && l "Starting successfully!"
 else
         l "Process '$PROC' is already running"

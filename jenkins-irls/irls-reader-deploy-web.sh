@@ -100,7 +100,7 @@ do
                 BRAND_URL="https://irls.isd.dp.ua/$i/$BRANCH"
 		if [ $BRANCHNAME == "feature/refactoring" ];
 		then
-                	BUILD_INFO_JSON="buil/build.config.json"
+                	BUILD_INFO_JSON="build/build.config.json"
 		else
                 	BUILD_INFO_JSON="client/dist/app/build.config.json"
 		fi
