@@ -22,23 +22,23 @@ done
 function main_loop {
         notmainloop ()
         {
-		if [ ! -d $WORKSPACE/packager/build ]; then mkdir -p $WORKSPACE/packager/build; fi
-		cp -Rf ~/git/build_re/phonegap-plugins $WORKSPACE/packager/build
-                cd $WORKSPACE/packager
-		echo "{}" > $WORKSPACE/client/meta.json
+                if [ ! -d $WORKSPACE/build/build ]; then mkdir -p $WORKSPACE/build/build; fi
+                cp -Rf ~/build_re/$BRANCHNAME/phonegap-plugins $WORKSPACE/build/build
+                cd $WORKSPACE/build
+                echo "{}" > $WORKSPACE/client/meta.json
                 time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
                 #create index
                 cd $WORKSPACE
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
-                time rsync -rzv --delete --exclude "tests" --exclude "packager" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                time rsync -rzv --delete --exclude "tests" --exclude "build" --exclude "targets" --exclude "myenv" --exclude "Gruntfile.js" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages/client ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages/client
                 else
                         rm -rf $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/*
                 fi
-                cp -Rf $WORKSPACE/packager/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
+                cp -Rf $WORKSPACE/build/out/dest/*/* $ARTIFACTS_DIR/${combineArray[$i]}/packages/client/
         }
         for i in "${!combineArray[@]}"
         do

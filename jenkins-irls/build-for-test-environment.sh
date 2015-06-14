@@ -83,7 +83,7 @@ for i in "${TARGET[@]}"
 do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
-	cd $WORKSPACE/$READER_REPONAME/client
+        cd $WORKSPACE/$READER_REPONAME/client
         ### Build client and server parts
         npm install grunt-compile-handlebars
         time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME

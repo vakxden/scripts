@@ -43,9 +43,9 @@ function generate_files {
         cd $1
         sudo $HOME/scripts/portgenerator-for-deploy.sh $BRANCH $i ${combineArray[$i]}
         #rm -f $1/server/config/local.json
-        rm -f $1/config/local.json
+        rm -f $1/config/local.config.json
         #cp -f local.json $1/server/config/
-        cp -f local.json $1/config/
+        cp -f local.config.json $1/config/
         ls -lah
         echo PWD=$PWD
 }
