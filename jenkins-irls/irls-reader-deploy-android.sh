@@ -77,7 +77,12 @@ function repack {
         # removing of apk-file
         rm -f $APK_FILE_NAME
         # adding or changing of "currentURL" option from build.info.json config file
-        BUILD_INFO_JSON="www/dist/app/build.config.json"
+	if [ $BRANCHNAME == "feature/refactoring" ];
+        then
+        	BUILD_INFO_JSON="www/config/build.config.json"
+	else
+        	BUILD_INFO_JSON="www/dist/app/build.config.json"
+	fi
         if [ $ENVIRONMENT == current ]; then
             if grep currentURL assets/$BUILD_INFO_JSON; then
                     sed -i "/currentURL/d" assets/$BUILD_INFO_JSON
@@ -191,7 +196,12 @@ do
 
 			BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
 			SPRINT=$(grep version $STAGE_PKG_DIR/package.json | awk -F '"|"' '{print $4}')
-			BUILD_INFO_JSON="client/dist/app/build.config.json"
+			if [ $BRANCHNAME == "feature/refactoring" ];
+			then
+				BUILD_INFO_JSON="www/config/build.config.json"
+			else
+				BUILD_INFO_JSON="client/dist/app/build.config.json"
+			fi
 			BUILD_NUMBER=$(grep buildnumber $STAGE_PKG_DIR/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}')
 			BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
 
