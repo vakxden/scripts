@@ -37,23 +37,20 @@ function main_loop {
                 if [ $BRANCHNAME == "master" ];
                 then
                         time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
-                elif [ $BRANCHNAME == "feature/refactoring" ];
-                then
-                        time node index.js --platform=web --workspace=$WORKSPACE --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 else
-                        time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
+                        time node index.js --platform=web --workspace=$WORKSPACE --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 fi
                 cd $WORKSPACE
                 # move of web-package to artifacts directory (for current environment)
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
-                if [ $BRANCHNAME == "feature/refactoring" ];
+                if [ $BRANCHNAME == "master" ];
                 then
-                	time rsync -lr --exclude "tests" --exclude "targets" --exclude "build/node_modules" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
-                else
 			mv $WORKSPACE/build/out/dest/*/*  $WORKSPACE/client/
                 	time rsync -lr --exclude "tests" --exclude "build" --exclude "targets" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
+                else
+                	time rsync -lr --exclude "tests" --exclude "targets" --exclude "build/node_modules" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 fi
         }
         for i in "${!combineArray[@]}"

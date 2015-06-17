@@ -77,11 +77,11 @@ function ssh_and_repack {
         # removing of ipa-file
         rm -f $IPA_FILE_NAME
         # adding or changing of "currentURL" option from build.info.json config file
-		if [ $BRANCHNAME == "feature/refactoring" ];
+		if [ $BRANCHNAME == "master" ];
 		then
-                	BUILD_INFO_JSON="www/config/build.config.json"
-		else
 			BUILD_INFO_JSON="www/dist/app/build.config.json"
+		else
+                	BUILD_INFO_JSON="www/config/build.config.json"
 		fi
         if [ $ENVIRONMENT == current ]; then
                 if grep currentURL Payload/$IPA_NAME.app/$BUILD_INFO_JSON; then

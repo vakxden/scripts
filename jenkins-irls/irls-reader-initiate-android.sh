@@ -75,13 +75,13 @@ function main_loop {
                 if [ $BRANCHNAME == "master" ];
                 then
                         time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-		elif [ $BRANCHNAME == "feature/refactoring" ];
+		elif [ $BRANCHNAME == "master" ];
 		then
+			# add the necessary files
                         cp -f $WORKSPACE/build/build/android/*.java $CORDOVA_ARM/bin/templates/project/
 			cp -f $WORKSPACE/build/build/android/create.js $CORDOVA_ARM/bin/lib/create.js
                         $CORDOVA_ARM/bin/create $i org.crosswalkproject.$(echo $i | sed 's/-/_/g') --enable-remote-debugging $APK_NAME
-                        #time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/build --manifest=$WORKSPACE/build/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
-			time node index.js --platform=android  --workspace=$WORKSPACE --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
+                        time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
                         cd $i
                         #plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-device.git#r0.2.9
 			plugman install --platform android --project . --plugin $WORKSPACE/build/build/phonegap-plugins/cordova-plugin-device
@@ -95,13 +95,12 @@ function main_loop {
                         #plugman install --platform android --project . --plugin https://github.com/EddyVerbruggen/LaunchMyApp-PhoneGap-Plugin.git --variable URL_SCHEME=$(echo $i | sed 's/-/_/g')
                         cd $WORKSPACE/build
                         $WORKSPACE/build/$i/cordova/build
-
                 else
-			# add the necessary files
                         cp -f $WORKSPACE/build/build/android/*.java $CORDOVA_ARM/bin/templates/project/
 			cp -f $WORKSPACE/build/build/android/create.js $CORDOVA_ARM/bin/lib/create.js
                         $CORDOVA_ARM/bin/create $i org.crosswalkproject.$(echo $i | sed 's/-/_/g') --enable-remote-debugging $APK_NAME
-                        time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
+                        #time node index.js --platform=android --config=$WORKSPACE/targets --from=$WORKSPACE/build --manifest=$WORKSPACE/build/package.json --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
+			time node index.js --platform=android  --workspace=$WORKSPACE --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --crosswalk=$CROSSWALK
                         cd $i
                         #plugman install --platform android --project . --plugin https://git-wip-us.apache.org/repos/asf/cordova-plugin-device.git#r0.2.9
 			plugman install --platform android --project . --plugin $WORKSPACE/build/build/phonegap-plugins/cordova-plugin-device

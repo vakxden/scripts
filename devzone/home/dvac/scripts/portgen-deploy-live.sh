@@ -99,7 +99,8 @@ LOCAL_CONFIG_JSON_FILE="local.config.json"
 cd ~/irls-reader-artifacts/$ID/config
 cat /dev/null > $LOCAL_CONFIG_JSON_FILE
 echo '{' >> $LOCAL_CONFIG_JSON_FILE
-echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+#echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+echo -e '\t"libraryDir" : "/home/dvac/irls-reader-artifacts/'$ID'/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
 echo -e '\t"listenPort"':$GENERATED_PORT, >> $LOCAL_CONFIG_JSON_FILE
 echo -e '\t"database_name": "'$FACETS'",' >> $LOCAL_CONFIG_JSON_FILE
 echo -e '\t"smtpConfig": {\n\t\t"host": "localhost",\n\t\t"port": 25,\n\t\t"ignoreTLS": false,\n\t\t"tls": {"rejectUnauthorized": false},\n\t\t"requiresAuth": false},' >> $LOCAL_CONFIG_JSON_FILE

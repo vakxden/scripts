@@ -60,11 +60,11 @@ function repack {
         # $1 - it's $CURRENT_ARTIFACTS_DIR or $STAGE_ARTIFACTS_DIR
         # $2 - it's $CURRENT_ARTIFACTS_DIR or $STAGE_ARTIFACTS_DIR or $PUBLIC_ARTIFACTS_DIR
         # checking the existence of a remote directory for the artifacts
-	if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
-        	if [ ! -d $2 ]; then mkdir -p $2; fi
-	elif [ $ENVIRONMENT == public ]; then
-		$SSH_COMMAND "if [ ! -d $2 ]; then mkdir -p $2; fi"
-	fi
+        if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
+                if [ ! -d $2 ]; then mkdir -p $2; fi
+        elif [ $ENVIRONMENT == public ]; then
+                $SSH_COMMAND "if [ ! -d $2 ]; then mkdir -p $2; fi"
+        fi
         # creating temporary directory
         if [ ! -d $TEMPORARY_APK_REPACKING_DIR ]; then mkdir -p $TEMPORARY_APK_REPACKING_DIR; else rm -rf $TEMPORARY_APK_REPACKING_DIR/*; fi
         cd $TEMPORARY_APK_REPACKING_DIR
@@ -77,12 +77,12 @@ function repack {
         # removing of apk-file
         rm -f $APK_FILE_NAME
         # adding or changing of "currentURL" option from build.info.json config file
-	if [ $BRANCHNAME == "feature/refactoring" ];
+        if [ $BRANCHNAME == "master" ];
         then
-        	BUILD_INFO_JSON="www/config/build.config.json"
-	else
-        	BUILD_INFO_JSON="www/dist/app/build.config.json"
-	fi
+                BUILD_INFO_JSON="www/dist/app/build.config.json"
+        else
+                BUILD_INFO_JSON="www/config/build.config.json"
+        fi
         if [ $ENVIRONMENT == current ]; then
             if grep currentURL assets/$BUILD_INFO_JSON; then
                     sed -i "/currentURL/d" assets/$BUILD_INFO_JSON
@@ -97,8 +97,8 @@ function repack {
         fi
         # create and sign of apk-file
         rm -rf META-INF
-		zip -r -9 $APK_FILE_NAME *
-		jarsigner -keystore ~/.android/debug.keystore -storepass android -keypass android $APK_FILE_NAME androiddebugkey
+                zip -r -9 $APK_FILE_NAME *
+                jarsigner -keystore ~/.android/debug.keystore -storepass android -keypass android $APK_FILE_NAME androiddebugkey
         # test archive (apk) file
         unzip -t -q $APK_FILE_NAME
         # copying of apk-file to $2 environment directory from temporary directory
@@ -152,7 +152,7 @@ do
         ### Output value for a pair "key-value"
         printf '%s\n' "key: $i -- value: ${combineArray[$i]}"
         ### Determine of brand
-	BRAND=$(curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | sed 's/^\(.*\)brand"//g' | awk -F '"|"' '{print $2}')
+        BRAND=$(curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | sed 's/^\(.*\)brand"//g' | awk -F '"|"' '{print $2}')
         ### Temporary local variables
         # terms for different environments
         if [ $ENVIRONMENT == current ] || [ $ENVIRONMENT == stage ]; then
@@ -171,11 +171,11 @@ do
         PUBLIC_ARTIFACTS_DIR="$REMOTE_ART_PATH/${combineArray[$i]}/art"
         INDEX_FILE='index_'$i'_'$BRANCH'_'$ENVIRONMENT'.js'
         ### Determine of apk name
-		APK_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
-		APK_FILE_NAME="$APK_NAME.apk"
+                APK_NAME=$(echo $BRANCH-"$BRAND"_Reader-$i)
+                APK_FILE_NAME="$APK_NAME.apk"
         TEMPORARY_APK_REPACKING_DIR="$HOME/tmp_repacking_apk-$i"
         ### Checking contain platform
-	if curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | grep "platforms.*android"; then
+        if curl -s $URL_TARGETS_JSON/$TARGETS_REPO.json | grep '"target_name": "'$i'"' | grep "platforms.*android"; then
                 ### Repacking of apk-file and creating file local.config.json ( old name - "local.json") for node-server side, apache-proxying config and starting of node-server side
                 if [ $ENVIRONMENT == current ]; then
                         repack $CURRENT_ARTIFACTS_DIR $CURRENT_ARTIFACTS_DIR
@@ -190,38 +190,38 @@ do
                         ssh dvac@devzone.dp.ua "
                                 if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]} ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}; fi
                                 # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
-				if [ ! -d  $PUBLIC_ARTIFACTS_DIR ]; then mkdir -p $PUBLIC_ARTIFACTS_DIR; fi
-				# creating file local.config.json ( old name - local.json)
+                                if [ ! -d  $PUBLIC_ARTIFACTS_DIR ]; then mkdir -p $PUBLIC_ARTIFACTS_DIR; fi
+                                # creating file local.config.json ( old name - local.json)
                                 /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}"
 
-			BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
-			SPRINT=$(grep version $STAGE_PKG_DIR/package.json | awk -F '"|"' '{print $4}')
-			if [ $BRANCHNAME == "feature/refactoring" ];
-			then
-				BUILD_INFO_JSON="www/config/build.config.json"
-			else
-				BUILD_INFO_JSON="client/dist/app/build.config.json"
-			fi
-			BUILD_NUMBER=$(grep buildnumber $STAGE_PKG_DIR/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}')
-			BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
+                        BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
+                        SPRINT=$(grep version $STAGE_PKG_DIR/package.json | awk -F '"|"' '{print $4}')
+                        if [ $BRANCHNAME == "master" ];
+                        then
+                                BUILD_INFO_JSON="client/dist/app/build.config.json"
+                        else
+                                BUILD_INFO_JSON="build/config/build.config.json"
+                        fi
+                        BUILD_NUMBER=$(grep buildnumber $STAGE_PKG_DIR/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}')
+                        BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
 
-			ssh dvac@devzone.dp.ua "	
-				# determine versioning values
-				cd $REMOTE_ART_PATH/${combineArray[$i]}
-				# number of version line
-				NUMBER_OF_VERSION_LINE=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep version | awk -F '-' '{print \$1}')
-				echo NUMBER_OF_VERSION_LINE=\$NUMBER_OF_VERSION_LINE
-				# replace version for $i target
-				if [ $i == ffa ] || [ $i == ocean ] || [ $i == irls-ocean ] || [ $i == irls-epubtest ]; then
-					eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER-dev'\'\\\",#g\\\" $BUILD_VERSION_JSON
-				else
-					eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER'\'\\\",#g\\\" $BUILD_VERSION_JSON
-				fi
-				## number of build date time
-				NUMBER_OF_BUILD_DATE_TIME=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep buildDateTime | awk -F '-' '{print \$1}')
-				echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME
-				## replace build date time for $i target
-				eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\"#g\\\" $BUILD_VERSION_JSON"
+                        ssh dvac@devzone.dp.ua "
+                                # determine versioning values
+                                cd $REMOTE_ART_PATH/${combineArray[$i]}
+                                # number of version line
+                                NUMBER_OF_VERSION_LINE=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep version | awk -F '-' '{print \$1}')
+                                echo NUMBER_OF_VERSION_LINE=\$NUMBER_OF_VERSION_LINE
+                                # replace version for $i target
+                                if [ $i == ffa ] || [ $i == ocean ] || [ $i == irls-ocean ] || [ $i == irls-epubtest ]; then
+                                        eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER-dev'\'\\\",#g\\\" $BUILD_VERSION_JSON
+                                else
+                                        eval sed -i \$NUMBER_OF_VERSION_LINE\\\"s#'\'\\\"version.*#'\'\\\"version'\'\\\":'\'\\\"$SPRINT\.$BUILD_NUMBER'\'\\\",#g\\\" $BUILD_VERSION_JSON
+                                fi
+                                ## number of build date time
+                                NUMBER_OF_BUILD_DATE_TIME=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep buildDateTime | awk -F '-' '{print \$1}')
+                                echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME
+                                ## replace build date time for $i target
+                                eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\"#g\\\" $BUILD_VERSION_JSON"
                         ssh_and_start_node $REMOTE_ART_PATH/${combineArray[$i]}
                 fi
                 ### Updating environment.json file

@@ -75,18 +75,18 @@ done
                         cat /dev/null > $LOCAL_CONFIG_JSON_FILE
                         echo '{' >> $LOCAL_CONFIG_JSON_FILE
                         if [ "$1" = "current" ]; then
-                                if [ $BRANCHNAME_WITH_SLASH == "feature/refactoring" ];
+                                if [ $BRANCHNAME_WITH_SLASH == "master" ];
                                 then
-                                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
-                                else
                                         echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+                                else
+                                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
                                 fi
                         elif [ "$1" = "stage" ]; then
-                                if [ $BRANCHNAME_WITH_SLASH == "feature/refactoring" ];
+                                if [ $BRANCHNAME_WITH_SLASH == "master" ];
                                 then
-                                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
-                                else
                                         echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+                                else
+                                        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
                                 fi
                         fi
                         if [ "$1" = "public" ]; then

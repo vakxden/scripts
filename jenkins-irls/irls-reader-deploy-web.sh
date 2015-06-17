@@ -98,12 +98,12 @@ do
                 BRAND_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH"
         elif [ $ENVIRONMENT == public ]; then
                 BRAND_URL="https://irls.isd.dp.ua/$i/$BRANCH"
-		if [ $BRANCHNAME == "feature/refactoring" ];
-		then
-                	BUILD_INFO_JSON="build/build.config.json"
-		else
-                	BUILD_INFO_JSON="client/dist/app/build.config.json"
-		fi
+                if [ $BRANCHNAME == "master" ];
+                then
+                        BUILD_INFO_JSON="client/dist/app/build.config.json"
+                else
+                        BUILD_INFO_JSON="build/config/build.config.json"
+                fi
                 RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
                 # variables for product versioning
                 SPRINT=$(grep version $STAGE_PKG_DIR/packages/package.json | awk -F '"|"' '{print $4}')
@@ -159,7 +159,7 @@ do
                         cp -Rf $RSYNC_FACETS_DIR/* $REMOTE_ART_PATH/${combineArray[$i]}/
                         # Shorten path. Because otherwise - > Error of apache named AH00526 (ProxyPass worker name too long)
                         if [ ! -d  $REMOTE_ART_PATH/${combineArray[$i]}/art ]; then mkdir -p $REMOTE_ART_PATH/${combineArray[$i]}/art; fi
-			# generate index.html and file local.config.json ( old name - local.json)
+                        # generate index.html and file local.config.json ( old name - local.json)
                         /home/dvac/scripts/portgen-deploy-live.sh $BRANCH $i $ENVIRONMENT ${combineArray[$i]}
                         # init users database
                         cd $REMOTE_ART_PATH/${combineArray[$i]}
@@ -198,23 +198,23 @@ do
                         NUMBER_OF_BUILD_DATE_TIME=\$(grep '\"$i\"' $BUILD_VERSION_JSON -A3 -n | grep buildDateTime | awk -F '-' '{print \$1}')
                         ## replace build date time for $i target
                         eval sed -i \$NUMBER_OF_BUILD_DATE_TIME\\\"s#'\'\\\"buildDateTime.*#'\'\\\"buildDateTime'\'\\\":'\'\\\"$BUILD_DATE'\'\\\"#g\\\" $BUILD_VERSION_JSON
-			## print of values
+                        ## print of values
                         echo NUMBER_OF_VERSION_LINE=\$NUMBER_OF_VERSION_LINE
                         echo NUMBER_OF_BUILD_DATE_TIME=\$NUMBER_OF_BUILD_DATE_TIME"
                 fi
         # update environment.json file
         /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
         # generate links for web-version of application
-	if [ $BRANCHNAME == "feature/refactoring" ];
+        if [ $BRANCHNAME == "master" ];
         then
-        	echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/index_admin.html"
-        	echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/index_editor.html"
-        	echo reader-link-$i-$ENVIRONMENT="$BRAND_URL/reader/index_reader.html"
-        	echo portal-link-$i-$ENVIRONMENT="$BRAND_URL/portal/index_portal.html"
-	else
-        	echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/dist/app/index_admin.html"
-        	echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/dist/app/index_editor.html"
-        	echo reader-link-$i-$ENVIRONMENT="$BRAND_URL/reader/dist/app/index_reader.html"
-        	echo portal-link-$i-$ENVIRONMENT="$BRAND_URL/portal/dist/app/index_portal.html"
-	fi
+                echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/dist/app/index_admin.html"
+                echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/dist/app/index_editor.html"
+                echo reader-link-$i-$ENVIRONMENT="$BRAND_URL/reader/dist/app/index_reader.html"
+                echo portal-link-$i-$ENVIRONMENT="$BRAND_URL/portal/dist/app/index_portal.html"
+        else
+                echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/index_admin.html"
+                echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/index_editor.html"
+                echo reader-link-$i-$ENVIRONMENT="$BRAND_URL/reader/index_reader.html"
+                echo portal-link-$i-$ENVIRONMENT="$BRAND_URL/portal/index_portal.html"
+        fi
 done

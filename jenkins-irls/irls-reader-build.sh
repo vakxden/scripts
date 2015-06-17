@@ -147,11 +147,11 @@ do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-        if [ $BRANCHNAME == "feature/refactoring" ];
+        if [ $BRANCHNAME == "master" ];
         then
-                cd $WORKSPACE/$READER_REPONAME/build
-        else
                 cd $WORKSPACE/$READER_REPONAME/client
+        else
+                cd $WORKSPACE/$READER_REPONAME/build
         fi
         ### Build client and server parts
         if [ $BRANCHNAME == "master" ];
@@ -159,42 +159,31 @@ do
                 time node compileHandlebars.js
                 time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt
-        elif [ $BRANCHNAME == "feature/refactoring" ];
-        then
+        else
                 npm cache clear
                 npm install grunt-compile-handlebars
                 time node index.target.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
                 time grunt
-
-        else
-                npm cache clear
-                npm install grunt-compile-handlebars
-                time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
-                time grunt production
-                cd $WORKSPACE/$READER_REPONAME/server
-                time grunt
-                cd $WORKSPACE/$READER_REPONAME/client
-        fi
+	fi
         rm -rf $CB_DIR
-        if [ $BRANCHNAME == "feature/refactoring" ];
+        if [ $BRANCHNAME == "master" ];
         then
-                mkdir -p $CB_DIR/build $CB_DIR/targets
-                time rsync -lr --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
-                #time rsync -r --delete $WORKSPACE/$READER_REPONAME/build/out/ $CB_DIR/build/
-                time rsync -lr --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
-        else
                 mkdir -p $CB_DIR/client $CB_DIR/targets
                 time rsync -lr --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
                 time rsync -lr --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
                 time rsync -lr --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
+        else
+                mkdir -p $CB_DIR/build $CB_DIR/targets
+                time rsync -lr --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+                time rsync -lr --delete --exclude ".git" $TARGETS_REPONAME/ $CB_DIR/targets/
         fi
 
         ### Copy meta.json to application directory
-        if [ $BRANCHNAME == "feature/refactoring" ];
+        if [ $BRANCHNAME == "master" ];
         then
-                for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/build/; fi; done
-        else
                 for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
+        else
+                for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/build/; fi; done
         fi
 
         ### Create function for cleaning outdated directories from the directory of current code build
