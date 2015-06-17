@@ -60,8 +60,10 @@ function main_loop {
                 if [ $BRANCHNAME == "master" ];
                 then
                         time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		elif [ $BRANCHNAME == "feature/refactoring" ];
+                then
+                        time node index.js --platform=ios --workspace=$WORKSPACE --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 else
-                        cordova -v
                         time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 fi
                 #unlock keychain
