@@ -106,7 +106,7 @@ do
                 fi
                 RSYNC_FACETS_DIR="/home/dvac/rsync_facets/$i"
                 # variables for product versioning
-                SPRINT=$(grep version $STAGE_PKG_DIR/packages/package.json | awk -F '"|"' '{print $4}')
+                SPRINT=$(grep version $STAGE_PKG_DIR/packages/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}')
                 BUILD_NUMBER=$(grep buildnumber $STAGE_PKG_DIR/packages/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}')
                 BUILD_DATE=$(grep builddate $STAGE_PKG_DIR/packages/$BUILD_INFO_JSON | awk -F '"|"' '{print $4}' | sed -e 's#(#\\(#g' -e 's#)#\\)#g')
                 BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
