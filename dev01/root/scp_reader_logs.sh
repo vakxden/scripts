@@ -1,9 +1,8 @@
 #!/bin/bash
 
-TARGET=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/targets.json | awk -F '"|"' '{print $2}' | sed '/^$/d' | sed '1d'))
+TARGET=($(curl -s http://wpp.isd.dp.ua/irls-reader-artifacts/targets.json | awk -F '"|"' '{print $4}' | sed '/^$/d' | sed '1d'))
 BRANCH="develop"
 ENVIRONMENT=(current stage)
-ART_DIR="/home/jenkins/irls-reader-artifacts"
 REMOTE_LOGS_PATH="/opt/dev01-logs/reader"
 REMOTE_LOGSTASH_CONF_DIR="/opt/logstash/conf"
 REMOTE_KIBANA_DASHBOARD_PATH="/usr/share/kibana3/app/dashboards"
@@ -16,6 +15,13 @@ ssh $SSH_USER@$SSH_HOST "if [ ! -d $REMOTE_LOGSTASH_CONF_DIR ]; then mkdir -p $R
 
 for environment in "${ENVIRONMENT[@]}"
 do
+        if [ "$environment" == "current" ];
+        then
+                ART_DIR="/home/jenkins/irls-reader-artifacts"
+        elif [ "$environment" == "stage" ];
+        then
+                ART_DIR="/home/jenkins/irls-reader-artifacts-stage"
+        fi
         for target in "${TARGET[@]}"
         do
 
