@@ -68,7 +68,8 @@ function generate_localjson {
         LOCAL_CONFIG_JSON_FILE="local.config.json"
         cat /dev/null > $LOCAL_CONFIG_JSON_FILE
         echo '{' >> $LOCAL_CONFIG_JSON_FILE
-        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+        #echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
+        echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
         echo -e '\t"listenPort"':$GENERATED_PORT, >> $LOCAL_CONFIG_JSON_FILE
         echo -e '\t"database_name": "'$FACETS'",' >> $LOCAL_CONFIG_JSON_FILE
         echo -e '\t"environment_name": "'$CURRENT'"' >> $LOCAL_CONFIG_JSON_FILE

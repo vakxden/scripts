@@ -83,23 +83,17 @@ for i in "${TARGET[@]}"
 do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
-        cd $WORKSPACE/$READER_REPONAME/client
+        cd $WORKSPACE/$READER_REPONAME/build
         ### Build client and server parts
-        npm install grunt-compile-handlebars
-        time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
-        time grunt production
-        #cd $WORKSPACE/$READER_REPONAME/client
-        #time node compileHandlebars.js
-        ### Build client and server parts
-        #time node index.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
-        #time grunt verify
-        #time grunt productionCompile
+	npm cache clear
+	npm install grunt-compile-handlebars
+	node index.target.js --target=$i --targetPath=$WORKSPACE/$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
+	grunt
         ### Copy code of project to the directory $CURRENT_BUILD and removing outdated directories from the directory $CURRENT_BUILD (on the host dev01)
         rm -rf $CB_DIR
-        mkdir -p $CB_DIR/client $CB_DIR/targets
-        time rsync -r --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
-        time rsync -r --delete $WORKSPACE/$READER_REPONAME/client/out/dist/ $CB_DIR/client/
-        time rsync -r --delete --exclude ".git" $WORKSPACE/$TARGETS_REPONAME/ $CB_DIR/targets/
+	mkdir -p $CB_DIR/build $CB_DIR/targets
+	time rsync -lr --delete --exclude ".git" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
+	time rsync -lr --delete --exclude ".git" $WORKSPACE/$TARGETS_REPONAME/ $CB_DIR/targets/
         ### Create function for cleaning outdated directories from the directory of current code build
         function build_dir_clean (){
                 # Numbers of directories in the $CURRENT_BUILD/
