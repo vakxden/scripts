@@ -99,9 +99,9 @@ do
                 # Numbers of directories in the $CURRENT_BUILD/
                 NUM=$(ls -d $1/* | wc -l)
                 echo NUM=$NUM
-                # If number of directories is more than 20, then we will remove all directories except the 20 most recent catalogs
-                if (( $NUM > 20 )); then
-                        HEAD_NUM=$(($NUM-20))
+                # If number of directories is more than 5, then we will remove all directories except the 5 most recent catalogs
+                if (( $NUM > 5 )); then
+                        HEAD_NUM=$(($NUM-5))
                         echo HEAD_NUM=$HEAD_NUM
                         for k in $(ls -lahtrd $1/* | head -$HEAD_NUM | awk '{print $9}')
                         do
