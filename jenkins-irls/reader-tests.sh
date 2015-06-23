@@ -9,7 +9,7 @@ export PATH=$PATH:$NODE_HOME/bin
 ENV_CONFIG="$WORKSPACE/$READER_REPONAME/tests/data/environmentConfig.json"
 cat $ENV_CONFIG
 cat /dev/null > $ENV_CONFIG
-echo -e '{\n"url":"http://irls-autotests.design.isd.dp.ua/irls/test/reader/$TARGET/$BRANCHNAME/"\n}' >> $ENV_CONFIG
+echo -e '{\n"url":"http://irls-autotests.design.isd.dp.ua/irls/test/reader/'$TARGET'/'$BRANCHNAME'/"\n}' >> $ENV_CONFIG
 cat $ENV_CONFIG
 ### Running tests
 cd $WORKSPACE/$READER_REPONAME/tests/spec
