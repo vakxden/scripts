@@ -54,7 +54,7 @@ fi
 CURRENT_BUILD=$HOME/irls-reader-current-build
 if [ "$BRANCHNAME" == "feature/conversion_result_caching" ]; then
         CURRENT_EPUBS=$HOME/irls-reader-current-epubs/feature/conversion_result_caching
-elif [ "$BRANCHNAME" != "master" ]; then
+elif [ "$BRANCHNAME" != "master" ] && [ "$BRANCHNAME" != "audio" ]; then
         CURRENT_EPUBS=$HOME/irls-reader-current-epubs/develop
 else
         CURRENT_EPUBS=$HOME/irls-reader-current-epubs/$BRANCHNAME
@@ -147,14 +147,14 @@ do
         GIT_COMMIT_TARGET=$(echo "$GIT_COMMIT"-"$i")
         CB_DIR="$CURRENT_BUILD/$GIT_COMMIT_TARGET" #code built directory
         CB_REMOTE_DIR="$CURRENT_REMOTE_BUILD/$GIT_COMMIT_TARGET" #remote (on mac-mini host) code built directory
-        if [ $BRANCHNAME == "master" ];
+        if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
         then
                 cd $WORKSPACE/$READER_REPONAME/client
         else
                 cd $WORKSPACE/$READER_REPONAME/build
         fi
         ### Build client and server parts
-        if [ $BRANCHNAME == "master" ];
+        if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
         then
                 time node compileHandlebars.js
                 time node index.js --target=$i --targetPath=$TARGETS_REPONAME --readerPath=$WORKSPACE/$READER_REPONAME
@@ -166,7 +166,7 @@ do
                 time grunt
 	fi
         rm -rf $CB_DIR
-        if [ $BRANCHNAME == "master" ];
+        if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
         then
                 mkdir -p $CB_DIR/client $CB_DIR/targets
                 time rsync -lr --delete --exclude ".git" --exclude "client" $WORKSPACE/$READER_REPONAME/ $CB_DIR/
@@ -179,7 +179,7 @@ do
         fi
 
         ### Copy meta.json to application directory
-        if [ $BRANCHNAME == "master" ];
+        if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
         then
                 for k in "${deploymentPackageId[@]}"; do if [[ $k == *$i ]]; then echo "copying meta.json for $k" && cp $ARTIFACTS_DIR/$k/meta.json $CB_DIR/client/; fi; done
         else

@@ -65,24 +65,28 @@ done
 
                 function generate_localjson {
                         ### Create file local.config.json ( old name - "local.json")
-                        #LOCAL_CONFIG_JSON_FILE="local.json"
-                        LOCAL_CONFIG_JSON_FILE="local.config.json"
-                        #if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/server/config; fi
-                        #if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/config; fi
+                        if [ $BRANCHNAME_WITH_SLASH == "master" ] || [ $BRANCHNAME_WITH_SLASH == "audio" ];
+                        then
+                                LOCAL_CONFIG_JSON_FILE="local.json"
+                                if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/server/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/server/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/server/config; fi
+                                if [ ! -d /home/jenkins/$ARTDIR/$ID/packages/config/ ]; then mkdir -p /home/jenkins/$ARTDIR/$ID/packages/config/ && chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID/packages/config; fi
+                                cd /home/jenkins/$ARTDIR/$ID/packages/server/config/
+                        else
+                                LOCAL_CONFIG_JSON_FILE="local.config.json"
+                                cd /home/jenkins/$ARTDIR/$ID/packages/config/
+                        fi
                         chown -Rf jenkins:jenkins /home/jenkins/$ARTDIR/$ID
-                        #cd /home/jenkins/$ARTDIR/$ID/packages/server/config/
-                        cd /home/jenkins/$ARTDIR/$ID/packages/config/
                         cat /dev/null > $LOCAL_CONFIG_JSON_FILE
                         echo '{' >> $LOCAL_CONFIG_JSON_FILE
                         if [ "$1" = "current" ]; then
-                                if [ $BRANCHNAME_WITH_SLASH == "master" ];
+                                if [ $BRANCHNAME_WITH_SLASH == "master" ] || [ $BRANCHNAME_WITH_SLASH == "audio" ];
                                 then
                                         echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
                                 else
                                         echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts/'$ID'/packages/build/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
                                 fi
                         elif [ "$1" = "stage" ]; then
-                                if [ $BRANCHNAME_WITH_SLASH == "master" ];
+                                if [ $BRANCHNAME_WITH_SLASH == "master" ] || [ $BRANCHNAME_WITH_SLASH == "audio" ];
                                 then
                                         echo -e '\t"libraryDir" : "/home/jenkins/irls-reader-artifacts-stage/'$ID'/packages/client/dist/app/epubs/",' >> $LOCAL_CONFIG_JSON_FILE
                                 else

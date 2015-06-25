@@ -98,7 +98,7 @@ do
                 BRAND_URL="https://wpps.isd.dp.ua/irls/$ENVIRONMENT/reader/$i/$BRANCH"
         elif [ $ENVIRONMENT == public ]; then
                 BRAND_URL="https://irls.isd.dp.ua/$i/$BRANCH"
-                if [ $BRANCHNAME == "master" ];
+                if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
                 then
                         BUILD_INFO_JSON="client/dist/app/build.config.json"
                 else
@@ -125,6 +125,7 @@ do
                         NUM_OF_LINE=$(grep "brandUrl" server/config/brandConfig.json -n | awk -F ":" '{print $1}')
                         sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"$BRAND_URL/portal/\",#g" server/config/brandConfig.json
                 fi
+		mv client/main-built.js client/dist/app/main-built-reader.js
                 # run (re-run) node
                 start_node $CURRENT_PKG_DIR/packages $INDEX_FILE
         elif [ $ENVIRONMENT == stage ]; then
@@ -205,7 +206,7 @@ do
         # update environment.json file
         /home/jenkins/scripts/search_for_environment.sh "${combineArray[$i]}" "$ENVIRONMENT"
         # generate links for web-version of application
-        if [ $BRANCHNAME == "master" ];
+        if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ] ;
         then
                 echo admin-link-$i-$ENVIRONMENT="$BRAND_URL/admin/dist/app/index_admin.html"
                 echo editor-link-$i-$ENVIRONMENT="$BRAND_URL/editor/dist/app/index_editor.html"

@@ -1,8 +1,9 @@
+rm -rf $WORKSPACE/*
 ### Variables
 ARTIFACTS_DIR=$HOME/irls-reader-artifacts
 if [ "$BRANCHNAME" == "feature/conversion_result_caching" ]; then
         CURRENT_EPUBS=$HOME/irls-reader-current-epubs/feature/conversion_result_caching
-elif [ "$BRANCHNAME" != "master" ]; then
+elif [ "$BRANCHNAME" != "master" ] && [ "$BRANCHNAME" != "audio" ]; then
         CURRENT_EPUBS=$HOME/irls-reader-current-epubs/develop
 else
         CURRENT_EPUBS=$HOME/irls-reader-current-epubs/$BRANCHNAME
@@ -33,11 +34,12 @@ function main_loop {
         notmainloop ()
         {
                 # createing of web-package
-                cd $WORKSPACE/build
-                if [ $BRANCHNAME == "master" ];
+                if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
                 then
+                	cd $WORKSPACE/packager
                         time node index.js --platform=web --config=$WORKSPACE/targets --from=$WORKSPACE/client --manifest=$WORKSPACE/client/package.json --prefix=$PREFIX- --epubs=$CURRENT_EPUBS
                 else
+                	cd $WORKSPACE/build
                         time node index.js --platform=web --workspace=$WORKSPACE --prefix=$PREFIX- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 fi
                 cd $WORKSPACE
@@ -45,9 +47,10 @@ function main_loop {
                 if [ ! -d $ARTIFACTS_DIR/${combineArray[$i]}/packages ]; then
                         mkdir -p $ARTIFACTS_DIR/${combineArray[$i]}/packages
                 fi
-                if [ $BRANCHNAME == "master" ];
+                if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
                 then
-			mv $WORKSPACE/build/out/dest/*/*  $WORKSPACE/client/
+			rm -rf $WORKSPACE/client/lib
+			mv $WORKSPACE/packager/out/dest/*/*  $WORKSPACE/client/
                 	time rsync -lr --exclude "tests" --exclude "build" --exclude "targets" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
                 else
                 	time rsync -lr --exclude "tests" --exclude "targets" --exclude "build/node_modules" $WORKSPACE/ $ARTIFACTS_DIR/${combineArray[$i]}/packages/
