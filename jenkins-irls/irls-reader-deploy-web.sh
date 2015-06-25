@@ -125,7 +125,10 @@ do
                         NUM_OF_LINE=$(grep "brandUrl" server/config/brandConfig.json -n | awk -F ":" '{print $1}')
                         sed -i "$NUM_OF_LINE""s#\"brandUrl.*#\"brandUrl\": \"$BRAND_URL/portal/\",#g" server/config/brandConfig.json
                 fi
-		mv client/main-built.js client/dist/app/main-built-reader.js
+                if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
+		then
+			if [ -f client/main-built.js ]; then  mv client/main-built.js client/dist/app/main-built-reader.js; fi
+		fi
                 # run (re-run) node
                 start_node $CURRENT_PKG_DIR/packages $INDEX_FILE
         elif [ $ENVIRONMENT == stage ]; then
