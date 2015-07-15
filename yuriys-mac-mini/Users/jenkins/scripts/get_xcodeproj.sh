@@ -29,15 +29,16 @@ git fetch --all
 echo "git checkout origin/master for targets repo"
 git checkout origin/master
 
-cd /Users/jenkins/git/product/client
+cd /Users/jenkins/git/product/build
 echo "Start build and verify"
 npm install grunt-compile-handlebars
 #node compileHandlebars.js
 node index.js --target=$TARGETNAME --targetPath=/Users/jenkins/git/targets --readerPath=/Users/jenkins/git/product
 #grunt verify
 #grunt productionCompile
-grunt production
-cp -Rf /Users/jenkins/git/product/client/out/dist/* /Users/jenkins/git/product/client/
+#grunt production
+grunt
+cp -Rf /Users/jenkins/git/product/build/out/dist/* /Users/jenkins/git/product/build/
 if [ ! -d /Users/jenkins/git/product/build/build ]; then mkdir -p /Users/jenkins/git/product/build/build; fi
 if [ -d /Users/jenkins/build_re/$BRANCHNAME ]; then
         cp -Rf /Users/jenkins/build_re/$BRANCHNAME/phonegap-plugins /Users/jenkins/git/product/build/build/
@@ -45,8 +46,8 @@ else
         cp -Rf /Users/jenkins/build_re/develop/phonegap-plugins /Users/jenkins/git/product/build/build/
 fi
 cd /Users/jenkins/git/product/build
-echo "{}" > /Users/jenkins/git/product/client/meta.json
-node index.js --platform=ios --config=/Users/jenkins/git/targets --from=/Users/jenkins/git/product/client --prefix=$BRANCH- --epubs=/Users/jenkins/irls-reader-current-epubs
+echo "{}" > /Users/jenkins/git/product/build/meta.json
+node index.js --platform=ios --config=/Users/jenkins/git/targets --from=/Users/jenkins/git/product/build --prefix=$BRANCH- --epubs=/Users/jenkins/irls-reader-current-epubs
 
 if [ $? -eq 0 ]
 then

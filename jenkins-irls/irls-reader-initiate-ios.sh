@@ -57,10 +57,10 @@ function main_loop {
                         cp -Rf ~/build_re/develop/phonegap-plugins $WORKSPACE/build/build
                 fi
                 cd $WORKSPACE/build
-                if [ $BRANCHNAME == "master" ];
-                then
-                        time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
-		elif [ $BRANCHNAME == "master" ];
+                #if [ $BRANCHNAME == "master" ];
+                #then
+                #        time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS
+		if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
                 then
                         time node index.js --platform=ios --config=$WORKSPACE/targets --from=$WORKSPACE/client --prefix=$BRANCH- --epubs=$CURRENT_EPUBS --buildnumber=$BUILD_NUMBER --builddate="$BUILD_DATE"
                 else

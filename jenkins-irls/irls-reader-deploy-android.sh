@@ -76,8 +76,8 @@ function repack {
         unzip $APK_FILE_NAME
         # removing of apk-file
         rm -f $APK_FILE_NAME
-        # adding or changing of "currentURL" option from build.info.json config file
-        if [ $BRANCHNAME == "master" ];
+        # adding or changing of "currentURL" option from build.config.json config file
+	if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
         then
                 BUILD_INFO_JSON="www/dist/app/build.config.json"
         else
@@ -196,7 +196,7 @@ do
 
                         BUILD_VERSION_JSON="/home/dvac/apache2/var/www/portal/build.version.json"
                         SPRINT=$(grep version $STAGE_PKG_DIR/package.json | awk -F '"|"' '{print $4}')
-                        if [ $BRANCHNAME == "master" ];
+			if [ $BRANCHNAME == "master" ] || [ $BRANCHNAME == "audio" ];
                         then
                                 BUILD_INFO_JSON="client/dist/app/build.config.json"
                         else
