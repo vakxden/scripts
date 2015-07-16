@@ -33,12 +33,13 @@ cd /Users/jenkins/git/product/build
 echo "Start build and verify"
 npm install grunt-compile-handlebars
 #node compileHandlebars.js
-node index.js --target=$TARGETNAME --targetPath=/Users/jenkins/git/targets --readerPath=/Users/jenkins/git/product
+node index.target.js --target=$TARGETNAME --targetPath=/Users/jenkins/git/targets --readerPath=/Users/jenkins/git/product
 #grunt verify
 #grunt productionCompile
 #grunt production
 grunt
-cp -Rf /Users/jenkins/git/product/build/out/dist/* /Users/jenkins/git/product/build/
+#cp -Rf /Users/jenkins/git/product/build/out/dist/* /Users/jenkins/git/product/build/
+cp -Rf /Users/jenkins/git/product/build/out/* /Users/jenkins/git/product/build/
 if [ ! -d /Users/jenkins/git/product/build/build ]; then mkdir -p /Users/jenkins/git/product/build/build; fi
 if [ -d /Users/jenkins/build_re/$BRANCHNAME ]; then
         cp -Rf /Users/jenkins/build_re/$BRANCHNAME/phonegap-plugins /Users/jenkins/git/product/build/build/
@@ -47,7 +48,9 @@ else
 fi
 cd /Users/jenkins/git/product/build
 echo "{}" > /Users/jenkins/git/product/build/meta.json
-node index.js --platform=ios --config=/Users/jenkins/git/targets --from=/Users/jenkins/git/product/build --prefix=$BRANCH- --epubs=/Users/jenkins/irls-reader-current-epubs
+#node index.js --platform=ios --config=/Users/jenkins/git/targets --from=/Users/jenkins/git/product/build --prefix=$BRANCH- --epubs=/Users/jenkins/irls-re
+BUILD_DATE=$(date)
+node index.js --platform=ios --workspace=/Users/jenkins/git/product --prefix=$BRANCH- --epubs=/Users/jenkins/irls-reader-current-epubs --buildnumber="user
 
 if [ $? -eq 0 ]
 then
@@ -62,3 +65,4 @@ echo "Good news, username!"
 echo "The xcode-project will be located at the following path: "
 echo /Users/jenkins/git/product/build/out/dest/platforms/ios/$BRANCH-$BRAND\_Reader-$TARGETNAME.xcodeproj
 echo ""
+
